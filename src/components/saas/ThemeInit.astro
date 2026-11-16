@@ -1,0 +1,10 @@
+<script is:inline>
+  try {
+    const demo = new URLSearchParams(location.search).get('demo') === '1';
+    const id = demo ? 'demo-me' : localStorage.getItem('orbita:theme-user');
+    const mode = id && localStorage.getItem('orbita:theme:' + id) === 'dark' ? 'dark' : 'light';
+    document.documentElement.classList.add('theme-' + mode);
+    document.documentElement.dataset.theme = mode;
+    document.documentElement.style.colorScheme = mode;
+  } catch {}
+</script>

@@ -1,0 +1,57 @@
+---
+import {uiPaths} from "@/lib/saas/icons";
+interface Props {
+  name: string;
+  size?: number;
+}
+const { name, size = 20 } = Astro.props;
+const paths: Record<string, string> = {
+  home: "M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z",
+  grid: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z",
+  canvas: "M3 7V3h4m10 0h4v4M3 17v4h4m10 0h4v-4M8 8h8v8H8z",
+  check: "m5 12 4 4L19 6",
+  tasks: "M9 5h12M9 12h12M9 19h12M3 5h.01M3 12h.01M3 19h.01",
+  calendar:
+    "M8 2v4m8-4v4M3 10h18M4 4h16a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z",
+  chart: "M3 3v18h18M7 14l4-5 4 3 6-8",
+  page: "M14 2H5a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8Zm0 0v6h6M8 13h8m-8 4h5",
+  plug: "m8 3 2 4m6-6 2 4M6 9l12-4 1 4a6 6 0 0 1-4 7l-1 1 1 4M6 9l1 4a6 6 0 0 0 7 4",
+  settings:
+    "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-8 2-2 1v2l2 1 1 2v2l2 1 2-1h3l2 1 2-1v-2l1-2 2-1v-2l-2-1-1-2V6l-2-1-2 1H9L7 5 5 6v2Z",
+  search: "M21 21l-5-5M10 3a7 7 0 1 0 0 14 7 7 0 0 0 0-14Z",
+  plus: "M12 5v14M5 12h14",
+  arrow: "M5 12h14m-5-5 5 5-5 5",
+  down: "m6 9 6 6 6-6",
+  bell: "M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4",
+  export: "M12 3v12m-4-4 4 4 4-4M4 15v6h16v-6",
+  more: "M5 12h.01M12 12h.01M19 12h.01",
+  link: "M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2",
+  clock: "M12 8v5l3 2M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z",
+  mail: "M3 5h18v14H3Zm0 1 9 7 9-7",
+  users:
+    "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8 1a4 4 0 0 1 0 7m5 10v-2a4 4 0 0 0-3-4",
+  close: "m6 6 12 12M6 18 18 6",
+  cursor: "m5 3 14 10-7 1-3 7Z",
+  hand: "M8 13V5a2 2 0 0 1 4 0v7-9a2 2 0 0 1 4 0v9-7a2 2 0 0 1 4 0v10c0 5-4 7-8 7-3 0-5-2-7-5l-3-5a2 2 0 0 1 3-2Z",
+  image: "M3 3h18v18H3Zm0 14 6-6 5 5 3-3 4 4M15 7h.01",
+  logout: "M9 4H3v16h6m6-12 4 4-4 4m-6-4h11",
+  shield: "m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6Zm-4 9 3 3 5-6",
+  target:
+    "M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z",
+  sun: "M12 3v2m0 14v2M3 12h2m14 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
+  menu: "M3 6h18M3 12h18M3 18h18",
+  cart: "M2 3h3l3 13h11l3-9H6m3 14h.01M18 21h.01",
+};
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.65"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"><path d={uiPaths[name] || paths[name] || paths.grid}></path></svg
+>

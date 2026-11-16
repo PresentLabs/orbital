@@ -1,0 +1,113 @@
+---
+import ThemeInit from "@/components/saas/ThemeInit.astro";
+import Icon from "@/components/saas/Icon.astro";
+import "@/styles/fonts.css";
+import "@/styles/global.css";
+import "@/styles/workspace.css";
+import { payload } from "@/lib/saas/server";
+import { validLogo } from "@/lib/saas/formats";
+const user = Astro.locals.workspaceUser;
+const branding = user ? await payload(Astro, "branding").catch(() => null) : null;
+const workspace = user?.workspace as { id?: number; name?: string } | null | undefined;
+const business = branding?.name || workspace?.name || (user ? "Mi negocio" : "Punto Pixel");
+const logo = branding?.logoData && validLogo(branding.logoData) ? branding.logoData : "";
+const session = user ? {
+  id: user.id, name: user.name, firstName: user.firstName, lastName: user.lastName,
+  email: user.email, phone: user.phone, jobTitle: user.jobTitle, avatarData: user.avatarData,
+  role: user.role, permissions: user.permissions, workspace: { id: workspace?.id ?? user.workspace, name: business },
+} : null;
+const { title = "Vista general" } = Astro.props;
+
+---
+
+<!doctype html>
+<html lang="es">
+  <head
+    ><ThemeInit /><meta charset="UTF-8" /><meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    /><meta name="robots" content="noindex,nofollow" /><meta
+      name="theme-color"
+      content="#ffffff"
+    /><title>{title} · Orbital</title><meta
+      name="description"
+      content="Tu negocio, tus ideas y tu equipo. Un solo espacio para hacerlo crecer."
+    /></head
+  >
+  <body class="orbita" data-workspace-user={session ? JSON.stringify(session) : undefined}
+    data-branding={branding ? JSON.stringify({ currency: branding.currency, timezone: branding.timezone }) : undefined}
+    ><a class="skip-workspace" href="#workspace-main">Ir al contenido</a>
+    <aside class="sidebar" id="sidebar">
+      <a href="/app" class="brand" aria-label={logo ? business : "Orbital"}>
+        {logo ? <img src={logo} alt={business} class="business-logo" /> :
+          (!user || branding) && <><span class="brand-symbol">✳</span> orbital<span class="brand-period">®</span></>}
+      </a>
+      <button class="sidebar-search" data-action="search"
+        ><Icon name="search" size={17} /><span>Buscar algo...</span><kbd
+          >⌘ K</kbd
+        ></button
+      >
+      <div class="sidebar-navigation" hidden={!!user}><p class="nav-label">INICIO</p>
+<nav aria-label="Navegación principal"><button class="nav-item" data-view="overview"><Icon name="home" size={19}/><span>Vista general</span></button><div id="store-navigation"><button class="nav-item" data-action="toggle-store" aria-expanded="false" aria-controls="store-submenu"><Icon name="cart" size={19}/><span>Tienda</span><Icon name="down" size={14}/></button><div id="store-submenu" class="store-submenu" hidden><button data-view="analytics">Métricas</button><button data-view="orders">Pedidos</button><button data-view="invoices">Facturas y boletas</button><button data-view="customers">Clientes</button></div></div><div class="nav-section-label">TRABAJO EN EQUIPO</div><button class="nav-item" title="Conecta ideas en un lienzo" data-view="canvas"><span class="sidebar-section-icon sidebar-section-espacios" aria-hidden="true"></span><span>Espacios</span></button><button class="nav-item" title="Organiza acciones y pendientes" data-view="tasks"><span class="sidebar-section-icon sidebar-section-tareas" aria-hidden="true"></span><span>Tareas</span><span id="task-count" class="nav-count">5</span></button><button class="nav-item" data-view="pages"><span class="sidebar-section-icon sidebar-section-notas" aria-hidden="true"></span><span>Notas</span></button><button class="nav-item" data-view="calendar"><Icon name="calendar" size={19}/><span>Calendario</span></button><button class="nav-item" data-view="files"><Icon name="folder" size={19}/><span>Archivos</span></button><div class="nav-section-label">EMPRESA</div><button class="nav-item" data-view="documents"><Icon name="page" size={19}/><span>Documentos</span></button><button class="nav-item" data-view="vault"><Icon name="shield" size={19}/><span>Accesos</span></button><div class="team-navigation"><button class="nav-item" data-action="toggle-team" aria-expanded="false" aria-controls="team-submenu"><Icon name="users" size={19}/><span>Equipo</span><Icon name="down" size={14}/></button><div id="team-submenu" class="store-submenu team-submenu" hidden><button data-view="team">Personas</button><button data-view="polls">Votaciones</button></div></div></nav>
+      <div class="sidebar-divider"></div><div class="nav-label space-label">
+        <button class="private-index-link" data-action="private-home">MI ÁREA PRIVADA</button><button aria-label="Agregar a mi área privada" data-action="private-create"
+          ><Icon name="plus" size={14} /></button>
+      </div>
+      <div class="private-navigation" id="private-navigation"></div><div id="spaces-list" hidden></div></div>
+      <div class="sidebar-bottom">
+<button class="nav-item" data-view="settings"
+          ><Icon name="settings" size={19} />Configuración</button
+        ><div class="plan-card">
+          <span class="plan-icon">✧</span><strong>Espacio para crecer</strong><p
+          >
+            Grandes ideas. Posibilidades infinitas.
+          </p><button data-action="plan"
+            >Conoce Orbital Pro <span>↗</span></button>
+        </div><button class="profile" data-action="profile"
+          ><span class="avatar my-avatar" id="profile-avatar">CD</span><span
+            ><strong id="profile-name">Hola</strong><small
+              id="profile-role">Explora a tu ritmo</small
+            ></span
+          ><Icon name="more" size={18} /></button>
+      </div>
+    </aside>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="breadcrumbs">
+          <button
+            class="icon-btn mobile-toggle"
+            aria-label="Abrir navegación"
+            data-action="menu"><Icon name="menu" /></button
+          ><span>{business}</span><span class="crumb-slash">/</span><strong
+            id="breadcrumb">Vista general</strong>
+        </div><div class="topbar-right">
+          <span class="save-state" id="save-state"
+            ><span></span>Guardado en este dispositivo</span
+          ><button class="icon-btn header-mode-toggle tooltip-control" type="button" data-theme-toggle aria-label="Cambiar a modo oscuro" data-tooltip="Cambiar a modo oscuro"><Icon name="sun" size={17}/></button><button class="icon-btn header-mode-toggle money-switch tooltip-control" id="money-visibility" type="button" data-money-toggle aria-label="Mostrar montos" data-tooltip="Mostrar montos"><Icon name="percent" size={17}/></button><button
+            class="icon-btn notification-trigger"
+            aria-label="Notificaciones"
+            data-action="notifications"
+            ><Icon name="bell" size={19} /><span class="notification-count" id="notification-count" hidden>0</span><span id="vote-notification" class="vote-notification" hidden aria-hidden="true">Vota</span></button
+          ><span class="top-divider"></span><button class="avatar my-avatar small" data-action="profile" aria-label="Mi cuenta"
+            >CD</button>
+        </div>
+      </header>
+      {user && <p id="workspace-loading" role="status">Cargando tu espacio de trabajo…</p>}
+      <main id="workspace-main" tabindex="-1" hidden={!!user}><slot /></main>
+      <footer class="app-footer">
+        <span
+          ><span class="status-dot"></span>Tu negocio, organizado a tu manera.</span
+        ><span
+          >Orbital · Tu espacio de trabajo <span class="footer-star">✳</span></span>
+      </footer>
+    </div>
+    <dialog id="editor-dialog" class="editor-dialog">
+      <button type="button" class="modal-x" data-close aria-label="Cerrar ventana">×</button>
+      <div id="dialog-content"></div>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+      import "@/scripts/workspace";
+    </script>
+  </body>
+</html>

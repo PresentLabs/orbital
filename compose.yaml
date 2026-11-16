@@ -1,0 +1,81 @@
+services:
+  astro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: astro
+      args:
+        PUBLIC_SITE_URL: ${APP_URL:?}
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4345
+      ORBITAL_PUBLIC_ORIGIN: ${APP_URL:?}
+      PAYLOAD_URL: http://payload:3001
+      REALTIME_SECRET: ${REALTIME_SECRET:?}
+      PUBLIC_REALTIME_URL: ${PUBLIC_REALTIME_URL:?}
+      INTEGRATIONS_SECRET: ${INTEGRATIONS_SECRET:?}
+    restart: unless-stopped
+    expose: ["4345"]
+    depends_on: [payload]
+
+  payload:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payload
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3001
+      DATABASE_URL: postgresql://orbita:${POSTGRES_PASSWORD:?}@postgres:5432/orbita
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      INVITATION_FROM: ${INVITATION_FROM:-}
+      PRIVATE_CANVAS_SECRET: ${PRIVATE_CANVAS_SECRET:-}
+      REGISTRATION_CODE: ${REGISTRATION_CODE:?}
+      PAYLOAD_PUBLIC_URL: ${PAYLOAD_PUBLIC_URL:-http://payload:3001}
+      SAAS_PUBLIC_URL: ${APP_URL:?}
+      INTEGRATIONS_SECRET: ${INTEGRATIONS_SECRET:?}
+    command: ["sh", "-c", "npm run migrate && exec node serve.mjs"]
+    restart: unless-stopped
+    expose: ["3001"]
+    volumes:
+      - uploads:/app/uploads
+      - workspace_uploads:/app/uploads-workspace
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  realtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payload
+    command: ["node", "realtime.mjs"]
+    environment:
+      REALTIME_HOST: 0.0.0.0
+      REALTIME_PORT: 3002
+      REALTIME_ORIGIN: ${APP_URL:?}
+      REALTIME_SECRET: ${REALTIME_SECRET:?}
+    restart: unless-stopped
+    expose: ["3002"]
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: orbita
+      POSTGRES_USER: orbita
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "orbita", "-d", "orbita"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  uploads:
+  workspace_uploads:
+  postgres_data:

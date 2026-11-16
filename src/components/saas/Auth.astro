@@ -1,0 +1,178 @@
+---
+import ThemeInit from "@/components/saas/ThemeInit.astro";
+import Icon from "./Icon.astro";
+import "@/styles/fonts.css";
+import "@/styles/global.css";
+import "@/styles/workspace.css";
+const { register = false, invitation = false } = Astro.props;
+const error = Astro.url.searchParams.get("error");
+const messages: Record<string, string> = {
+  credentials:
+    "El correo o la contraseña no son correctos. Intenta nuevamente.",
+  unavailable:
+    "El servicio de acceso no está disponible. Revisa la configuración de Payload.",
+  registration:
+    "No pudimos crear la cuenta. Revisa el código de registro y tus datos.",
+  validation:
+    "Revisa tus datos. La contraseña debe tener al menos 12 caracteres.",
+  origin: "La solicitud no es válida. Recarga la página.",
+};
+---
+
+<!doctype html>
+<html lang="es">
+  <head
+    ><ThemeInit /><meta charset="utf-8" /><meta
+      name="viewport"
+      content="width=device-width,initial-scale=1"
+    /><meta name="robots" content="noindex,nofollow" /><title>
+      {invitation ? "Crea tu contraseña" : register ? "Crear negocio" : "Bienvenido"} · Orbital
+    </title></head
+  ><body class="orbita auth-page"
+    ><aside class="auth-story">
+      <a class="brand" href="/app"
+        ><span class="brand-symbol">✳</span>orbital<span class="brand-period"
+          >®</span
+        ></a
+      ><div class="auth-story-copy">
+        <div class="eyebrow">UN ESPACIO. TODO CONECTADO.</div><h1>
+          Tu próxima<br />gran idea<br />tiene espacio.
+        </h1><p>
+          Tu negocio, tus proyectos y las personas que lo hacen posible. En un
+          mismo lugar.
+        </p><div class="auth-art" aria-hidden="true">
+          <div class="orbit-art">
+            <div class="orbital o1"></div><div class="orbital o2"></div><div
+              class="orbital o3"
+            >
+            </div><div class="orbit-center">✳</div><div
+              class="floating-tile tile-b"
+            >
+              ↗
+            </div><span class="art-spark spark-a">✧</span>
+          </div>
+        </div>
+      </div><span class="auth-story-footer"
+        >Hecho para conectar ideas y hacerlas crecer.</span>
+    </aside><main class="auth-form-side">
+      <div class="auth-form-wrap">
+        {invitation ? <slot /> : <>
+        <div class="eyebrow">
+          {register ? "EMPIEZA ALGO GRANDE" : "QUÉ BUENO TENERTE AQUÍ"}
+        </div><h2>
+          {register ? "Un nuevo comienzo." : "Vuelve a Orbital."}
+        </h2><p>
+          {
+            register
+              ? "Crea un espacio para tu negocio."
+              : "Tu próximo gran paso te está esperando."
+          }
+        </p><form action="/api/saas/auth" method="post">
+          <input
+            type="hidden"
+            name="action"
+            value={register ? "register" : "login"}
+          />{
+            register && (
+              <>
+                <>
+                  <label>
+                    Tu nombre
+                    <input
+                      name="name"
+                      autocomplete="name"
+                      required
+                      maxlength="80"
+                      placeholder="¿Cómo te llamas?"
+                    />
+                  </label>
+                  <label>
+                    Nombre del negocio
+                    <input
+                      name="business"
+                      autocomplete="organization"
+                      required
+                      maxlength="80"
+                      placeholder="El nombre de tu próximo gran proyecto"
+                    />
+                  </label>
+                </>
+              </>
+            )
+          }<label
+            >Correo electrónico<input
+              type="email"
+              name="email"
+              required
+              autocomplete="email"
+              placeholder="hola@tunegocio.cl"
+            /></label
+          ><label
+            >Contraseña<input
+              type="password"
+              name="password"
+              required
+              minlength={register ? 12 : 1}
+              maxlength="128"
+              autocomplete={register ? "new-password" : "current-password"}
+              placeholder={register
+                ? "Al menos 12 caracteres"
+                : "Tu contraseña"}
+            /></label
+          >{
+            register && (
+              <label>
+                Código de registro
+                <input
+                  name="code"
+                  required
+                  autocomplete="off"
+                  placeholder="Código proporcionado por tu administrador"
+                />
+              </label>
+            )
+          }{
+            error && (
+              <p class="auth-error" role="alert">
+                {messages[error] || messages.unavailable}
+              </p>
+            )
+          }<button class="button primary" type="submit"
+            >{register ? "Crear mi espacio" : "Entrar a mi espacio"}<Icon
+              name="arrow"
+              size={16}
+            /></button>
+        </form>{
+          !register && (
+            <>
+              <>
+                <div class="auth-separator">¿Quieres conocer el espacio?</div>
+                <a class="demo-link" href="/app?demo=1">
+                  Explorar la demo <span style="margin-left:8px">↗</span>
+                </a>
+              </>
+            </>
+          )
+        }{
+          register && (
+            <a class="auth-back" href="/acceso">
+              ← Volver al acceso
+            </a>
+          )
+        }</>}<div class="auth-trust">
+          <Icon name="shield" size={13} /><span
+            >Un espacio seguro para lo que estás construyendo.</span>
+        </div>
+      </div>
+    </main><script>
+      document.querySelector('form[action="/api/saas/auth"]')?.addEventListener("submit", () => {
+        const b = document.querySelector<HTMLButtonElement>(
+          'button[type="submit"]',
+        );
+        if (b) {
+          b.disabled = true;
+          b.textContent = "Un momento…";
+        }
+      });
+    </script></body>
+</html>

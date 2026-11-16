@@ -1,0 +1,27 @@
+---
+import Auth from "@/components/saas/Auth.astro";
+Astro.response.headers.set("Referrer-Policy", "no-referrer");
+Astro.response.headers.set("Cache-Control", "no-store");
+---
+<Auth invitation>
+  <h2>Crea tu contraseña</h2>
+  <p>Elige una contraseña para unirte a tu equipo.</p>
+  <form id="invitation-form" method="post" action="/api/saas/accept-invitation">
+    <label>Nueva contraseña
+      <input name="password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" />
+      <small>Al menos 12 caracteres.</small>
+    </label>
+    <label>Repite la contraseña
+      <input name="confirm" type="password" required minlength="12" maxlength="128" autocomplete="new-password" />
+    </label>
+    <p id="invitation-status" role="status"></p>
+    <button type="submit" class="button primary">Crear mi contraseña</button>
+  </form>
+  <a class="auth-back" href="/acceso" id="invitation-login">← Ir a iniciar sesión</a>
+</Auth>
+<script>
+const form=document.querySelector<HTMLFormElement>('#invitation-form')!,status=document.querySelector<HTMLElement>('#invitation-status')!,button=form.querySelector<HTMLButtonElement>('button')!;
+const token=new URLSearchParams(location.hash.slice(1)).get('token');
+if(!token){status.textContent='Abre el enlace que te envió tu administrador. Si venció, pídele uno nuevo.';form.querySelectorAll<HTMLInputElement>('input').forEach(i=>i.disabled=true);button.hidden=true;}
+form.onsubmit=async e=>{e.preventDefault();if(button.disabled)return;const data=new FormData(form),password=String(data.get('password'));if(password!==data.get('confirm')){status.textContent='Las contraseñas no coinciden.';return;}button.disabled=true;status.textContent='Guardando tu contraseña…';try{const r=await fetch('/api/saas/accept-invitation',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token,password})}),result=await r.json();if(!r.ok)throw Error(result.error);form.reset();form.querySelectorAll<HTMLElement>('label').forEach(i=>i.hidden=true);button.hidden=true;status.textContent='Tu contraseña está lista. Ya puedes iniciar sesión.';document.querySelector<HTMLElement>('#invitation-login')!.hidden=false;history.replaceState(null,'',location.pathname);}catch(e){status.textContent=e instanceof Error?e.message:'No pudimos guardar tu contraseña.';button.disabled=false;}};
+</script>
