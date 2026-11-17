@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "paths": { "payload": ["../../services/payload/node_modules/payload"] }
+  },
+  "include": ["payload-ecommerce.ts", "payload-extension/index.ts"]
+}

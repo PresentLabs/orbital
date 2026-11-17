@@ -14,24 +14,33 @@
     "generate:types": "payload generate:types",
     "migrate": "payload migrate",
     "migrate:create": "payload migrate:create",
-    "test": "node --experimental-strip-types --test tests/access.test.mjs tests/images.test.mjs tests/invitations.test.mjs tests/polls.test.mjs tests/private-canvas.test.mjs",
-    "retention": "node --experimental-strip-types retention.mjs"
+    "test": "node --experimental-strip-types --test tests/access.test.mjs tests/images.test.mjs tests/invitations.test.mjs tests/polls.test.mjs tests/private-canvas.test.mjs tests/modules.test.mjs tests/billing.test.mjs",
+    "retention": "node --experimental-strip-types retention.mjs",
+    "test:modules": "node --experimental-strip-types --test tests/modules.test.mjs",
+    "test:billing": "node --experimental-strip-types --test tests/billing.test.mjs",
+    "test:billing-db": "node --experimental-strip-types --test tests/billing-db.test.mjs",
+    "billing:worker": "node --experimental-strip-types billing-worker.mjs",
+    "check:billing-extension": "tsc --project ../../modules/billing-cl/tsconfig.json"
   },
   "dependencies": {
-    "payload": "3.92.1",
-    "@payloadcms/next": "3.92.1",
     "@payloadcms/db-postgres": "3.92.1",
+    "@payloadcms/next": "3.92.1",
+    "graphql": "^16.11.0",
     "next": "^16.2.6",
+    "payload": "3.92.1",
+    "pg": "^8.20.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "graphql": "^16.11.0",
     "sharp": "^0.34.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "dompurify": "3.4.18"
   }
 }

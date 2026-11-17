@@ -1,0 +1,10 @@
+{
+  "id": "billing-cl",
+  "version": "0.3.0",
+  "providers": ["shopify", "woo", "payload"],
+  "requires": ["astro", "payload", "postgresql", "php-cli", "connected-store"],
+  "documents": [33, 39, 56, 61],
+  "environments": ["certification", "production"],
+  "payloadExtension": "/modules/orbital-payload-billing-cl-0.3.0.tgz",
+  "siiCertificationVerified": false
+}

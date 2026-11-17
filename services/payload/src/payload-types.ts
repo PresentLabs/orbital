@@ -67,6 +67,7 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'module-installations': ModuleInstallation;
     users: User;
     workspaces: Workspace;
     documents: Document;
@@ -87,6 +88,7 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'module-installations': ModuleInstallationsSelect<false> | ModuleInstallationsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     workspaces: WorkspacesSelect<false> | WorkspacesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
@@ -138,6 +140,32 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "module-installations".
+ */
+export interface ModuleInstallation {
+  id: number;
+  workspace: number | Workspace;
+  moduleId: string;
+  workspaceKey: string;
+  version: string;
+  enabled?: boolean | null;
+  credentials: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workspaces".
+ */
+export interface Workspace {
+  id: number;
+  name: string;
+  plan?: ('starter' | 'pro') | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -205,17 +233,6 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "workspaces".
- */
-export interface Workspace {
-  id: number;
-  name: string;
-  plan?: ('starter' | 'pro') | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -539,6 +556,20 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "module-installations_select".
+ */
+export interface ModuleInstallationsSelect<T extends boolean = true> {
+  workspace?: T;
+  moduleId?: T;
+  workspaceKey?: T;
+  version?: T;
+  enabled?: T;
+  credentials?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

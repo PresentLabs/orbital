@@ -7,6 +7,7 @@ export function demoPath(path: string, demo = demoMode) {
   return url.pathname + url.search + url.hash;
 }
 export const routeNames: Record<string, string> = {
+  modules: "modulos",
   overview: "vista-general",
   trash: "papelera",
   customers: "tienda/clientes",

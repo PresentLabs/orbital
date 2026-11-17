@@ -47,3 +47,7 @@ Coolify mantiene la base en `postgres_data` y los archivos en `uploads` y `works
 Activa el despliegue automático de la rama `main` en Coolify cuando termines las pruebas. Cada push a esa rama podrá desplegar una nueva versión manteniendo los volúmenes. Si necesitas correo para invitaciones, agrega `RESEND_API_KEY` e `INVITATION_FROM`. [Accesos y notificaciones](docs/ACCESOS-Y-NOTIFICACIONES.md)
 
 Para trabajar solo con Astro en local, ejecuta `npm ci` y `npm run dev` con Node.js 24.22.1 o superior. Abre `http://127.0.0.1:4345/app/?demo=1`. Para el sistema completo usa el Compose con tus variables de entorno y los dominios configurados en Coolify.
+
+## Módulos instalables
+
+La aplicación **Facturación propia · Chile** se instala por negocio desde `/app/modulos`. Usa la tienda activa: Shopify, WooCommerce o el ecommerce oficial de Payload, con permisos y credenciales cifradas por cuenta. Ver [catálogo](modules/README.md), [instalación y arquitectura 0.3.0](modules/billing-cl/README.md) y [verificación local y pendientes](modules/billing-cl/VALIDACION.md).

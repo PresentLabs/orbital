@@ -1,0 +1,22 @@
+{
+  "id": "woo-dte-chile",
+  "version": "0.2.1",
+  "wordpressInstaller": "/modules/woo-dte-chile-0.2.1.zip",
+  "sha256": "6ed92bb25369479dc9512f0c99dc9bd8fe77d6f88b169373a381af393c71cb71",
+  "requires": [
+    "astro",
+    "payload",
+    "woocommerce"
+  ],
+  "dte": [
+    33,
+    39,
+    56,
+    61
+  ],
+  "environments": [
+    "certification",
+    "production"
+  ],
+  "siiCertificationVerified": false
+}

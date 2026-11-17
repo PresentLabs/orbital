@@ -1,0 +1,66 @@
+<section class="view" data-panel="modules" hidden>
+  <div class="page-heading"><div><div class="eyebrow">APLICACIONES DE TU NEGOCIO</div><h1>Módulos</h1><p>Instala las herramientas que necesitas y conéctalas a tu tienda.</p></div><button class="button secondary" id="modules-refresh">Actualizar</button></div>
+  <p id="modules-message" role="status" aria-live="polite"></p>
+  <div id="modules-catalog" class="module-catalog"></div>
+  <section id="dte-config" class="panel module-panel" hidden>
+    <h2>Configurar Facturación propia</h2><p>Se usará automáticamente la tienda conectada en Configuración → Integraciones.</p>
+    <p id="dte-store"></p><p id="dte-payload-extension" hidden>Tu tienda usa el plugin ecommerce de Payload. <a href="/modules/orbital-payload-billing-cl-0.3.0.tgz" download>Descargar extensión tributaria Chile</a> para conservar el detalle del pago y sus devoluciones.</p>
+    <form id="dte-install" class="module-form">
+      <label>Ambiente<select name="environment"><option value="certification">Certificación SII</option><option value="production">Producción (requiere autorización del servidor)</option></select></label>
+      <label>RUT emisor<input name="rut" required maxlength="12" /></label><label>RUT del firmante<input name="sender" required maxlength="12" /></label>
+      <label>Razón social<input name="name" required maxlength="100" /></label><label>Giro<input name="giro" required maxlength="80" /></label>
+      <label>Código de actividad<input name="activity" required pattern="[0-9]{6}" maxlength="6" /></label>
+      <label>Dirección<input name="address" required maxlength="70" /></label><label>Comuna<input name="commune" required maxlength="20" /></label>
+      <label>Oficina SII<input name="sii_office" required maxlength="40" /></label><label>Fecha de resolución<input name="resolution_date" type="date" required /></label><label>Número de resolución<input name="resolution_number" type="number" min="0" step="1" required /></label>
+      <label>Certificado digital (.p12 / .pfx)<input name="certificate" type="file" accept=".p12,.pfx" /></label><p>Obligatorio al instalar. Al editar, dejar vacío conserva el certificado cifrado.</p>
+      <label>Contraseña del certificado<input name="password" type="password" autocomplete="new-password" /></label>
+      <label><input name="automaticIssue" type="checkbox" /> Emitir boleta automáticamente al confirmar pago (factura si el receptor fue configurado como DTE 33)</label>
+      <label><input name="automaticRefunds" type="checkbox" /> Generar NC por devoluciones confirmadas de la tienda</label>
+      <label><input name="confirmSoleEmitter" type="checkbox" /> Confirmo que ningún otro sistema emite DTE para estos pedidos</label>
+      <details><summary>Autorización de producción</summary><label>Confirmación explícita<input name="production_confirmation" placeholder="ACTIVAR PRODUCCION RUT" /></label><label>Evidencia de certificación<textarea name="evidence" rows="3"></textarea></label></details>
+      <button class="button primary" type="submit">Verificar y activar facturación</button>
+    </form>
+    <p>Certificado y contraseña quedan cifrados. No necesitas WordPress para facturar pedidos de Shopify o Payload.</p>
+  </section>
+  <section id="dte-workspace" class="panel module-panel" hidden>
+    <div class="panel-heading"><h2>Facturación propia · Chile</h2><button class="button secondary" id="dte-status">Consultar conexión</button></div>
+    <p id="dte-environment">Consulta la conexión para conocer el ambiente activo.</p>
+    <p>Orbital consulta pagos y devoluciones de la tienda conectada. El motor tributario conserva los documentos originales y su tienda de origen.</p>
+    <button class="button secondary" id="dte-load-orders">Buscar pedidos en la tienda</button><div id="dte-source-orders"></div>
+    <form id="dte-order" class="module-form"><label>ID del pedido en la tienda conectada<input name="orderId" type="text" maxlength="100" required /><small>En Shopify usa el ID del pedido, no su número visible #1001.</small></label><button class="button secondary">Consultar documentos</button></form>
+    <button class="button secondary" id="dte-history">Historial de todas las tiendas</button><div id="dte-documents"></div>
+    <details><summary>CAF y folios autorizados</summary><p id="dte-cafs">Consulta el estado para ver los folios.</p><form id="dte-caf" class="module-form"><label>CAF del ambiente activo (.xml)<input name="caf" type="file" accept=".xml" required /></label><button class="button secondary">Importar CAF</button></form></details>
+    <details><summary>Emitir documento del pedido</summary><form id="dte-issue" class="module-form"><p>El pedido debe tener el pago confirmado y sus datos tributarios guardados en Orbital.</p><label>Tipo<select name="type"><option value="39">39 · Boleta electrónica</option><option value="33">33 · Factura electrónica</option></select></label><button class="button primary">Solicitar emisión del pedido consultado</button></form></details>
+    <details><summary>Guardar receptor antes de emitir</summary><form id="dte-fiscal" class="module-form">
+      <label>Tipo<select name="type"><option value="39">39 · Boleta</option><option value="33">33 · Factura</option></select></label>
+      <label>RUT<input name="rut" required maxlength="20" /></label><label>Razón social / nombre<input name="name" required maxlength="100" /></label><label>Giro<input name="giro" maxlength="80" /></label><label>Dirección<input name="address" maxlength="70" /></label><label>Comuna<input name="commune" maxlength="20" /></label><button class="button secondary">Guardar receptor</button>
+    </form></details>
+    <details id="dte-adjust-details"><summary>Nota de crédito / débito</summary><form id="dte-adjust" class="module-form">
+      <p>Selecciona el original desde la tabla. Un ajuste tributario no devuelve dinero. Las devoluciones de dinero se realizan en la tienda conectada.</p>
+      <label>ID del documento original<input name="documentId" type="number" min="1" required readonly /></label>
+      <label>Tipo<select name="type"><option value="61">61 · Nota de crédito</option><option value="56">56 · Nota de débito</option></select></label>
+      <label>Monto CLP<input name="amount" type="number" step="1" min="1" required /></label>
+      <label>Motivo<input name="reason" required maxlength="90" /></label>
+      <label>Motivo tributario<select name="kind"><option value="return">Devolución</option><option value="amount_correction">Corrección de monto</option></select></label>
+      <label><input name="cancel" type="checkbox" /> Anulación completa del documento referenciado</label>
+      <label><input name="no_vat_reduction" type="checkbox" /> Sin rebaja de IVA (IndNoRebaja)</label>
+      <p>Si el ajuste combina productos afectos y exentos, agrega su detalle. Los montos deben sumar el total del ajuste.</p><div id="dte-lines"></div><button class="button secondary" id="dte-add-line" type="button">Agregar producto al ajuste</button>
+      <label>Clave de operación<input name="operationKey" required readonly /></label>
+      <p>Ante un error, conserva esta clave y reintenta la misma operación. Orbital controla el saldo disponible y la aceptación del original.</p>
+      <button class="button primary">Solicitar ajuste</button><button class="button secondary" id="dte-new-operation" type="button">Preparar otra operación</button>
+    </form></details>
+  </section>
+</section>
+<style>
+  .module-catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin:20px 0}.module-panel{padding:24px;margin-block:20px}.module-form{display:grid;gap:14px;max-width:640px;margin-block:20px}.module-form label{display:grid;gap:6px}.module-form input,.module-form select,.module-form textarea{padding:10px;border:1px solid var(--border,#ddd);border-radius:8px;background:transparent;color:inherit}.module-form input[type=checkbox]{width:20px}.module-panel details{margin-top:24px}.module-panel summary{cursor:pointer;font-weight:600}#modules-message{min-height:24px}#dte-documents{overflow:auto}
+
+  #modules-catalog :global(article){padding:24px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  #modules-catalog :global(h2){font-size:22px;line-height:1.3;width:100%;margin:0;font-weight:600}
+  #modules-catalog :global(p){width:100%;margin:0;line-height:1.6}
+  #dte-documents :global(table){min-width:850px;width:100%;border-collapse:collapse;font-size:13px}
+  #dte-documents :global(th),#dte-documents :global(td){padding:12px;text-align:left;border-bottom:1px solid var(--border,#e5e7eb);vertical-align:top}
+  #dte-documents :global(td:last-child){min-width:260px}
+  #dte-documents :global(button){padding:5px 8px;margin:3px;border:1px solid var(--border,#e5e7eb);border-radius:6px;white-space:nowrap}
+  #dte-lines :global(.dte-line){display:grid;gap:10px;padding:16px;border:1px solid var(--border,#ddd);border-radius:8px;margin-bottom:12px}
+  #dte-lines :global(input){max-width:100%;min-width:0}
+</style>

@@ -1,0 +1,21 @@
+{
+  "name": "@orbital/payload-billing-cl",
+  "version": "0.3.0",
+  "type": "module",
+  "description": "Detalle tributario chileno inmutable para el plugin ecommerce oficial de Payload",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.ts",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "payload": "^3.92.1"
+  },
+  "license": "GPL-3.0-or-later"
+}

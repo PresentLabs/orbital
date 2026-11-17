@@ -1,3 +1,4 @@
+import {installModules} from "./workspace-modules";
 import { readWorkspaceCache, writeWorkspaceCache } from "@/lib/saas/workspace-cache";
 import { noteColors, noteTextColor, visibleNoteColor } from "@/lib/saas/spatial";
 import demoCanvasImage from "@/assets/orbita-demo/diseno.png?inline";
@@ -93,6 +94,7 @@ const storageKey = cloud ? "orbita:" + String(initialUser.id) + ":v1" : "orbita:
 let cloudDirty = false;
 let localSavePending = false;
 let changeVersion = 0;
+let moduleView: ReturnType<typeof installModules> | undefined;
 let activeView = "overview";
 let activeSpace = "Negocio";
 let privateKind: "spaces" | "tasks" | "pages" = "spaces";
@@ -104,6 +106,7 @@ function viewSection(view: string): Section {
       ? { spaces: "canvas", tasks: "tasks", pages: "pages" }[privateKind]
       : (
           {
+            modules: "settings",
             polls: "profile",
             search: "profile",
             trash: "profile",
@@ -412,6 +415,7 @@ function show(view: string, keepSpace = false) {
   );
   $("#breadcrumb").textContent = (
     {
+      modules: "Módulos",
       overview: "Vista general",
       search: "Resultados de búsqueda",
       event: "Detalle del evento",
@@ -806,7 +810,7 @@ function pruneState() {
 function applyAccess() {
   const me = actor();
   $$("[data-view]").forEach(
-    (b) => (b.hidden = !canView(me, b.dataset.view === "polls" ? "profile" : b.dataset.view as Section)),
+    (b) => (b.hidden = !canView(me, viewSection(b.dataset.view || "overview"))),
   );
   $("#spaces-list").hidden = true;
   $("#store-navigation").hidden = !canView(me, "analytics");
@@ -3031,6 +3035,7 @@ function render() {
   if (activeView === "vault") void features.renderVault();
   if (activeView === "trash") void trash.render();
   if (activeView === "private-index") renderPrivateIndex();
+  if (activeView === "modules") moduleView?.render();
   advanced?.render(activeView);
   workspaceFiles?.render(activeView);
   preferences?.render();
@@ -5200,6 +5205,7 @@ async function bootstrap() {
     })().catch(() => {});
   }, 12000);
 }
+moduleView = installModules({cloud:()=>cloud, identity:()=>String(actor().id)});
 advanced = installBusiness({
   state: () => state,
   actor,

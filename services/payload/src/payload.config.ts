@@ -1,3 +1,4 @@
+import {ModuleInstallations, modulesEndpoints} from './modules/index.ts';
 import { isSealedCanvas, privateCanvasKey, sealCanvas, unsealCanvas } from "./private-canvas.ts";
 import {WorkspaceFolders} from './workspace-folders.ts';
 import { Polls, PollVotes, pollsEndpoint, createPollEndpoint, votePollEndpoint } from './polls.ts';
@@ -635,8 +636,11 @@ export default buildConfig({
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URL },
     push: process.env.NODE_ENV !== "production",
+    // The fiscal ledger is managed by explicit, non-destructive SQL migrations.
+    tablesFilter: ["!billing_*"],
   }),
   collections: [
+    ModuleInstallations,
     Users,
     Workspaces,
     Documents,
@@ -652,6 +656,7 @@ export default buildConfig({
   ],
   typescript: { outputFile: "src/payload-types.ts" },
   endpoints: [
+    ...modulesEndpoints,
     inviteMemberEndpoint,acceptInvitationEndpoint,
     {
       path: "/branding",

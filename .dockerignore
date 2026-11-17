@@ -1,0 +1,13 @@
+.git
+**/.DS_Store
+**/node_modules
+**/.next
+.astro
+dist
+**/*.tsbuildinfo
+**/.env
+**/.env.*
+**/*.p12
+**/*.pfx
+**/uploads
+**/uploads-workspace

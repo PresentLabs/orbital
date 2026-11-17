@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "services/payload"
+    "services/payload",
+    "modules/billing-cl"
   ],
   "compilerOptions": {
     "paths": {

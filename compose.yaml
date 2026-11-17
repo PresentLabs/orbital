@@ -15,6 +15,7 @@ services:
       REALTIME_SECRET: ${REALTIME_SECRET:?}
       PUBLIC_REALTIME_URL: ${PUBLIC_REALTIME_URL:?}
       INTEGRATIONS_SECRET: ${INTEGRATIONS_SECRET:?}
+      INTEGRATION_ALLOWED_HOSTS: ${INTEGRATION_ALLOWED_HOSTS:-}
     restart: unless-stopped
     expose: ["4345"]
     depends_on: [payload]
@@ -31,11 +32,15 @@ services:
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       INVITATION_FROM: ${INVITATION_FROM:-}
+      BILLING_TEST_EMAIL: ${BILLING_TEST_EMAIL:-}
+      BILLING_SII_CAF_KEYS: ${BILLING_SII_CAF_KEYS:-}
+      BILLING_PRODUCTION_AUTHORIZATIONS: ${BILLING_PRODUCTION_AUTHORIZATIONS:-}
       PRIVATE_CANVAS_SECRET: ${PRIVATE_CANVAS_SECRET:-}
       REGISTRATION_CODE: ${REGISTRATION_CODE:?}
       PAYLOAD_PUBLIC_URL: ${PAYLOAD_PUBLIC_URL:-http://payload:3001}
       SAAS_PUBLIC_URL: ${APP_URL:?}
       INTEGRATIONS_SECRET: ${INTEGRATIONS_SECRET:?}
+      INTEGRATION_ALLOWED_HOSTS: ${INTEGRATION_ALLOWED_HOSTS:-}
     command: ["sh", "-c", "npm run migrate && exec node serve.mjs"]
     restart: unless-stopped
     expose: ["3001"]
@@ -45,6 +50,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  billing-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: payload
+    command: ["node", "--experimental-strip-types", "billing-worker.mjs"]
+    environment:
+      DATABASE_URL: postgresql://orbita:${POSTGRES_PASSWORD:?}@postgres:5432/orbita
+      INTEGRATIONS_SECRET: ${INTEGRATIONS_SECRET:?}
+      INTEGRATION_ALLOWED_HOSTS: ${INTEGRATION_ALLOWED_HOSTS:-}
+      SAAS_PUBLIC_URL: ${APP_URL:?}
+      BILLING_PRODUCTION_AUTHORIZATIONS: ${BILLING_PRODUCTION_AUTHORIZATIONS:-}
+      BILLING_TEST_EMAIL: ${BILLING_TEST_EMAIL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      INVITATION_FROM: ${INVITATION_FROM:-}
+    restart: unless-stopped
+    depends_on: [payload]
 
   realtime:
     build:
