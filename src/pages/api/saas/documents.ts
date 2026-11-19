@@ -10,12 +10,8 @@ export const GET: APIRoute = async (ctx) => {
   const user = await currentUser(ctx);
   if (!user) return json({ error: "Inicia sesión" }, 401);
   try {
-    return json(
-      await payload(
-        ctx,
-        "documents?limit=1000&depth=0&where[deletedAt][exists]=false",
-      ),
-    );
+    const [documents,branding]=await Promise.all([payload(ctx,"documents?limit=1000&depth=0&where[deletedAt][exists]=false"),payload(ctx,"branding")]);
+    return json({...documents,palette:branding.palette});
   } catch {
     return json({ error: "Servicio no disponible" }, 503);
   }

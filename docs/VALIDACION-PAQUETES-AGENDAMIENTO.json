@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "create": true,
+    "sessionLines": true,
+    "alternativeDuration": true,
+    "attendees": true,
+    "price": true,
+    "internalVisibility": true,
+    "image": true,
+    "copy": true,
+    "edit": true,
+    "removeLine": true,
+    "emptyPackageRejected": true
+  },
+  "sameRowHeights": [
+    503.078125,
+    503.078125
+  ],
+  "mobileOverflow": 0,
+  "consoleErrors": [],
+  "paymentAndBalanceImplemented": false,
+  "updatedAt": "2026-11-18",
+  "frontendTests": 73,
+  "backendTests": 82,
+  "typechecks": "pass frontend/backend",
+  "astroBuild": "pass",
+  "databaseIntegration": "pass; package idempotency, cross-workspace service rejection, capacity, stale version, image copy, cannot book package as standalone service, configuration admin-only",
+  "mobileSessionsFormReviewed": true,
+  "referenceRuntimeVerified": false,
+  "purchaseVerifiedPaymentAndConcurrentBalanceAcceptanceMet": false
+}

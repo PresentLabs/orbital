@@ -1,23 +1,30 @@
 import type { APIRoute } from "astro";
 import {
   COOKIE,
+  currentUser,
   payload,
   sameOrigin,
   setCookie,
   configured,
+  setting,
 } from "@/lib/saas/server";
 export const POST: APIRoute = async (ctx) => {
   if (!sameOrigin(ctx)) return ctx.redirect("/acceso?error=origin", 303);
   const form = await ctx.request.formData();
   const action = String(form.get("action"));
   const register = action === "register";
-  const destination = register ? "/acceso/registro" : "/acceso";
+  const business = String(form.get("workspace") || "");
+  const businessQuery = /^\d+$/.test(business) ? "?negocio=" + business : "";
+  const destination = (register ? "/acceso/registro" : "/acceso") + businessQuery;
+  const failure = (error: string) => destination + (businessQuery ? "&" : "?") + "error=" + error;
   if (action === "logout") {
+    const user = await currentUser(ctx);
+    const workspace = typeof user?.workspace === "object" ? user.workspace.id : user?.workspace;
     ctx.cookies.delete(COOKIE, { path: "/" });
-    return ctx.redirect("/acceso", 303);
+    return ctx.redirect("/acceso" + (workspace ? "?negocio=" + workspace : businessQuery), 303);
   }
   if (!configured(ctx))
-    return ctx.redirect(destination + "?error=unavailable", 303);
+    return ctx.redirect(failure("unavailable"), 303);
   const email = String(form.get("email") || "").trim();
   const password = String(form.get("password") || "");
   if (
@@ -25,7 +32,7 @@ export const POST: APIRoute = async (ctx) => {
     password.length > 128 ||
     password.length < (register ? 12 : 1)
   )
-    return ctx.redirect(destination + "?error=validation", 303);
+    return ctx.redirect(failure("validation"), 303);
   try {
     if (register) {
       await payload(
@@ -50,11 +57,16 @@ export const POST: APIRoute = async (ctx) => {
       { method: "POST", body: JSON.stringify({ email, password }) },
       "",
     );
+    const workspace = typeof result.user?.workspace === "object"
+      ? result.user.workspace.id : result.user?.workspace;
+    if (!register && businessQuery && String(workspace) !== business)
+      return ctx.redirect(failure("business"), 303);
     setCookie(ctx, result.token);
-    return ctx.redirect("/app", 303);
+    const admins = setting(ctx, "SAAS_ADMIN_USER_IDS").split(",").map((id) => id.trim()).filter(Boolean);
+    return ctx.redirect(admins.includes(String(result.user?.id)) ? "/administracion" : "/app", 303);
   } catch {
     return ctx.redirect(
-      destination + "?error=" + (register ? "registration" : "credentials"),
+      failure(register ? "registration" : "credentials"),
       303,
     );
   }

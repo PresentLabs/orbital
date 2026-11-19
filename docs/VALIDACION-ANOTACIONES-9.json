@@ -1,0 +1,66 @@
+{
+  "facts": {
+    "gradient": "linear-gradient(135deg, rgb(219, 212, 255), rgb(255, 224, 238) 55%, rgb(255, 241, 184))",
+    "borders": [
+      "1px",
+      "0px",
+      "0px",
+      "0px"
+    ],
+    "timeWidth": 88,
+    "statusBelowTime": true,
+    "buttonTop": 406.359375,
+    "nameTop": 406.359375,
+    "buttonRight": 0,
+    "statusInName": false,
+    "rankingGaps": [
+      {
+        "h": "0px",
+        "p": "0px"
+      },
+      {
+        "h": "0px",
+        "p": "0px"
+      }
+    ]
+  },
+  "statusColors": [
+    {
+      "state": "pending",
+      "bg": "rgb(255, 241, 180)",
+      "color": "rgb(115, 83, 11)"
+    },
+    {
+      "state": "confirmed",
+      "bg": "rgb(215, 248, 229)",
+      "color": "rgb(20, 87, 55)"
+    },
+    {
+      "state": "completed",
+      "bg": "rgb(220, 234, 255)",
+      "color": "rgb(36, 79, 144)"
+    },
+    {
+      "state": "canceled",
+      "bg": "rgb(255, 224, 228)",
+      "color": "rgb(146, 43, 56)"
+    },
+    {
+      "state": "no_show",
+      "bg": "rgb(233, 225, 244)",
+      "color": "rgb(88, 66, 111)"
+    }
+  ],
+  "radii": [
+    "20px",
+    "20px"
+  ],
+  "mobile": {
+    "rowRight": 322,
+    "buttonRight": 322,
+    "timeWidth": 80
+  },
+  "dark": "linear-gradient(135deg, rgb(53, 48, 78), rgb(70, 44, 65) 55%, rgb(81, 70, 40))",
+  "dayNavigation": true,
+  "consoleErrors": []
+}

@@ -9,16 +9,16 @@ Integración local implementada el 16 de noviembre de 2026. Astro presenta la ap
 1. Despliega este código de Orbital. En Payload ejecuta `npm run migrate` con respaldo previo de la base; Compose ya ejecuta las migraciones al arrancar. La nueva migración agrega `module_installations` sin borrar datos.
 2. Usa el mismo `INTEGRATIONS_SECRET` de al menos 32 caracteres en Astro y Payload. No lo cambies sin migrar las credenciales cifradas existentes. Agrega el dominio exacto de la tienda a `INTEGRATION_ALLOWED_HOSTS` de ambos servicios (por ejemplo `tienda.ejemplo.cl`, sin protocolo, separados por coma). Solo HTTPS en el origen raíz; redirecciones bloqueadas. Autoriza únicamente dominios de tiendas bajo tu control.
 3. Conecta WooCommerce en Configuración → Integraciones usando las credenciales Woo habituales.
-4. Abre **Módulos** (`/app/modulos`) como propietario o administrador. Descarga el instalador WordPress `public/modules/woo-dte-chile-0.2.1.zip`, instala y activa el plugin en esa tienda.
+4. La pantalla Módulos del negocio fue retirada. Este adaptador se conserva para instalaciones anteriores y clientes internos autorizados; la concesión se gestiona desde `/administracion`. Descarga el instalador WordPress `public/modules/woo-dte-chile-0.2.1.zip`, instala y activa el plugin en esa tienda.
 5. Configura en WordPress emisor, certificado, CAF y ambiente **Certificación**. Lee `wordpress/woo-dte-chile/docs/INSTALACION.md` y el resto de la documentación del motor. Los secretos tributarios permanecen en WordPress.
-6. Crea una **contraseña de aplicación de WordPress** para un usuario con `manage_woocommerce`; ingresa ese usuario y contraseña en el módulo y pulsa Verificar y activar conexión. No sirven las claves `ck_`/`cs_` de Woo para las rutas DTE. La verificación consulta metadatos autenticados del plugin.
+6. Crea una **contraseña de aplicación de WordPress** para un usuario con `manage_woocommerce`; utiliza el contrato interno autorizado indicado abajo para verificar y guardar la conexión. El panel actual configura el motor fiscal nativo. No sirven las claves `ck_`/`cs_` de Woo para las rutas DTE. La verificación consulta metadatos autenticados del plugin.
 7. Consulta el ambiente activo, un pedido y sus documentos antes de emitir. Solo se emiten pedidos con pago confirmado. El receptor se guarda antes del primer DTE.
 
 No se conectó ninguna tienda real ni se cambiaron credenciales del negocio durante el desarrollo. La instalación del módulo en una cuenta requiere los pasos anteriores.
 
 ## Operaciones
 
-- Catálogo e instalación por negocio; rotación de credenciales y desactivación conservando registros.
+- Catálogo e instalación por negocio; rotación de credenciales; desactivación exclusiva desde Administración SaaS conservando registros.
 - Consulta de documentos por pedido, referencia al original, ambiente, monto y estado.
 - Datos tributarios del receptor y emisión manual DTE 33/39.
 - NC 61, anulación con NC, ND 56; monto CLP, motivo, tipo de corrección, IndNoRebaja y líneas afectas/exentas opcionales.
@@ -30,12 +30,12 @@ WooCommerce mantiene la idempotencia por pedido/refund/operación, locks, saldo 
 
 ## Contrato para Astro y otras aplicaciones Orbital
 
-`GET /api/saas/modules` devuelve el catálogo, instalación y habilitación. `POST` recibe JSON con `moduleId: "woo-dte-chile"` y `action`:
+`GET /api/orbital-modules` en Payload devuelve el catálogo e instalación. La concesión se controla exclusivamente desde `/administracion`. `POST /api/orbital-modules` recibe JSON con `moduleId: "woo-dte-chile"` y `action`:
 
 | Acción | Campos |
 | --- | --- |
 | install | username, password (contraseña de aplicación) |
-| disable / status | — |
+| status | — |
 | documents | orderId |
 | fiscal | orderId, type (33/39), receiver: rut, name, giro, address, commune |
 | issue | orderId, type (33/39) |
@@ -43,7 +43,7 @@ WooCommerce mantiene la idempotencia por pedido/refund/operación, locks, saldo 
 | retry / email | documentId |
 | file | documentId, format (`xml`/`pdf`) |
 
-Astro exige sesión y origen del sitio para POST. Payload exige JWT explícito de un administrador, deriva workspace de la identidad y consulta la tienda de ese workspace. `file` devuelve filename/mime/base64. No se exponen claves, CAF ni certificados al cliente. No hay proxy de URLs o rutas arbitrarias. El módulo queda ligado al origen original; cambiar la tienda bloquea sus operaciones hasta restaurar esa conexión para proteger el historial.
+El proxy Astro general anterior fue eliminado; `/api/saas/billing` atiende únicamente el motor nativo `billing-cl`. El adaptador anterior sigue disponible mediante el endpoint interno Payload, que exige concesión SaaS y JWT explícito de un administrador, deriva workspace de la identidad y consulta la tienda de ese workspace. `file` devuelve filename/mime/base64. No se exponen claves, CAF ni certificados al cliente. No hay proxy de URLs o rutas arbitrarias. El módulo queda ligado al origen original; cambiar la tienda bloquea sus operaciones hasta restaurar esa conexión para proteger el historial.
 
 La nueva ruta de WordPress `GET /wp-json/woo-dte-chile/v1/capabilities` requiere `manage_woocommerce`, devuelve versión/ambiente/automatizaciones/bloqueo de producción y no revela secretos. `siiCertificationVerified: false` evita presentar la conectividad como certificación.
 

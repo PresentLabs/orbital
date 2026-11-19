@@ -35,10 +35,14 @@ SaaS con Astro, Payload CMS, PostgreSQL y un servicio WebSocket para colaboraci�
    | `INTEGRATIONS_SECRET` | Otro valor generado con el mismo comando |
    | `REGISTRATION_CODE` | Código privado independiente para registrar la cuenta |
    | `PAYLOAD_PUBLIC_URL` | `https://payload.tudominio.cl` si publicas el panel |
+   | `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` | Credenciales OAuth para Google Calendar y Meet |
+   | `SAAS_ADMIN_USER_IDS` | IDs de las cuentas que administran el SaaS, separados por coma. Se configura en Astro y Payload. |
 
 5. En **Domains**, asigna `https://app.tudominio.cl:4345` a **astro** y `https://realtime.tudominio.cl:3002` a **realtime**. Para publicar el panel, asigna `https://payload.tudominio.cl:3001` a **payload**. Los puertos son internos y se omiten al abrir las URL públicas. PostgreSQL queda en la red interna del proyecto. [Dominios por servicio en Coolify](https://coolify.io/docs/core/networking/domains)
 6. Pulsa **Deploy**. Para una base nueva, Payload aplica la migración incluida antes de arrancar. Si KVM 1 se queda sin memoria al compilar Next.js, construye la imagen de Payload en un runner de CI y configura Coolify para descargarla desde un registro. Revisa **Deployment Logs** para distinguir un fallo de compilación de un fallo al arrancar.
 7. Abre el dominio de la app. Comprueba `/app/?demo=1` y `/api/saas/version`, registra tu cuenta en `/acceso/registro`, sube un archivo y prueba colaboración desde dos sesiones. Si habilitaste el panel de Payload, ábrelo en `/admin` de su dominio.
+
+Para habilitar reuniones, activa Google Calendar API en el proyecto de Google Cloud y registra `APP_URL/api/saas/google/callback` como URI de redirección del cliente OAuth, sustituyendo `APP_URL` por tu dominio de la app. Tras desplegar, conecta la cuenta organizadora desde **Configuración → Integraciones → Google**. [Crear eventos en Google Calendar](https://developers.google.com/workspace/calendar/api/guides/create-events)
 
 ## Datos y actualizaciones
 
@@ -50,4 +54,18 @@ Para trabajar solo con Astro en local, ejecuta `npm ci` y `npm run dev` con Node
 
 ## Módulos instalables
 
-La aplicación **Facturación propia · Chile** se instala por negocio desde `/app/modulos`. Usa la tienda activa: Shopify, WooCommerce o el ecommerce oficial de Payload, con permisos y credenciales cifradas por cuenta. Ver [catálogo](modules/README.md), [instalación y arquitectura 0.3.0](modules/billing-cl/README.md) y [verificación local y pendientes](modules/billing-cl/VALIDACION.md).
+La aplicación **Facturación propia · Chile** se activa por negocio desde `/administracion` y se configura en Tienda → Facturas y boletas. Usa la tienda activa: Shopify, WooCommerce o el ecommerce oficial de Payload, con permisos y credenciales cifradas por cuenta. Ver [catálogo](modules/README.md), [instalación y arquitectura 0.3.0](modules/billing-cl/README.md) y [verificación local y pendientes](modules/billing-cl/VALIDACION.md).
+
+## Administración del SaaS y marca por negocio
+
+Configura `SAAS_ADMIN_USER_IDS` con el ID de tu cuenta registrada y vuelve a desplegar. Puedes consultar tu ID en `user.id` de `/api/saas/profile` con la sesión iniciada. El permiso global se concede desde el servidor. Los roles propietario y administrador mantienen sus permisos dentro de su negocio. La cuenta del dueño del SaaS entra a `/administracion` y dispone de un enlace desde su espacio.
+
+El panel lista y busca negocios y sus personas registradas con nombre, correo, rol, estado y fecha de registro. Permite editar personas, desactivar accesos, eliminar cuentas a la papelera y restaurarlas dentro de 30 días. Para eliminar o desactivar un propietario, primero transfiere la propiedad a un usuario activo del mismo negocio. La transferencia conserva al anterior propietario como administrador y se guarda en una transacción. El plan, el estado de suscripción y la próxima fecha de pago se guardan por negocio. La fecha se muestra junto al propietario actual. Estos datos se administran manualmente.
+
+Cada negocio comparte su enlace `/acceso?negocio=ID`, disponible en Configuración → Empresa y en el panel del SaaS. Ese acceso y las invitaciones muestran el logo que el propietario o un administrador guardaron en Configuración → Logo y marca. El acceso general y el registro de nuevos negocios usan la marca de Orbital. La sesión autenticada siempre usa la marca de su propio negocio.
+
+El despliegue aplica la migración `20261117_150000_platform`, que agrega las columnas de estado y próxima fecha de pago a los negocios existentes.
+
+### Reservas y activación de módulos
+
+Los módulos se habilitan por negocio desde `/administracion` → Módulos. El panel del negocio ya no tiene una pantalla de instalación de módulos. Reservas aparece en `/app/reservas` cuando está habilitado; incluye catálogo, horarios y reservas internas. [Estado de implementación y límites](docs/ESTADO-MODULO-RESERVAS.md). El checkout de tienda y el portal público del plan siguen pendientes.

@@ -1,12 +1,22 @@
 ---
 import ThemeInit from "@/components/saas/ThemeInit.astro";
 import Icon from "./Icon.astro";
+import { payload } from "@/lib/saas/server";
+import { validLogo } from "../../../services/payload/src/formats.ts";
 import "@/styles/fonts.css";
 import "@/styles/global.css";
 import "@/styles/workspace.css";
 const { register = false, invitation = false } = Astro.props;
+Astro.response.headers.set("Cache-Control", "private, no-store");
+const workspace = Astro.url.searchParams.get("negocio") || "";
+const businessQuery = /^\d+$/.test(workspace) ? "?negocio=" + workspace : "";
+const brandingPath = "branding" + (businessQuery ? "?workspace=" + workspace : "");
+const branding = await payload(Astro, brandingPath).catch(() => null);
+const logo = branding?.logoData && validLogo(branding.logoData) ? branding.logoData : "";
+const business = branding?.name || "Órbita";
 const error = Astro.url.searchParams.get("error");
 const messages: Record<string, string> = {
+  business: "Esta cuenta pertenece a otro negocio. Usa el enlace de acceso de tu equipo.",
   credentials:
     "El correo o la contraseña no son correctos. Intenta nuevamente.",
   unavailable:
@@ -26,15 +36,15 @@ const messages: Record<string, string> = {
       name="viewport"
       content="width=device-width,initial-scale=1"
     /><meta name="robots" content="noindex,nofollow" /><title>
-      {invitation ? "Crea tu contraseña" : register ? "Crear negocio" : "Bienvenido"} · Orbital
+      {invitation ? "Crea tu contraseña" : register ? "Crear negocio" : "Bienvenido"} · {business}
     </title></head
   ><body class="orbita auth-page"
     ><aside class="auth-story">
-      <a class="brand" href="/app"
-        ><span class="brand-symbol">✳</span>orbital<span class="brand-period"
-          >®</span
-        ></a
-      ><div class="auth-story-copy">
+      <a class="brand" href="/app" aria-label={business}>
+        {logo ? <img class="business-logo auth-logo" src={logo} alt={business} /> : <>
+          <span class="brand-symbol">✳</span>órbita<span class="brand-period">®</span>
+        </>}
+      </a><div class="auth-story-copy">
         <div class="eyebrow">UN ESPACIO. TODO CONECTADO.</div><h1>
           Tu próxima<br />gran idea<br />tiene espacio.
         </h1><p>
@@ -42,8 +52,8 @@ const messages: Record<string, string> = {
           mismo lugar.
         </p><div class="auth-art" aria-hidden="true">
           <div class="orbit-art">
-            <div class="orbital o1"></div><div class="orbital o2"></div><div
-              class="orbital o3"
+            <div class="orbita-orbit o1"></div><div class="orbita-orbit o2"></div><div
+              class="orbita-orbit o3"
             >
             </div><div class="orbit-center">✳</div><div
               class="floating-tile tile-b"
@@ -60,7 +70,7 @@ const messages: Record<string, string> = {
         <div class="eyebrow">
           {register ? "EMPIEZA ALGO GRANDE" : "QUÉ BUENO TENERTE AQUÍ"}
         </div><h2>
-          {register ? "Un nuevo comienzo." : "Vuelve a Orbital."}
+          {register ? "Un nuevo comienzo." : `Vuelve a ${business}.`}
         </h2><p>
           {
             register
@@ -68,6 +78,7 @@ const messages: Record<string, string> = {
               : "Tu próximo gran paso te está esperando."
           }
         </p><form action="/api/saas/auth" method="post">
+          <input type="hidden" name="workspace" value={businessQuery ? workspace : ""} />
           <input
             type="hidden"
             name="action"
@@ -155,7 +166,7 @@ const messages: Record<string, string> = {
           )
         }{
           register && (
-            <a class="auth-back" href="/acceso">
+            <a class="auth-back" href={"/acceso" + businessQuery}>
               ← Volver al acceso
             </a>
           )

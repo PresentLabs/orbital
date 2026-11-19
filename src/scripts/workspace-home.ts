@@ -349,6 +349,8 @@ export function installHome(ctx: Ctx) {
     ctx.modal(
       "<h2>Crear Google Meet</h2><p>Preparando la lista de invitados…</p>",
     );
+    const loading = $("#dialog-content h2");
+    const dialog = $<HTMLDialogElement>("#editor-dialog");
     try {
       const info = ctx.cloud()
         ? await ctx.api("google/meet")
@@ -356,12 +358,12 @@ export function installHome(ctx: Ctx) {
             connected: false,
             members: (ctx.state().demoMembers || []).filter((m) => !m.disabled),
           };
-      if (
-        !document
-          .querySelector("#dialog-content h2")
-          ?.textContent?.includes("Crear Google Meet")
-      )
-        return;
+      if (!dialog.open || !loading.isConnected) return;
+      const unavailable = !ctx.cloud()
+        ? "En la demo no se crean reuniones ni se envían invitaciones."
+        : !info.configured
+          ? "El servidor necesita las credenciales OAuth de Google para crear reuniones."
+          : "Conecta Google Calendar desde Configuración → Integraciones para crear la reunión.";
       const members = info.members.filter(
         (m: any) => String(m.id) !== String(ctx.actor().id),
       );
@@ -369,7 +371,7 @@ export function installHome(ctx: Ctx) {
       if (!immediate)
         start.setMinutes(Math.ceil(start.getMinutes() / 15) * 15, 0, 0);
       ctx.modal(
-        `<h2>${immediate ? "Reunirse ahora" : "Programar Google Meet"}</h2><p>Selecciona a las personas de tu organización. Al crear la reunión, Google les enviará una invitación por correo.</p><form id="meet-form"><label>Nombre de la reunión<input name="title" required maxlength="120" placeholder="Por ejemplo, planificación de la semana"/></label><div class="form-grid" ${immediate ? "hidden" : ""}><label>Fecha<input type="date" name="date" required value="${dateKey(start)}"/></label><label>Hora<input type="time" name="time" required value="${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}"/></label><label>Duración<select name="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 hora y media</option></select></label></div><p class="section-note">Zona horaria: ${esc(ctx.state().settings.timezone || "America/Santiago")}</p><fieldset><legend>A quién invitar</legend><div class="member-picker">${members.map((m: any) => `<label><input type="checkbox" name="members" value="${esc(m.id)}"/><span>${esc(m.name)}${m.email ? `<small>${esc(m.email)}</small>` : ""}</span></label>`).join("") || '<p class="section-note">No hay otras personas activas en tu organización.</p>'}</div></fieldset>${!info.connected ? `<p class="section-note">${ctx.cloud() ? "Conecta Google Calendar desde Configuración → Integraciones para crear la reunión." : "En la demo no se crean reuniones ni se envían invitaciones."}</p>` : ""}<p class="form-error" id="meet-error" role="alert"></p><button class="button primary" id="create-meeting" ${!info.connected ? "disabled" : ""}>Crear y enviar invitaciones</button></form>`,
+        `<h2>${immediate ? "Reunirse ahora" : "Programar Google Meet"}</h2><p>Selecciona a las personas de tu organización. Al crear la reunión, Google les enviará una invitación por correo.</p><form id="meet-form"><label>Nombre de la reunión<input name="title" required maxlength="120" placeholder="Por ejemplo, planificación de la semana"/></label><div class="form-grid" ${immediate ? "hidden" : ""}><label>Fecha<input type="date" name="date" required value="${dateKey(start)}"/></label><label>Hora<input type="time" name="time" required value="${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}"/></label><label>Duración<select name="duration"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60">1 hora</option><option value="90">1 hora y media</option></select></label></div><p class="section-note">Zona horaria: ${esc(ctx.state().settings.timezone || "America/Santiago")}</p><fieldset><legend>A quién invitar</legend><div class="member-picker">${members.map((m: any) => `<label><input type="checkbox" name="members" value="${esc(m.id)}"/><span>${esc(m.name)}${m.email ? `<small>${esc(m.email)}</small>` : ""}</span></label>`).join("") || '<p class="section-note">No hay otras personas activas en tu organización.</p>'}</div></fieldset>${!info.connected ? `<p class="section-note">${unavailable}</p>` : ""}<p class="form-error" id="meet-error" role="alert"></p><button class="button primary" id="create-meeting" ${!info.connected ? "disabled" : ""}>Crear y enviar invitaciones</button></form>`,
       );
       const requestId = uid();
       $("#meet-form").onsubmit = async (e) => {
@@ -410,6 +412,7 @@ export function installHome(ctx: Ctx) {
         }
       };
     } catch (error) {
+      if (!dialog.open || !loading.isConnected) return;
       ctx.modal(
         `<h2>No pudimos preparar la reunión</h2><p>${esc(error instanceof Error ? error.message : "Revisa la conexión con Google.")}</p>`,
       );

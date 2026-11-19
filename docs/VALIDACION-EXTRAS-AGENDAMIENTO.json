@@ -1,0 +1,27 @@
+{
+  "extras": {
+    "create": true,
+    "assign": true,
+    "minDistinctTypesRejected": true,
+    "units": 2,
+    "amountForTwoPersons": 22000,
+    "totalMinutes": 60,
+    "selectionInvalidatesSlots": true,
+    "booking": true,
+    "detail": true,
+    "historicalReschedule": true,
+    "editExisting": true,
+    "reasonHistory": true,
+    "referencePriceDisplayDoesNotChangeQuote": true
+  },
+  "mobileOverflow": 0,
+  "consoleErrors": [],
+  "updatedAt": "2026-11-18",
+  "frontendTests": 73,
+  "backendTests": 80,
+  "typechecks": "pass frontend/backend",
+  "astroBuild": "pass",
+  "databaseIntegration": "pass; limits, units/price/duration, snapshots, historical reschedule, existing extras edit, conflict on expansion, paid guard, authorization, stale version and reason history",
+  "referenceRuntimeVerified": false,
+  "referencePrice": "displayed independently; domain/API/browser verify charge unchanged"
+}

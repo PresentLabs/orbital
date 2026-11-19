@@ -156,14 +156,19 @@ export function installChartMotion() {
   scan();
 }
 
-const entrances = new WeakMap<HTMLElement, Animation>();
+const entrances = new WeakMap<HTMLElement, Animation[]>();
 export function enterWorkspaceView(view: HTMLElement | null) {
   document.dispatchEvent(new Event("orbita:view-change"));
-  if (!view || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  entrances.get(view)?.cancel();
-  const animation = view.animate([{ opacity: 0 }, { opacity: 1 }], {
-    duration: 650,
-    easing: "ease-in-out",
-  });
-  entrances.set(view, animation);
+  if (!view) return;
+  entrances.get(view)?.forEach(animation => animation.cancel());
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if(document.body.classList.contains('canvas-fullscreen')) {
+    entrances.set(view,[view.animate([{opacity:.8},{opacity:1}],{duration:140,easing:"ease"})]);
+    return;
+  }
+  const groups=[...view.children].filter((node):node is HTMLElement=>node instanceof HTMLElement && !node.hidden);
+  const targets=groups.flatMap(node=>node.matches('.overview-grid,.overview-kpis,.scheduling-priority-grid,.scheduling-kpis')?[...node.children].filter((child):child is HTMLElement=>child instanceof HTMLElement):[node]);
+  entrances.set(view,(targets.length?targets:[view]).map((node,index)=>node.animate([
+    {opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}
+  ],{duration:450,delay:Math.min(index,8)*45,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'})));
 }

@@ -1,0 +1,619 @@
+@import './ui-feedback.css';
+@import './workspace-type-scale.css';
+/* Operate system. Canvas interiors retain their existing geometry, colors and controls. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) {
+ --primary:light-dark(var(--ui-light-accent,#6e00fe),var(--ui-dark-accent,#b499ff));--accent:var(--primary);
+ --background:light-dark(var(--ui-light-background,#f5f6f8),var(--ui-dark-background,#14161b));
+ --card:light-dark(var(--ui-light-surface,#fff),var(--ui-dark-surface,#20232b));
+ --text:light-dark(var(--ui-light-text,#232630),var(--ui-dark-text,#edf0f6));
+ --surface:color-mix(in srgb,var(--text) 5%,var(--card));--muted:color-mix(in srgb,var(--text) 67%,var(--card));--line:color-mix(in srgb,var(--text) 12%,var(--card));
+ --primary-ink:light-dark(var(--ui-light-accent-ink,#fff),var(--ui-dark-accent-ink,#111));--sidebar-bg:light-dark(var(--ui-light-sidebar,#eef0f4),var(--ui-dark-sidebar,#191c23));--sidebar-ink:light-dark(var(--ui-light-sidebar-ink,#111),var(--ui-dark-sidebar-ink,#fff));
+ font-size:.875rem;background:var(--background);color:var(--text);
+}
+.module-rail,.header-identity,.topbar-context { display:none; }
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar { top:6rem;bottom:1rem;left:1rem;width:15rem;padding:0 0 0 4.75rem;background:transparent;border:0;gap:1.25rem; }
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar > .brand {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail {position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;gap:.5rem;background:var(--card);padding:.75rem .5rem;border-radius:2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button {width:2.75rem;height:2.75rem;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button[hidden] {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button:hover {color:var(--primary);background:var(--surface);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button.active {background:var(--text);color:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .sidebar-search {font-size:.8125rem;width:100%;background:var(--card);border:0;border-radius:1.25rem;padding:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-search kbd {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .nav-label:not(.space-label),.orbita#orbita-workspace:not(.canvas-fullscreen) .plan-card {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar nav > [data-view=overview] {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen)[data-ui-module=general] .sidebar nav > [data-view=overview] {display:flex;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#store-navigation,#scheduling-navigation,#creative-navigation,#company-navigation) {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen)[data-ui-module=store] #store-navigation,.orbita#orbita-workspace:not(.canvas-fullscreen)[data-ui-module=scheduling] #scheduling-navigation,.orbita#orbita-workspace:not(.canvas-fullscreen)[data-ui-module=creative] #creative-navigation,.orbita#orbita-workspace:not(.canvas-fullscreen)[data-ui-module=company] #company-navigation {display:block;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .nav-item {font-size:.8125rem;gap:.625rem;padding:.75rem .625rem;min-height:2.5rem;border-radius:.875rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .navigation-parent {color:var(--text);font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu {margin:.375rem 0;padding-left:0;border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu button {font-size:.8125rem;min-height:2.375rem;padding:.625rem .75rem;border-radius:.75rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu button.active {background:var(--card);color:var(--primary);font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {border:0;background:var(--card);border-radius:1rem;padding:.375rem;margin-top:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .profile {padding:.625rem;gap:.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .profile :is(strong,small) {font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell {margin-left:16.5rem;padding-top:5.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {position:fixed;inset:0 0 auto;z-index:50;height:5rem;min-height:5rem;padding:0 1.75rem;gap:1.25rem;background:var(--background);border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {display:flex;align-items:center;gap:.625rem;color:var(--text);text-decoration:none;width:13rem;flex:none;font-size:1.5rem;letter-spacing:-.04em;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity img {max-width:10rem;height:2.5rem;object-fit:contain;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity > svg {background:var(--primary);color:var(--primary-ink);padding:.375rem;box-sizing:content-box;border-radius:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar .breadcrumbs {display:contents;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .breadcrumbs > :not(button) {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context {display:flex;justify-content:center;align-items:center;flex:1;gap:.375rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {border:0;border-radius:2rem;padding:.75rem 1rem;background:var(--card);color:var(--muted);font-size:.8125rem;white-space:nowrap;cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button.active {color:var(--text);font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right {gap:.625rem;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #save-state {font-size:.85rem;white-space:nowrap;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar .icon-btn {width:2.5rem;height:2.5rem;background:var(--card);border:0;border-radius:50%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar .icon-btn svg {width:1.25rem;height:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main {padding:1rem 1.75rem 2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .page-heading {margin-bottom:1.75rem;gap:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main h1 {font-size:1.875rem;line-height:1.2;letter-spacing:-.04em;font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main h2 {font-size:1.125rem;line-height:1.4;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main :is(.panel,.metric-card,.settings-panel) {background:var(--card);border:0;box-shadow:none;border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button {font-size:.8125rem;min-height:2.5rem;padding:.625rem 1rem;border-radius:2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.primary {background:var(--primary);color:var(--primary-ink);border-color:transparent;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.secondary {background:var(--surface);color:var(--text);border-color:transparent;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(input,select,textarea) {font-size:.875rem;accent-color:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(label,p,small,.section-note) {font-size:.8125rem;line-height:1.55;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.inline-check,.work-check) {display:flex!important;align-items:center;gap:.625rem!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.inline-check,.work-check) input {margin:0 .375rem 0 0;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer {position:fixed;inset:0 0 0 auto;margin:0;height:100dvh;max-height:100dvh;width:min(42rem,100vw);max-width:100vw;padding:2rem;border:0;border-radius:1.5rem 0 0 1.5rem;background:var(--card);color:var(--text);box-shadow:-1rem 0 4rem #0002;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer .modal-x {position:sticky;top:0;float:right;z-index:2;background:var(--surface);color:var(--text);border:0;width:2rem;height:2rem;border-radius:50%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog h2 {font-size:1.5rem;line-height:1.3;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog form {gap:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-mode-label {max-width:15rem;display:grid;gap:.5rem;margin:1.5rem 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-fields {display:grid;gap:.5rem;max-width:36rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field {display:grid;grid-template-columns:1fr auto 3rem;gap:1rem;align-items:center;padding:1rem;background:var(--surface);border-radius:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field input {padding:0;width:2.75rem;height:2.25rem;border:0;border-radius:.5rem;cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field code {font-size:.75rem;color:var(--muted);}
+@media(max-width:1180px) { .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {width:10rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {padding:.625rem .75rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button:last-child {display:none;} }
+@media(max-width:900px) { .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context {display:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {flex:1;} .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {width:14rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell {margin-left:15.5rem;} }
+@media(max-width:1024px) { .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context {display:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {height:4.5rem;min-height:4.5rem;padding:0 1rem;gap:.5rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {width:auto;min-width:0;font-size:1.25rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity > svg {width:1.25rem;height:1.25rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {top:4.5rem;bottom:0;left:0;width:min(19rem,90vw);padding:1rem 1rem 1rem 5rem;background:var(--background);transform:translateX(-110%);z-index:49;} .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar.open {transform:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail {top:1rem;left:.5rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell {margin-left:0;padding-top:5rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main {padding:.75rem 1rem 2rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) #save-state {max-width:8rem;overflow:hidden;text-overflow:ellipsis;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right {gap:.375rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right .top-divider {display:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right .icon-btn {width:2rem;height:2rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar .mobile-toggle {display:grid;} .orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer {padding:1.5rem;border-radius:1rem 0 0 1rem;} }
+@media(max-width:480px) { .orbita#orbita-workspace:not(.canvas-fullscreen) #save-state {display:none;} }
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservations-toolbar {display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem;background:var(--card);border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search {display:flex;align-items:center;gap:.5rem;flex:1;min-width:15rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search label {flex:1;max-width:19rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search :is(input,select) {width:100%;background:var(--surface);border:0;font-size:.8125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .catalog-grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,16rem),1fr));gap:1.25rem;align-items:stretch;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservation-card {padding:1.375rem;gap:1rem;border:0;border-radius:1.25rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservation-card h2 {font-size:1.0625rem;line-height:1.45;font-weight:600;margin:0;overflow-wrap:anywhere;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-card-heading {display:flex;align-items:start;justify-content:space-between;gap:1rem;position:relative;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-symbol {width:3rem;height:3rem;flex:none;display:grid;place-items:center;background:color-mix(in srgb,var(--primary) 10%,var(--card));color:var(--primary);border-radius:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-card-heading .catalog-image-frame {width:100%;height:9rem;aspect-ratio:auto;margin:0;background:var(--surface);border-radius:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .has-image .catalog-status {position:absolute;right:.5rem;top:.5rem;background:var(--card);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-status {display:inline-flex;align-items:center;gap:.375rem;padding:.25rem .5rem;border-radius:2rem;background:var(--surface);color:var(--muted);font-size:.6875rem;white-space:nowrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-status i {width:.375rem;height:.375rem;border-radius:50%;background:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-status.is-active i {background:light-dark(#25845c,#75c9a4);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .catalog-description {color:var(--muted);font-size:.8125rem;margin:0;line-height:1.6;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-price {display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-top:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-price strong {font-size:1.5rem;font-weight:600;letter-spacing:-.035em;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-price > :is(span,small) {font-size:.75rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-price small {flex-basis:100%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-facts {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:0;padding:1rem 0;border-block:1px solid var(--line);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-facts dt {display:flex;align-items:center;gap:.375rem;font-size:.6875rem;color:var(--muted);margin-bottom:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-facts dd {margin:0;font-size:.8125rem;font-weight:500;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-card-footer {display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:auto;min-height:2.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-card-footer > span {display:flex;gap:.375rem;align-items:center;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-card-footer small {font-size:.6875rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-copy {display:grid;place-items:center;width:2.25rem;height:2.25rem;border:0;background:transparent;border-radius:50%;color:var(--muted);cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-copy:hover {background:var(--surface);color:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-package-content {font-size:.8125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-package-content summary {cursor:pointer;color:var(--muted);padding:.375rem 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-package-content ul {padding-top:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-directory {display:grid;gap:.5rem;background:var(--card);padding:.75rem;border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-row {display:flex;align-items:center;gap:1rem;padding:1rem;margin-left:calc(var(--category-depth) * 1rem);border-radius:1rem;background:var(--card);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-row:hover {background:var(--surface);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-copy {flex:1;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .category-copy h2 {font-size:.9375rem;overflow-wrap:anywhere;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-copy p {font-size:.75rem;color:var(--muted);margin:.25rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-service-count {font-size:.75rem;color:var(--muted);white-space:nowrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-person-top {display:flex;justify-content:space-between;align-items:center;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .directory-person-avatar {display:grid;place-items:center;width:3.25rem;height:3.25rem;border-radius:50%;background:color-mix(in srgb,var(--primary) 12%,var(--card));color:var(--primary);font-size:1rem;font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .directory-person-avatar.location,.orbita#orbita-workspace:not(.canvas-fullscreen) .directory-person-avatar.resource {border-radius:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-contact {display:grid;gap:.75rem;margin:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-contact div {display:flex;gap:.5rem;align-items:center;font-size:.8125rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-contact :is(dt,dd) {margin:0;overflow-wrap:anywhere;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservation-settings {padding:1.75rem;gap:1.75rem;max-width:64rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-settings > .form-grid {gap:1.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-hours {border:0!important;border-radius:1.25rem;padding:1.25rem!important;background:var(--surface);margin:0;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-hours > legend {font-size:1rem;font-weight:600;padding:0 .5rem;margin-bottom:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period {display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:1rem;align-items:end;padding:1rem;background:var(--card);border-radius:.875rem;margin-bottom:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period label {display:grid;gap:.5rem;font-size:.75rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period :is(input,select) {min-width:0;width:100%;margin:0;font-size:.8125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period[data-date-period] {grid-template-columns:1.2fr auto 1fr 1fr auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-hours .section-note {background:transparent;padding:.75rem 0;color:var(--muted);border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-board {gap:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-column {background:var(--surface);padding:.75rem;border-radius:1.25rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-column h2 {display:flex;gap:.5rem;align-items:center;margin:0 0 1rem;padding:.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .column-name {padding:0;border:0;background:transparent;text-align:left;flex:1;min-width:0;white-space:normal;color:var(--text);font-size:.875rem;font-weight:600;cursor:text;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .column-name:disabled {opacity:1;cursor:default;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .column-name input {width:100%;min-width:0;font-size:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-task {background:var(--card);border:0;border-radius:1.125rem;padding:1.125rem;box-shadow:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-task h3 {font-size:.9375rem;font-weight:500;line-height:1.5;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-inline-description {font-size:.8125rem;color:var(--muted);line-height:1.6;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-progress-summary {display:grid;grid-template-columns:1fr auto;gap:.5rem;align-items:center;margin-top:1rem;font-size:.6875rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) progress {appearance:none;width:100%;height:.3rem;border:0;border-radius:2rem;overflow:hidden;background:var(--surface);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) progress::-webkit-progress-bar {background:var(--surface);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) progress::-webkit-progress-value {background:var(--primary);border-radius:2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) progress::-moz-progress-bar {background:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-progress-summary progress {grid-column:1/-1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals {display:flex;align-items:center;gap:.75rem;margin-top:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals button,.orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals > span:not(.task-person-avatar) {display:flex;align-items:center;gap:.375rem;background:none;border:0;color:var(--muted);font-size:.75rem;cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-person-avatar {display:grid;place-items:center;flex:none;width:1.875rem;height:1.875rem;overflow:hidden;border-radius:50%;background:color-mix(in srgb,var(--primary) 12%,var(--card));color:var(--primary);font-size:.6875rem;font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-person-avatar img {width:100%;height:100%;object-fit:cover;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-footer {font-size:.6875rem;color:var(--muted);margin-top:.75rem;flex-wrap:wrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-board-progress {display:grid;gap:.625rem;margin:0 0 1.5rem;max-width:30rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-board-progress > div {display:flex;align-items:center;justify-content:space-between;gap:1rem;font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-board-progress span {color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-board.timeline-mode {display:block;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-timeline {padding:1.25rem;background:var(--card);border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-toolbar {display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-toolbar p {font-size:.75rem;color:var(--muted);margin:.25rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-scroll {overflow:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-grid {min-width:48rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-head {display:grid;grid-template-columns:14rem repeat(7,1fr);background:var(--surface);border-radius:.75rem;font-size:.75rem;align-items:center;text-align:center;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-head > * {padding:1rem .5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-head strong {text-align:left;padding-left:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-row {display:grid;grid-template-columns:14rem 1fr;min-height:6rem;border-bottom:1px solid var(--line);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-person {display:flex;align-items:center;gap:.75rem;padding:1rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-person > span:last-child {display:grid;gap:.25rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-person strong {font-size:.8125rem;line-height:1.4;font-weight:500;overflow-wrap:anywhere;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-person small {font-size:.6875rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-track {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:center;position:relative;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-day {grid-row:1;height:100%;border-left:1px solid var(--line);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .is-today {background:color-mix(in srgb,var(--primary) 5%,transparent);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range {position:relative;grid-row:1;grid-column:var(--from)/span var(--span);margin:.5rem .25rem;padding:.75rem;text-align:left;border:1px solid color-mix(in srgb,var(--primary) 22%,var(--card));border-radius:.75rem;background:color-mix(in srgb,var(--primary) 11%,var(--card));color:var(--text);display:grid;gap:.25rem;cursor:pointer;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range strong {font-size:.75rem;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range small {font-size:.625rem;color:var(--muted);white-space:nowrap;overflow:hidden;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range.tone-1 {background:color-mix(in srgb,#f0ba5b 18%,var(--card));border-color:color-mix(in srgb,#f0ba5b 35%,var(--card));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range.tone-2 {background:color-mix(in srgb,#dd86aa 16%,var(--card));border-color:color-mix(in srgb,#dd86aa 30%,var(--card));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-undated {padding-top:1rem;font-size:.8125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-undated button {margin:.75rem .5rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-project-tasks {display:grid;gap:.75rem;}
+@media(max-width:760px) { .orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search {flex-wrap:wrap;min-width:0;} .orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search label {flex-basis:100%;max-width:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .category-row {gap:.5rem;flex-wrap:wrap;margin-left:calc(var(--category-depth) * .5rem);padding:.75rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .category-row .catalog-status {display:none;} .orbita#orbita-workspace:not(.canvas-fullscreen) .category-service-count {margin-left:auto;} .orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period,.orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period[data-date-period] {grid-template-columns:1fr 1fr;gap:.75rem;padding:.875rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period label:first-child {grid-column:1/-1;} .orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period > button {justify-self:end;grid-column:2;} .orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservation-settings {padding:1.25rem;} .orbita#orbita-workspace:not(.canvas-fullscreen) .task-board-toolbar {flex-wrap:wrap;} .orbita#orbita-workspace:not(.canvas-fullscreen) .task-board-progress > div {flex-wrap:wrap;} }
+
+.orbita#orbita-workspace.canvas-fullscreen :is(.module-rail,.header-identity,.topbar-context) {display:none!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail,.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {background:var(--sidebar-bg);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button:not(.active),.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .nav-item,.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile {color:var(--sidebar-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile small {color:color-mix(in srgb,var(--sidebar-ink) 72%,var(--sidebar-bg));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-line-chart path[stroke] {stroke:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar svg {transition:color .18s ease,filter .18s ease;}
+html.theme-dark .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar :is(button,a):hover > svg {color:#fff;filter:drop-shadow(0 0 .25rem #ffffff80);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) {--accent-text:light-dark(var(--ui-light-accent-text,#6e00fe),var(--ui-dark-accent-text,#b499ff));--chart-color:light-dark(var(--ui-light-chart,#6e00fe),var(--ui-dark-chart,#b499ff));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {height:auto;max-height:calc(100dvh - 7rem);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation {flex:1;min-height:0;overflow:auto;scrollbar-width:thin;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-orbit-symbol {display:grid;place-items:center;width:2.5rem;height:2.5rem;background:var(--primary);color:var(--primary-ink);border-radius:.75rem;font-size:2rem;font-weight:400;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .module-rail button.active {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu button.active,.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-symbol {color:var(--accent-text);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-line-chart path[stroke] {stroke:var(--chart-color);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .catalog-product-card > h2 {min-height:3rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .catalog-category-label {display:block;font-size:.75rem;line-height:1.25;min-height:1rem;color:var(--muted);margin-top:-.5rem;}
+@media(max-width:1024px){.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar{max-height:calc(100dvh - 4.5rem);}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(button,a).primary {background:var(--primary)!important;color:var(--primary-ink)!important;border-color:transparent;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(button,a).primary:hover {background:color-mix(in srgb,var(--primary) 88%,var(--text))!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.secondary {background:var(--surface)!important;color:var(--text)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .kanban-task {background:var(--card)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .task-footer {font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .work-tabs button[aria-selected=true] {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {box-shadow:none;}
+@media(max-width:1024px){.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar:not(.open){visibility:hidden;pointer-events:none;}.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar.open{visibility:visible;pointer-events:auto;translate:0;transform:none;}}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .settings-tabs button.active {background:var(--surface);color:var(--accent-text);}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(button,a).primary {border-color:transparent!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .app-footer {font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .nav-count {background:var(--primary);color:var(--primary-ink);}
+@media(max-width:760px){
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .reservations-toolbar {display:grid;grid-template-columns:minmax(0,1fr);}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search {display:grid;grid-template-columns:minmax(0,1fr);width:100%;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search label {width:100%;max-width:none;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #catalog-search :is(input,select) {min-width:0;width:100%;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .reservations-toolbar > .heading-actions {justify-content:space-between;}
+}
+
+/* Global modules in the header; the sidebar contains the active module only. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {padding-inline:1.5rem;border:0!important;box-shadow:none!important;transition:box-shadow .2s ease;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar.is-scrolled {box-shadow:0 .375rem 1.5rem #080c1510!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {width:13rem;gap:.625rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-orbit-symbol {padding:0;line-height:1;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .header-orbit-symbol svg {width:1.875rem;height:1.875rem;display:block;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context {display:flex;gap:.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {padding:.75rem .875rem;font-size:.8125rem;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button[hidden] {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button.active {background:var(--text);color:var(--card);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {left:1.5rem;width:14rem;padding:0;gap:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .sidebar-search {width:2.5rem;height:2.5rem;min-height:2.5rem;padding:0;display:grid;place-items:center;flex:none;align-self:flex-start;border-radius:50%;background:var(--card);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-search :is(span,kbd) {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-search svg {width:1.25rem;height:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation {padding:.75rem .5rem;background:var(--sidebar-bg);border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {width:100%;box-sizing:border-box;margin-inline:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right :is(.icon-btn,.my-avatar) {display:grid;place-items:center;width:2.5rem;min-width:2.5rem;height:2.5rem;min-height:2.5rem;padding:0!important;border:0;border-radius:50%;flex:none;font-size:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right .header-mode-toggle {background:light-dark(#fff,var(--card))!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right .header-mode-toggle:hover {background:var(--surface)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer.search-dialog {inset:0;margin:auto;width:min(40rem,calc(100vw - 2rem));height:fit-content;max-height:75dvh;border-radius:1.5rem;box-shadow:0 1.5rem 5rem #0003;animation:ui-search-in .22s ease both;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer.search-dialog[data-drawer-state=closing] {animation:ui-search-out .22s ease both;}
+@keyframes ui-search-in {from{opacity:0;transform:translateY(.5rem);}to{opacity:1;transform:none;}}
+@keyframes ui-search-out {from{opacity:1;transform:none;}to{opacity:0;transform:translateY(.5rem);}}
+@media(max-width:1180px) {
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {width:11rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #save-state {display:none;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {padding:.75rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button:last-child {display:block;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button:last-child[hidden] {display:none;}
+}
+@media(max-width:1024px) {
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {width:auto;margin-right:auto;font-size:1.25rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {height:8.5rem;min-height:8.5rem;flex-wrap:wrap;align-content:center;gap:.75rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context {order:4;flex-basis:100%;justify-content:flex-start;overflow-x:auto;padding-bottom:.125rem;scrollbar-width:thin;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {padding:.625rem .875rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {top:9rem;left:1rem;max-height:calc(100dvh - 10rem);padding:1rem;width:16rem;background:var(--background);border-radius:1.25rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell {padding-top:9rem;}
+}
+@media(max-width:480px) {
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {padding-inline:1rem;gap:.5rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-right :is(.icon-btn,.my-avatar) {width:2rem;min-width:2rem;height:2rem;min-height:2rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .header-identity {font-size:1.25rem;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) .header-orbit-symbol {width:2.25rem;height:2.25rem;}
+}
+@media(prefers-reduced-motion:reduce) {
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer.search-dialog {animation:none;}
+}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar {width:12.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell {margin-left:14rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .sidebar-search {width:100%;display:flex;justify-content:flex-start;gap:.625rem;padding:0 .875rem;box-sizing:border-box;border-radius:2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-search span {display:inline;font-size:.8125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #task-count {border-radius:999rem;}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-row {border-bottom:1px solid var(--line);border-radius:0;margin-left:calc(var(--category-depth) * 2rem);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-row[style*="--category-depth:0"] {background:var(--surface);border-radius:.875rem;margin-top:1rem;}
+@media(max-width:1024px){.orbita#orbita-workspace:not(.canvas-fullscreen) .app-shell{margin-left:0}.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar{width:15rem}}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu:not(.team-submenu) {margin-inline:0!important;padding-inline:0!important;width:100%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu:not(.team-submenu) > button {margin-inline:0!important;padding-inline:.75rem!important;width:100%;box-sizing:border-box;}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .module-heading {cursor:default;padding-inline:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu {position:fixed;inset:4.5rem 1.5rem auto auto;margin:0;padding:.5rem;width:17rem;border:0;border-radius:1rem;background:var(--card);color:var(--text);box-shadow:0 .75rem 2.5rem #0002;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button {display:flex;align-items:center;gap:.75rem;width:100%;padding:.875rem;border:0;background:transparent;color:inherit;font-size:.8125rem;text-align:left;border-radius:.75rem;cursor:pointer;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button:hover {background:var(--surface);}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) #save-state {display:none!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button {justify-content:flex-start!important;text-align:left!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button svg {flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .filter-search {background:var(--card)!important;overflow:hidden;border-radius:2rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .filter-search input {background:transparent!important;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation {margin-top:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {margin-top:0;}
+@media(min-width:1025px){.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main > [data-panel=overview] {padding-top:0!important;}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar > :is(.sidebar-search,.sidebar-navigation,.sidebar-bottom) {margin:0!important;}
+/* Refinements requested on 18 November. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .private-area-empty {padding-inline:.75rem;margin-inline:0;line-height:1.4;font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom a[href="/administracion"] {background:var(--primary);color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom a[href="/administracion"] svg {color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .module-heading {font-size:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .team-navigation > .navigation-parent {font-weight:400;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button {padding:.5rem 1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar-context button.active {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(button,input,textarea,select,a):focus {outline:none!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(button,input,textarea,select,a):focus-visible {box-shadow:0 0 0 .1875rem color-mix(in srgb,var(--primary) 30%,transparent);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer {border-radius:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.compact-drawer {width:min(30rem,100vw);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.compact-drawer .create-grid {grid-template-columns:1fr;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .integration-notice {background:light-dark(#e5edff,#263452);color:light-dark(#253b65,#e3ebff);border:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .integration-notice strong {display:block;font-size:1rem;margin-bottom:.125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .integration-notice .button.secondary {background:light-dark(#fff,#344970)!important;color:inherit!important;border:0!important;font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today {background:light-dark(#dfeee9,#203c36);color:light-dark(#183e33,#e4f5ed);border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-today :is(p,small,.scheduling-appointment-meta) {color:inherit;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) {--secondary:light-dark(var(--ui-light-secondary,#e5edf9),var(--ui-dark-secondary,#343d50));--secondary-ink:light-dark(var(--ui-light-secondary-ink,#111),var(--ui-dark-secondary-ink,#fff));--outline-color:light-dark(var(--ui-light-outline,#56627a),var(--ui-dark-outline,#bac4da));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.secondary {background:var(--secondary)!important;color:var(--secondary-ink)!important;border:1px solid transparent!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.outline {background:transparent!important;border:1px solid var(--outline-color)!important;color:var(--text)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-fields {grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field {grid-template-columns:1fr auto;gap:.625rem;padding:1.125rem;background:var(--background);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field > span {font-weight:500;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field input {grid-column:2;grid-row:1/3;width:3.5rem;height:3.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-field code {grid-column:1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-preview {grid-column:1/-1;padding:1.25rem 0;display:grid;gap:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-directory {display:grid;gap:1rem;background:transparent;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-group {background:var(--card);padding:.5rem 1.25rem;border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-group .category-row {margin:0!important;padding:1rem 0!important;border:0;background:transparent!important;border-radius:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-group > .category-row h2 {font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-children {list-style:none;margin:0 0 .75rem 1.25rem;padding:0 0 0 1.25rem;border-left:1px solid var(--line);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-children .catalog-symbol {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-children .category-row h2 {font-size:.875rem!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .category-children .category-row {border-top:1px solid var(--line);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer.search-dialog {inset:var(--search-top) auto auto var(--search-left);margin:0;width:var(--search-width);height:auto;max-height:none;padding:0;border:0;border-radius:2rem;background:transparent;box-shadow:none;overflow:visible;animation:ui-search-in .18s ease both;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .search-dialog #dialog-content > h2 {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .search-dialog #dialog-content > label {font-size:0;display:block;margin:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .search-dialog #global-search {width:100%;height:2.5rem;box-sizing:border-box;border-radius:2rem;background:var(--card);font-size:.8125rem;padding:.75rem;border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .search-dialog #search-results {position:absolute;top:0;left:calc(100% + 1rem);width:min(34rem,calc(100vw - var(--search-left) - var(--search-width) - 2rem));max-height:70dvh;overflow:auto;background:var(--card);color:var(--text);padding:1rem;border-radius:1rem;box-shadow:0 1rem 3rem #0002;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.search-dialog .modal-x {position:absolute;top:-2.5rem;right:0;float:none;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) .palette-fields{grid-template-columns:1fr;}.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.ui-drawer.search-dialog{inset:9rem 1rem auto;width:calc(100vw - 2rem);}.orbita#orbita-workspace:not(.canvas-fullscreen) .search-dialog #search-results{top:3.25rem;left:0;width:100%;box-sizing:border-box;max-height:55dvh;}.orbita#orbita-workspace:not(.canvas-fullscreen) .category-group{padding:.5rem .875rem;}.orbita#orbita-workspace:not(.canvas-fullscreen) .category-children{margin-left:.375rem;padding-left:.75rem;}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .integration-notice .button.secondary {background:light-dark(#fff,#344970)!important;color:light-dark(#253b65,#e3ebff)!important;border:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today :is(h2,p,small,strong,span,a) {color:inherit;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom a[href="/administracion"] {background:var(--primary)!important;color:#fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom a[href="/administracion"] svg {color:#fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation {padding-inline:.875rem;padding-block:.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .module-heading {padding-block:.5rem;min-height:2.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu:not(.team-submenu) {border-left:1px solid var(--line)!important;margin:.375rem 0 .75rem .75rem!important;padding-left:.5rem!important;width:calc(100% - .75rem);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .store-submenu:not(.team-submenu) > button {padding-block:.5rem!important;min-height:2.125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .business-table thead th {background:light-dark(#e8edf9,#2b3449);color:light-dark(#34415c,#e2e9f6);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .team-row .member-status {display:inline-flex;align-items:center;justify-content:center;width:fit-content;min-width:0;gap:.375rem;padding:.375rem .625rem;border-radius:999rem;background:light-dark(#e4f2e9,#223d30);color:light-dark(#28603e,#b5e3c5);font-size:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .team-row .member-status:before {content:'';width:.3125rem;height:.3125rem;background:currentColor;border-radius:50%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .team-row .member-status.disabled {background:light-dark(#f8ebdf,#443426);color:light-dark(#78502d,#edceaa);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .chart-legend small {font-size:.6875rem!important;line-height:1.4;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .month-goals-card .button.outline {background:transparent!important;color:inherit!important;border:1px solid currentColor!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;align-items:stretch;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming {background:light-dark(#e5eafb,#29334b);color:light-dark(#28375b,#e7ecfa);border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming :is(h2,p,small,strong,span) {color:inherit;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-main-grid {display:block;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-priority-grid .scheduling-panel-heading {flex-wrap:wrap;gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-ranking {display:grid;gap:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .ranking-label {gap:.75rem;align-items:center;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .ranking-label > strong {flex:1;font-size:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .ranking-position {width:1.75rem;height:1.75rem;display:grid;place-items:center;border-radius:.5rem;background:var(--surface);font-size:.75rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .ranking-count {font-size:.75rem;color:var(--muted);white-space:nowrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .ranking-count b {font-size:1.125rem;color:var(--text);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-ranking .scheduling-track {height:.625rem;border-radius:2rem;margin-top:.75rem;overflow:hidden;background:var(--surface);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-ranking .scheduling-track span {height:100%;border-radius:2rem;background:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-heading {display:grid;gap:.75rem;margin-bottom:1.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-heading .commerce-pill {justify-self:start;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-heading :is(h2,p) {margin:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #reservation-state-form {gap:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-time-summary {display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.25rem;background:var(--surface);border-radius:1rem;order:-1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-time-summary > div {display:grid;gap:.5rem;align-content:start;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-time-summary :is(span,small) {font-size:.75rem;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-time-summary strong {font-size:1rem;line-height:1.4;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-extras-summary {padding:1rem;background:var(--surface);border-radius:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-extras-summary h3 {font-size:.875rem;margin:0 0 .75rem;font-weight:600;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-extras-summary p {font-size:.8125rem;margin:.5rem 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-facts {display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin:.5rem 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-facts dt {font-size:.75rem;color:var(--muted);margin-bottom:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-detail-facts dd {font-size:.875rem;margin:0;overflow-wrap:anywhere;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .customer-directory .table-panel {overflow:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-customers td {padding:1rem;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid{grid-template-columns:1fr;}.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog .booking-time-summary{grid-template-columns:1fr;}.orbita#orbita-workspace:not(.canvas-fullscreen) .scheduling-customers{min-width:40rem;}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) {--focus-width:0px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(button,input,textarea,select,a) {outline:0!important;}
+@media(max-width:760px){
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .page-heading {flex-wrap:wrap;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .page-heading > div:first-child {flex:1 0 100%;min-width:0;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .page-heading h1 {word-break:normal;}
+ .orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming ul {height:auto;max-height:none;}
+}
+/* Keep both profile labels on one line within the sidebar width. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile {display:grid;grid-template-columns:2rem minmax(0,1fr) 1rem;gap:.5rem;width:100%;box-sizing:border-box;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile > span:not(.avatar) {min-width:0;max-width:100%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile :is(#profile-name,#profile-role) {display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;min-width:0;line-height:1.4;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(button,input,textarea,select):focus-visible {outline:0!important;box-shadow:none!important;}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom a[href="/administracion"] {background:light-dark(var(--ui-light-primary-white-background,var(--primary)),var(--ui-dark-primary-white-background,var(--primary)))!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .space-label {padding-inline:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .private-index-link {padding:0;border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .space-label {padding-inline:.75rem!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar .private-index-link {font-size:.6875rem!important;line-height:1.4;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation.private-only .sidebar-divider {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation.private-only .space-label {margin-top:0!important;padding-top:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .billing-panel {padding:1.75rem;background:var(--card);border:0;border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel-heading {display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel-heading > div {flex:1;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel-heading h2 {margin:0 0 .375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel-heading p {margin:0;color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-symbol {display:grid;place-items:center;flex:none;width:3rem;height:3rem;border-radius:1rem;background:var(--secondary);color:var(--text);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #billing-message {padding:1rem 1.25rem;border:0;border-radius:.875rem;background:light-dark(#e8eefc,#29364b);color:light-dark(#344463,#dfe7f7);margin:0 0 1.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #billing-message:empty {display:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding {display:grid;grid-template-columns:1fr 1fr;gap:2rem;padding:.5rem 0;align-items:start;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding h3 {font-size:1.25rem;margin:0 0 .75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding p {color:var(--muted);margin:0 0 1.5rem;line-height:1.6;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding ol {display:grid;gap:1.25rem;margin:0;padding:0;list-style:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding li {display:flex;align-items:start;gap:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding li > span {display:grid;place-items:center;width:2rem;height:2rem;border-radius:50%;background:var(--secondary);color:var(--secondary-ink);flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding li p {margin:.375rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel .module-form {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel .module-form > :is(p,button) {grid-column:1/-1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel details {padding:1rem;background:var(--surface);border-radius:.875rem;margin-top:1rem;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-onboarding,.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel .module-form{grid-template-columns:1fr;}.orbita#orbita-workspace:not(.canvas-fullscreen) .billing-panel-heading{flex-wrap:wrap;}.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .billing-panel{padding:1.25rem;}}
+
+/* Shared navigation, appointments and priority drawer refinements. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-navigation.private-only .space-label {margin-top:.75rem!important;padding-top:.5rem!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {background:light-dark(#e9e5f3,#302a40);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom .profile {background:transparent;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button {display:grid;grid-template-columns:1.125rem minmax(0,1fr);column-gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu button svg {width:1.125rem;height:1.125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .platform-admin-trigger {display:grid;place-items:center;color:var(--primary);background:var(--card);text-decoration:none;border-radius:50%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today {background:#183c39;color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:.75rem;padding:1.5rem 1.5rem 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading h2 {font-size:1.0625rem;margin:0;line-height:1.35;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading p {font-size:.75rem;line-height:1.5;margin:.5rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading > button {margin:0;padding:.5rem .625rem;font-size:.6875rem;min-height:2rem;border:0;border-radius:999rem;white-space:nowrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today :is(.button,.subtle-button) {background:#ffffff17;color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid ul {padding:1rem 1.5rem 1.5rem;margin:0;list-style:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment {display:grid;grid-template-columns:3.5rem minmax(0,1fr);gap:.75rem 1rem;padding:1.125rem 0;border-bottom:1px solid color-mix(in srgb,currentColor 14%,transparent);align-items:start;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment:last-child {border:0;padding-bottom:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time {display:grid;gap:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time strong {font-size:1.125rem;font-variant-numeric:tabular-nums;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time small {font-size:.6875rem;line-height:1.5;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy {gap:.375rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy strong {font-weight:600;font-size:.875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy :is(span,small) {font-size:.75rem;color:inherit;opacity:.8;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-end {grid-column:2;display:flex;flex-direction:row;align-items:center;justify-content:space-between;width:100%;padding:0;gap:.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .commerce-pill {background:#ffffff20;color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-ranking .scheduling-track span {background:linear-gradient(90deg,color-mix(in srgb,var(--primary) 45%,#c2e7ff),var(--primary));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .section-note {border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer #dialog-content {display:flex;flex-direction:column;min-height:calc(100dvh - 4rem);gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer #focus-options {flex:1;min-height:4rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer #focus-picked {border:0;background:var(--surface);border-radius:.75rem;padding:.875rem 1rem;margin:.5rem 0 0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer #save-focus {width:100%;flex:none;margin:0;min-height:2.75rem;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer #dialog-content {min-height:calc(100dvh - 3rem);}.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading {padding:1.25rem 1.125rem 0;}.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid ul {padding:1rem 1.125rem 1.25rem;}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .scheduling-panel-heading,
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .scheduling-panel-heading > div {color:#fff;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today :is(.button,.subtle-button) {background:#ffffff17!important;color:#fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid ul {height:auto;max-height:26rem;overflow-y:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer .focus-picker-row {display:grid;grid-template-columns:1.125rem minmax(0,1fr);align-items:start;gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog.focus-drawer .focus-picker-row input {margin-top:.125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main #reservations-content .scheduling-today :is(h2,p,.button,.subtle-button) {color:#fff!important;}
+
+/* Profile current state, themed appointments and scroll affordance. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) #billing-message {margin-bottom:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #profile-menu button.active {background:var(--primary)!important;color:var(--primary-ink)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #profile-password .form-grid > label:first-child {grid-column:1/-1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #profile-password input {width:100%;box-sizing:border-box;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {background:linear-gradient(135deg,light-dark(#dbd4ff,#35304e),light-dark(#ffe0ee,#462c41) 55%,light-dark(#d2f2ef,#244744));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .topbar .platform-admin-trigger {background:var(--primary)!important;color:#fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main #reservations-content .scheduling-today :is(h2,p,.button,.subtle-button) {color:var(--primary-ink)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .scheduling-panel-heading,
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .scheduling-panel-heading > div {color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-person-heading {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.375rem .625rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-person-heading .commerce-pill {opacity:1;font-size:.625rem;white-space:nowrap;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-appointment-end {justify-content:flex-end;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming {--upcoming-bg:light-dark(#e5eafb,#29334b);background:var(--upcoming-bg);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll {position:relative;min-height:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul {scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--primary) 65%,var(--upcoming-bg)) var(--upcoming-bg);scrollbar-gutter:stable;overscroll-behavior:contain;max-height:26rem;padding-bottom:2.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul::-webkit-scrollbar {width:8px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul::-webkit-scrollbar-thumb {background:color-mix(in srgb,var(--primary) 65%,var(--upcoming-bg));border:2px solid var(--upcoming-bg);border-radius:999rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll.has-more:after {content:'';position:absolute;pointer-events:none;inset:auto 8px 0 0;height:4rem;background:linear-gradient(transparent,var(--upcoming-bg));border-radius:0 0 1.25rem 1.25rem;}
+
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul {overflow-y:scroll;}
+
+@supports selector(::-webkit-scrollbar) {
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul {scrollbar-width:auto;scrollbar-color:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll ul::-webkit-scrollbar-track {background:color-mix(in srgb,var(--primary) 10%,var(--upcoming-bg));border-radius:999rem;}
+}
+
+/* Compact profile and consistent scroll regions. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom > .profile {border:1px solid #fff!important;border-radius:0 0 .75rem .75rem!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #profile-avatar {background:#fff!important;color:#526170;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading h2 {margin-bottom:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-panel-heading p {margin-top:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-person-heading .commerce-pill {font-size:.625rem!important;line-height:1.2;padding:.25rem .5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy {gap:.125rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy > :is(span,small) {margin:0;line-height:1.35;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-end {justify-content:flex-end;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-end .subtle-button {padding:.375rem .75rem!important;min-height:2rem;font-size:.75rem;font-weight:600;border-radius:999rem;background:#ffffff80;color:inherit;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today .scheduling-appointment-end .subtle-button {background:#ffffff28!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint {position:relative;min-height:0;--scroll-bg:var(--card);--scroll-thumb:var(--primary);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint {margin:0 .75rem .875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll {--scroll-bg:var(--upcoming-bg);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-today-scroll {--scroll-bg:var(--primary);--scroll-thumb:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint > [data-scroll-region] {max-height:24rem;overflow-y:auto;scrollbar-gutter:stable;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) var(--scroll-bg);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint > ul {padding:1rem .75rem 2rem;margin:0;height:auto;max-height:24rem;overflow-y:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint.has-more:after,
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming-scroll.has-more:after {content:'';position:absolute;pointer-events:none;inset:auto 8px 0 0;height:3rem;background:linear-gradient(transparent,var(--scroll-bg));border-radius:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .my-day-scroll {margin:0 1.25rem .875rem;flex:1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .today-panel .my-day-scroll #today-tasks {display:grid;gap:.75rem;padding:0 .5rem 1rem 0;max-height:17rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #billing-summary:empty {display:none;margin:0;}
+@supports selector(::-webkit-scrollbar) {
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint > [data-scroll-region],
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint > ul {scrollbar-width:auto;scrollbar-color:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint > [data-scroll-region]::-webkit-scrollbar {width:8px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint > [data-scroll-region]::-webkit-scrollbar-thumb,
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint > ul::-webkit-scrollbar-thumb {background:color-mix(in srgb,var(--scroll-thumb) 65%,var(--scroll-bg));border:2px solid var(--scroll-bg);border-radius:999rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .overflow-hint > [data-scroll-region]::-webkit-scrollbar-track,
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint > ul::-webkit-scrollbar-track {background:color-mix(in srgb,var(--scroll-thumb) 10%,var(--scroll-bg));border-radius:999rem;}
+}
+
+/* Appointment status stays with its time; navigation stays at the upper right. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {background:linear-gradient(135deg,light-dark(#dbd4ff,#35304e),light-dark(#ffe0ee,#462c41) 55%,light-dark(#fff1b8,#514628));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom > .profile {border:0!important;border-top:1px solid #fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment {grid-template-columns:5.5rem minmax(0,1fr) auto;gap:.75rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time {grid-column:1;grid-row:1;min-width:0;justify-items:start;gap:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-copy {grid-column:2;grid-row:1;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-end {grid-column:3;grid-row:1;align-self:start;justify-self:end;width:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status {background:#ececf3;color:#444457;opacity:1;font-size:.625rem!important;line-height:1.2;padding:.25rem .5rem;white-space:nowrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status[data-booking-status=confirmed] {background:#d7f8e5;color:#145737;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status[data-booking-status=pending] {background:#fff1b4;color:#73530b;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status[data-booking-status=canceled] {background:#ffe0e4;color:#922b38;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status[data-booking-status=completed] {background:#dceaff;color:#244f90;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-time .booking-status[data-booking-status=no_show] {background:#e9e1f4;color:#58426f;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-bottom-grid .scheduling-panel-heading h2 {margin-bottom:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-bottom-grid .scheduling-panel-heading p {margin:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main .integration-notice {border-radius:1.25rem;}
+@media(max-width:600px){.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment {grid-template-columns:5rem minmax(0,1fr) auto;gap:.5rem;}.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-priority-grid .scheduling-appointment-end .subtle-button{padding:.375rem .5rem!important;font-size:.6875rem;}}
+
+/* Project directories, dashboard proportions and shared controls. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.topbar,.sidebar) {background:var(--background)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .profile-menu {width:15rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar-bottom {background:linear-gradient(358deg,#becdff,light-dark(#e3e8ff,#462c41) 55%,light-dark(#fff,#514628));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.demo-notice,.reservation-demo-note) {background:#fff!important;color:#334155!important;border:0;border-radius:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-upcoming .booking-status[data-booking-status] {background:var(--primary)!important;color:#fff!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-insights-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.25rem;align-items:start;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-insights-grid .scheduling-bottom-grid {display:grid;grid-template-columns:1fr;gap:1.25rem;margin:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-insights-grid .scheduling-chart .scheduling-panel-heading {flex-wrap:wrap;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-insights-grid .scheduling-chart figure {margin-inline:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .space-name-row h2 {margin:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .space-title-copy .space-card-count {margin-left:0;padding-left:.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#spaces-grid .space-directory-card,#task-project-grid .task-project-card,#pages-list .page-card,#workspace-files-grid .asset-card) {border:0!important;box-shadow:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(#task-project-grid .directory-entry-footer,#pages-list .page-card-footer) {border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #order-detail .business-table thead th {background:#fff!important;color:#34415c;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .team-row.team-head {background:light-dark(#e8edf9,#2b3449);color:light-dark(#34415c,#e2e9f6);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress {display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-bottom:1.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress .work-tabs {margin:0;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress .task-board-progress {width:21rem;max-width:50%;margin:0;gap:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress .task-board-progress > div {gap:.5rem;font-size:.6875rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .task-mode-switch,
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-toolbar > .heading-actions {background:var(--secondary);padding:.375rem;border-radius:999rem;gap:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main :is(.timeline-toolbar .heading-actions,.task-mode-switch) button {background:#fff!important;color:#334155!important;border:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main :is(.timeline-toolbar,.task-mode-switch) button:is([aria-pressed=true],.active) {background:var(--primary)!important;color:var(--primary-ink)!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-toolbar .segmented {background:transparent;gap:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-range[data-timeline-task] {min-height:72px;touch-action:none;cursor:grab;padding-inline:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-resize-handle {position:absolute;top:50%;width:5px;height:60px;max-height:90%;transform:translateY(-50%);border-radius:999rem;background:var(--primary);opacity:.6;cursor:ew-resize;touch-action:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-resize-handle.start {left:3px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-resize-handle.end {right:3px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .date-dragging {z-index:20!important;opacity:.85;cursor:grabbing;box-shadow:0 .5rem 1.5rem #0002;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .overflow-hint > ul::-webkit-scrollbar-thumb {border:0!important;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content #reservation-settings {background:transparent;border:0;padding:0;display:grid;gap:1.5rem;max-width:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservation-settings .reservation-preferences {background:#fff;padding:1.75rem;color:#232630;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservation-settings .reservation-preferences .form-grid {gap:1.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservation-settings .reservation-hours {background:var(--sidebar-bg);border:0;margin:0;border-radius:1.25rem;padding:1.75rem;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) #reservations-content .scheduling-insights-grid{grid-template-columns:1fr;}.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress{flex-wrap:wrap;}.orbita#orbita-workspace:not(.canvas-fullscreen) .board-tabs-progress .task-board-progress{width:100%;max-width:none;}.orbita#orbita-workspace:not(.canvas-fullscreen) .timeline-toolbar>.heading-actions{flex-wrap:wrap;border-radius:1rem;}.orbita#orbita-workspace:not(.canvas-fullscreen) #reservation-settings :is(.reservation-preferences,.reservation-hours){padding:1.25rem;}}
+
+/* Hour calendar uses actual event duration and supports day/week/month views. */
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel {padding:0;overflow:hidden;background:var(--card);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel > .panel-heading {padding:1.25rem 1.5rem;margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:1rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel .heading-actions {margin-left:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-view-switch {background:var(--secondary);border-radius:999rem;padding:.25rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-view-switch button {background:var(--card);border:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-view-switch button.active {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #calendar-grid.project-hour-calendar {display:block;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-head,.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-body {display:grid;grid-template-columns:3.5rem repeat(var(--calendar-days),minmax(0,1fr));min-width:760px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel[data-calendar-mode=day] :is(.calendar-hour-head,.calendar-hour-body) {min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-day-label {padding:.75rem .5rem;border-left:1px solid var(--line);font-size:.75rem;text-align:center;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-day-label.is-today {background:var(--primary);color:var(--primary-ink);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-zone {padding:.75rem .5rem;color:var(--muted);font-size:.6875rem;text-align:center;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-scroll {max-height:38rem;overflow:auto;border-top:1px solid var(--line);overscroll-behavior:contain;scrollbar-width:thin;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-labels {position:relative;height:1344px;background:var(--card);z-index:2;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-labels span {position:absolute;left:.375rem;font-size:.6875rem;line-height:1;transform:translateY(.375rem);color:var(--muted);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-column {position:relative;height:1344px;border-left:1px solid var(--line);background:repeating-linear-gradient(to bottom,transparent 0px,transparent 55px,var(--line) 55px,var(--line) 56px);min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-column.is-today {background-color:color-mix(in srgb,var(--primary) 3%,var(--card));}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-slot {position:absolute;inset-inline:0;height:14px;border:0;border-radius:0;background:transparent;cursor:crosshair;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-slot:hover {background:color-mix(in srgb,var(--primary) 9%,transparent);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event) {--event-bg:light-dark(#e9dfff,#413354);--event-ink:light-dark(#402766,#f2e7ff);position:absolute;display:flex;flex-direction:column;align-items:start;justify-content:flex-start;gap:.25rem;padding:.625rem .5rem;min-height:0;border:0;border-radius:.5rem;background:var(--event-bg);color:var(--event-ink);text-align:left;overflow:hidden;cursor:grab;touch-action:none;box-sizing:border-box;z-index:3;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event).tone-1 {--event-bg:light-dark(#d9f3fb,#294751);--event-ink:light-dark(#204d5e,#dcf7ff);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event).tone-2 {--event-bg:light-dark(#fff0cb,#514527);--event-ink:light-dark(#655019,#fff3ce);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event).tone-3 {--event-bg:light-dark(#ffddd8,#53332f);--event-ink:light-dark(#762f23,#ffe4de);}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event) strong {font-size:.75rem;line-height:1.3;font-weight:600;overflow:hidden;overflow-wrap:anywhere;width:100%;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event) :is(small,.calendar-event-time) {font-size:.625rem;line-height:1.3;color:inherit;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-resize-handle {position:absolute;left:50%;transform:translateX(-50%);width:60px;max-width:80%;height:5px;border-radius:999rem;background:currentColor;opacity:.45;touch-action:none;cursor:ns-resize;z-index:2;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-resize-handle.start {top:2px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-resize-handle.end {bottom:2px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-milestone {display:block;width:100%;border:0;background:var(--surface);color:var(--text);font-size:.625rem;padding:.25rem;text-align:left;border-radius:.25rem;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #calendar-grid.project-month-grid {grid-template-columns:repeat(7,minmax(0,1fr));min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-day {display:block;position:relative;min-height:8rem;text-align:left;padding:.5rem;cursor:default;border:1px solid var(--line);border-width:1px 0 0 1px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-date {display:block;font-size:.75rem;margin-bottom:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-month-event {position:relative;width:100%;padding:.375rem .5rem;margin:.25rem 0;min-height:2.5rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-resize-handle {width:5px;height:28px;max-height:80%;top:50%;transform:translateY(-50%);left:auto;cursor:ew-resize;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-resize-handle.start {left:1px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-resize-handle.end {right:1px;bottom:auto;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #reservation-settings .reservation-preferences {--card:#fff;--text:#232630;--surface:#f5f6f8;--muted:#526170;--line:#dce1e8;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #workspace-main #reservation-settings .reservation-preferences :is(h2,p,small,label) {color:#232630!important;}
+@media(max-width:760px){.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel>.panel-heading{padding:1rem;}.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-panel .heading-actions{margin-left:0;flex-wrap:wrap;}.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-day{min-height:6rem;padding:.25rem;}.orbita#orbita-workspace:not(.canvas-fullscreen) .project-month-grid .calendar-month-event strong{font-size:.625rem;}}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event) strong {display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25;max-height:2.5em;flex-shrink:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.calendar-hour-event,.calendar-month-event) :is(small,.calendar-event-time) {display:block;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) :is(.timeline-resize-handle,.calendar-resize-handle):before {content:'';position:absolute;inset:-5px;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-event {padding:.5rem .375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-event.is-compact strong {-webkit-line-clamp:1;max-height:1.25em;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-event.is-short {padding:.375rem;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .calendar-hour-event.is-short .calendar-event-time {display:none;}

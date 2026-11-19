@@ -11,10 +11,15 @@ const handler: APIRoute = async ctx => {
     if (!ctx.request.headers.get('content-type')?.includes('application/json')) return json({error: 'Se requiere JSON.'}, 415);
     body = await ctx.request.text();
     if (body.length > 10000000) return json({error: 'Solicitud demasiado grande.'}, 413);
-    try { JSON.parse(body); } catch { return json({error: 'JSON inválido.'}, 400); }
+    try {
+      const data = JSON.parse(body);
+      if (!data || typeof data !== "object" || Array.isArray(data))
+        return json({error: "Solicitud no válida."}, 400);
+      body = JSON.stringify({ ...data, moduleId: "billing-cl" });
+    } catch { return json({error: 'JSON inválido.'}, 400); }
   }
   try {
-    const response = await fetch(setting(ctx, 'PAYLOAD_URL').replace(/\/$/, '') + '/api/orbital-modules', {
+    const response = await fetch(setting(ctx, 'PAYLOAD_URL').replace(/\/$/, '') + '/api/orbita-modules', {
       method: ctx.request.method, redirect: 'error',
       headers: {'Content-Type': 'application/json', Authorization: 'JWT ' + ctx.cookies.get(COOKIE)!.value},
       body, signal: AbortSignal.timeout(45000),

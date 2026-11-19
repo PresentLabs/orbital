@@ -1,0 +1,1208 @@
+/* Legacy text normalized to rem outside protected Space interiors. */
+.orbita:not(.canvas-fullscreen) {
+  font:
+    0.8125rem/1.5 "Inter",
+    sans-serif
+}
+.orbita:not(.canvas-fullscreen) h1 {
+  font-size: 1.75rem
+}
+.orbita:not(.canvas-fullscreen) .section-heading h2,
+.orbita:not(.canvas-fullscreen) .panel-heading h2 {
+  font-size: 0.8125rem
+}
+@media (max-width: 1150px) {
+  .orbita:not(.canvas-fullscreen) h1 {
+    font-size: 1.5625rem
+  }
+}
+@media (max-width: 900px) {
+  .orbita:not(.canvas-fullscreen) h1 {
+    font-size: 1.5625rem
+  }
+}
+@media (max-width: 680px) {
+  .orbita:not(.canvas-fullscreen) h1,
+  .compact h1 {
+    font-size: 1.5625rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .nav-item {
+  font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .metric-top,
+.orbita:not(.canvas-fullscreen) .task-name,
+.orbita:not(.canvas-fullscreen) .page-heading p,
+.orbita:not(.canvas-fullscreen) .space-card-info strong {
+  font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-checkbox:checked::after {
+  line-height: 1rem;
+  font-size: 0.8125rem
+}
+@media (max-width: 680px) {
+  .orbita:not(.canvas-fullscreen) .space-card-info strong {
+    font-size: 0.75rem
+  }
+}
+@media (max-width: 680px) {
+  .orbita:not(.canvas-fullscreen) .metric-top {
+    font-size: 0.75rem
+  }
+}
+@media (max-width: 680px) {
+  .orbita:not(.canvas-fullscreen) .page-heading p {
+    font-size: 0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .form-error {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .section-note {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .comments-heading h3 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .comments-heading h3 span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .comment-avatar {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-comment strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-comment time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-comment p {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .comment-mention-mark {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .comments-empty {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .comment-composer label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .comment-composer textarea {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .comment-compose-footer>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .mention-options button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .mention-empty {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .selected-mentions button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-count {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-list span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-list strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-list small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-open h3 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .comment-bubble {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-grip {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .space-directory-card h2 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .space-directory-card p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .back-to-spaces {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen).canvas-fullscreen .canvas-heading h1 {font-size:1.4375rem
+}
+.orbita:not(.canvas-fullscreen).canvas-fullscreen .canvas-heading p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node [data-inline-title] {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .node-drag-handle {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .linked-page-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .node-task {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .page-card-footer .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .event-dialog-heading h2 {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .event-dialog-heading .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .permission-options legend {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .permission-options label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .role-description {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-identity strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .team-identity small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-identity>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .role-tag {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .member-status {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-protected {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .access-symbol {font-size:1.5rem
+}
+.orbita:not(.canvas-fullscreen) .access-card h2 {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) .access-card p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .masked-secret {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .secret-input button {font-size:0.75rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen).canvas-fullscreen .canvas-heading .button {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen).canvas-fullscreen .canvas-heading h1 {font-size:1.25rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen).canvas-fullscreen .canvas-heading p {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .task-comment time {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .event-dialog-heading h2 {font-size:1.25rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .event-dialog-heading .button {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .permission-options label {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .task-drag-ghost {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-drag-ghost .task-footer {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .modal-x {font:1.5625rem/1 Arial,sans-serif
+}
+.orbita:not(.canvas-fullscreen) .store-submenu button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .private-area-empty {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #sidebar-greeting {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .strong-tabs button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .chart-tabs button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .settings-panel h2 {font-size:1.0625rem
+}
+.orbita:not(.canvas-fullscreen) .form-grid label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .field-hint {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .logo-preview {font-size:4.0625rem
+}
+.orbita:not(.canvas-fullscreen) .file-label {font-size:0.8125rem!important
+}
+.orbita:not(.canvas-fullscreen) .file-label input {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .large-avatar {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .profile-intro strong {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) .back-link {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .board-icon {font-size:1.5625rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-card h2 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-card p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-card footer {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-card b {font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen) .access-launch {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-type {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-card-info h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-card-info p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .viewer-heading h1 {font-size:1.4375rem
+}
+.orbita:not(.canvas-fullscreen) .viewer-heading p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-viewer-surface pre {font:0.8125rem/1.8 ui-monospace,monospace
+}
+.orbita:not(.canvas-fullscreen) .business-table th {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .business-table td {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .business-table td small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .business-table .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .table-link {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .pagination {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .order-lines>h2 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .order-totals p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .order-totals p:last-child {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) .order-info h2 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .order-info p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .order-info h3 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node .node-body>p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node .node-body h1 {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node .node-body h2 {font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node .node-body h3 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library h2 {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library button>span {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .rich-toolbar select {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .rich-toolbar button {font-size:0.8125rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .strong-tabs button {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .viewer-heading h1 {font-size:1.3125rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .canvas-block-library h2 {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .canvas-block-library strong {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .canvas-block-library button>span {font-size:1.125rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .sidebar-greeting {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .presence-cursor small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .node-presence {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .private-card h2 {font-size:1.0625rem
+}
+.orbita:not(.canvas-fullscreen) .private-card p {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .entity-content {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .team-head {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .receipt-filters label {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .receipt-filters input,.orbita:not(.canvas-fullscreen) .receipt-filters select {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .meet-card h2 {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) .meet-card p {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .meet-symbol {font-size:1.6875rem
+}
+.orbita:not(.canvas-fullscreen) .monthly-goal span {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .goal-progress {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .focus-tag {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .focus-picker-row small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .member-picker small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .search-result-row strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .search-result-row small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .search-type {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .month-goals-card .panel-heading h2 {font-size:1.25rem
+}
+.orbita:not(.canvas-fullscreen) .month-goals-card .panel-subtitle {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .meet-card .section-note {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-block-library button:hover:after,.orbita:not(.canvas-fullscreen) .canvas-block-library button:focus-visible:after {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .task-inline-description {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .task-editable h3 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .node-to-task {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .focus-pill {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .nav-section-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .nav-purpose {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .tooltip-control:hover:after,.orbita:not(.canvas-fullscreen) .tooltip-control:focus-visible:after {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .presence-caption {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .member-avatar {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .presence-cursor {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .presence-cursor b {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .presence-cursor small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .node-presence {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .month-goals-card .panel-heading h2 {font-size:1rem!important
+}
+.orbita:not(.canvas-fullscreen) .secret-copy-tip {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .entity-content h1 {font-size:1.8125rem
+}
+.orbita:not(.canvas-fullscreen) .entity-content h2 {font-size:1.4375rem
+}
+.orbita:not(.canvas-fullscreen) .entity-content h3 {font-size:1.1875rem
+}
+@media (max-width:800px) {
+  .orbita:not(.canvas-fullscreen) .canvas-heading .button {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .bulk-task-preview strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .bulk-task-preview small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .inline-task-comment header {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .inline-task-comment time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .inline-task-comment p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .access-actions .button,.orbita:not(.canvas-fullscreen) .access-actions .access-launch {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .profile-intro>div>small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-head strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .document-bulk-toolbar label,.orbita:not(.canvas-fullscreen) .document-selection {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .document-bulk-toolbar>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .editor-field-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .commerce-pill {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .integration-setup {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .integration-setup code {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .appearance-picker {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .appearance-picker select {font-size:0.75rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .appearance-picker select {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .directory-controls>label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #workspace-main .settings-tabs button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .home-footer-symbol {font-size:1.875rem
+}
+.orbita:not(.canvas-fullscreen) .home-card-footer .goal-progress {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .home-card-footer .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .meet-card .home-card-footer #meet-connection-note {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .space-directory-card>p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list :is(.space-directory-card,.task-project-card,.page-card) h2 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .task-project-card>p,.orbita:not(.canvas-fullscreen) .directory-list .page-open p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .task-project-card footer {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .page-card-footer :is(small,button) {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-list .file-type {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-list .file-card-info h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .documents-list .file-card-info p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-toolbar #document-search {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-toolbar #document-filter {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-toolbar .document-bulk-toolbar {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .documents-toolbar .document-bulk-toolbar .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .document-display-controls>label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .asset-info h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .asset-info p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .asset-bulk {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .asset-status {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .asset-display-controls>label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .pill-switch button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .vision-toolbar h2 {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) .vision-toolbar p,.orbita:not(.canvas-fullscreen) .vision-toolbar>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .vision-empty {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .vision-empty span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .vision-image-actions button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .scrum-toolbar label {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .scrum-metrics span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .scrum-metrics strong {font-size:1.75rem
+}
+.orbita:not(.canvas-fullscreen) .scrum-chart-panel .panel-heading>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .burndown-chart text {font:0.75rem sans-serif
+}
+.orbita:not(.canvas-fullscreen) .burndown-legend {font-size:0.75rem
+}
+@media (max-width:600px) {
+  .orbita:not(.canvas-fullscreen) .planning-switch button {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) #workspace-main :is(input[type=search],input[placeholder^="Buscar"],input[data-directory-search]) {font:0.8125rem/1.4 "Inter",sans-serif
+}
+.orbita:not(.canvas-fullscreen) .vision-stage-controls>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .daily-scrum-heading strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #today-scrum p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #today-scrum .subtle-button {font-size:0.75rem
+}
+@media (max-width:550px) {
+  .orbita:not(.canvas-fullscreen) .vision-stage-controls>span {font-size:0.75rem
+  }
+}
+@media (max-width:550px) {
+  .orbita:not(.canvas-fullscreen) .vision-stage-controls .button {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) #canvas-nodes .node-photo-caption {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .vision-paste-hint {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #canvas-frame.receiving-images::after {font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen) .work-mode-badge {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .work-metrics strong {font-size:1.75rem
+}
+.orbita:not(.canvas-fullscreen) .work-limit-warning,.orbita:not(.canvas-fullscreen) .task-blocked {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .work-table {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #board-progress-pane h2,.orbita:not(.canvas-fullscreen) #board-summary-pane h2 {font-size:1.1875rem
+}
+.orbita:not(.canvas-fullscreen) #board-progress-pane h3 {font-size:1.0625rem
+}
+.orbita:not(.canvas-fullscreen) .invitation-page h1 {font-size:1.875rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.panel-heading h2 {font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.panel-heading .button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-summary {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-group h3 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-task-title {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-task-meta {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-empty {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-footer .text-link {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-footer .subtle-button {font-size:0.8125rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .my-day-task-title {font-size:0.875rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .today-panel #my-day-title {font-size:1.125rem!important
+}
+.orbita:not(.canvas-fullscreen) :is(.sales-panel>.panel-heading>h2,.meet-card>h2,.today-panel #my-day-title) {font-size:0.8125rem!important
+}
+.orbita:not(.canvas-fullscreen) .today-panel [data-home-action="choose-today"] {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.my-day-footer :is(.text-link,.subtle-button) {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.my-day-footer .subtle-button {font-size:0.75rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) :is(.sales-panel>.panel-heading>h2,.meet-card>h2,.today-panel #my-day-title) {font-size:0.8125rem!important
+  }
+}
+.orbita:not(.canvas-fullscreen) .today-panel [data-home-action="choose-today"] {font-size:0.75rem!important;line-height:0.9375rem!important
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.my-day-footer .text-link {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .today-panel>.my-day-footer .subtle-button {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .page-card-footer.access-actions>.button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-entry-footer.access-actions {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-entry-footer .directory-action-button,.orbita:not(.canvas-fullscreen) .file-card-info .directory-action-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .button.standard-action {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .page-card h2 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .page-card h2 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) :is(#page-detail,#task-detail)>.work-section h2 {font:600 0.8125rem/1.5 var(--primary-family)!important
+}
+.orbita:not(.canvas-fullscreen) :is(#page-detail,#task-detail)>.work-section .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #work-relations legend {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .button.compact-table-action {font-size:0.75rem!important;line-height:0.9625rem!important
+}
+.orbita:not(.canvas-fullscreen) .space-directory-card>.space-edit-action {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .month-goals-card #goals-month.goals-month-pill {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #task-form .task-blocking summary {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #task-form .task-blocking p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .my-day-task .my-day-task-meta,.orbita:not(.canvas-fullscreen) .my-day-task .my-day-task-meta time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-email {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .team-row>.team-protected {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .space-card-count {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .linked-file-open {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .linked-file-hint {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .attachment-unlink {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .selection-menu {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .selection-menu-panel label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .selection-menu-panel .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) :is(.document-filters #document-filter,.asset-filters #workspace-file-filter) {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-open h2 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .task-project-open p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .directory-list .task-project-open h2 {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .task-board-filters select {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .board-title-line h1 {font-size:1.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-detail-meta dt {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .task-detail-meta dd {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-layout h2 {font-size:0.875rem!important
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-description>.entity-content {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-side .button,.orbita:not(.canvas-fullscreen) #task-detail .task-detail-comments>.button {font-size:0.75rem
+}
+@media (max-width:600px) {
+  .orbita:not(.canvas-fullscreen) #task-detail .board-title-line h1 {font-size:1.4375rem
+  }
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-meta dt {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-meta dd {font-size:1.375rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-assignee {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .resource-copy strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .resource-copy small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .resource-arrow {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) #task-detail .resource-empty {font-size:0.75rem
+}
+@media (max-width:600px) {
+  .orbita:not(.canvas-fullscreen) #task-detail .task-detail-meta dd {font-size:1rem
+  }
+}
+.orbita:not(.canvas-fullscreen) #task-detail .task-detail-meta dt {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .space-name-row>.space-edit-action {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .space-card-summary>.space-edit-action {font-size:0.75rem
+}
+@media (max-width:1024px) {
+  .orbita:not(.canvas-fullscreen) :is(.document-display-controls,.asset-display-controls)>label {font-size:0.75rem
+  }
+}
+@media (max-width:1024px) {
+  .orbita:not(.canvas-fullscreen) :is(.document-display-controls,.asset-display-controls) .selection-menu summary {font-size:0.75rem
+  }
+}
+@media (max-width:1024px) {
+  .orbita:not(.canvas-fullscreen) .task-board-filters #task-filter {font-size:0.75rem
+  }
+}
+@media (max-width:1024px) {
+  .orbita:not(.canvas-fullscreen) .task-board-display>[data-action=toggle-task-comments] {font-size:0.75rem
+  }
+}
+@media (max-width:1024px) {
+  .orbita:not(.canvas-fullscreen) .task-board-display .task-mode-switch button {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .page-heading>.heading-actions>.button .google-mark {font-size:1rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) :is(.directory-controls,.document-display-controls,.asset-display-controls)>label select {font-size:0.75rem!important
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .calendar-panel .calendar-day>span:first-child {font-size:0.75rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen) .calendar-panel .event-chip {font-size:0.75rem
+  }
+}
+@media (max-width:400px) {
+  .orbita:not(.canvas-fullscreen) :is(.document-display-controls,.asset-display-controls) .selection-menu summary {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .my-day-count {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) select.priority-status {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-card h3 {font-size:1rem
+}
+.orbita:not(.canvas-fullscreen) .poll-option {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-result>div:first-child {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-vote-confirmation {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-error,.orbita:not(.canvas-fullscreen) #poll-create-error {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-stage {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-participated {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-summary h3 {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .poll-summary-meta,.orbita:not(.canvas-fullscreen) .poll-summary-prompt {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-summary .poll-result>div:first-child {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-summary .poll-enter {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .priority-row>.priority-status {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-title {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta,.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-title {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta,.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .priority-row>.priority-status {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .topbar-right :is(small, .small, .save-state) { font-size: 1rem
+}
+.orbita:not(.canvas-fullscreen) .vote-notification {font:600 0.75rem/1.3 var(--primary-family)
+}
+.orbita:not(.canvas-fullscreen) #workspace-files-breadcrumb {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .workspace-file-dropzone strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .workspace-file-dropzone p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .workspace-file-dropzone .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-folder-open strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-folder-open small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .asset-format {font-size:1.25rem
+}
+.orbita:not(.canvas-fullscreen) .asset-info .asset-location {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .folder-file-picker span {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .folder-file-picker small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #workspace-folder-actions .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .asset-drag-preview {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-center-heading h2 {font-size:1.375rem!important
+}
+.orbita:not(.canvas-fullscreen) .notification-tabs [role=tab] {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #notifications-mark-all {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-center .notification-copy strong {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen) .notification-center .notification-description {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-center .notification-copy time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-center footer .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #notification-feedback {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-empty {font-size:0.8125rem
+}
+@media (max-width:480px) {
+  .orbita:not(.canvas-fullscreen) .notification-center-heading h2 {font-size:1.25rem!important
+  }
+}
+@media (max-width:480px) {
+  .orbita:not(.canvas-fullscreen) #notifications-mark-all {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .file-organize-menu>summary {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view #workspace-folder-actions .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-content-section>h2,.orbita:not(.canvas-fullscreen) .file-section-heading h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-content-section>h2 span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .file-folder-open strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-drop-hint {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .asset-info h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .asset-info p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .asset-info>.asset-location {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-help {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-help p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-organize-menu .selection-menu-panel .button {font-size:0.8125rem!important
+}
+.orbita:not(.canvas-fullscreen) .asset-physics-ghost h2 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .asset-physics-ghost p {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .chart-data-tooltip {font-size:0.8125rem
+}
+@media (max-width:600px) {
+  .orbita:not(.canvas-fullscreen) .file-library-view .file-folder-open strong {font-size:0.8125rem
+  }
+}
+@media (max-width:650px) {
+  .orbita:not(.canvas-fullscreen) .file-library-view .file-type-actions select {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .file-library-help {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-help strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-help p {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .file-folder-context>button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-folder-context h2 {font-size:1rem!important
+}
+.orbita:not(.canvas-fullscreen) .file-folder-context .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .asset-preview .asset-format {
+  font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .asset-preview .asset-name {
+  font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .assets-list .asset-preview .asset-format {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .assets-list .asset-name {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-view .file-folder-new {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #workspace-folder-total {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-folder-sidebar>strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-folder-sidebar button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .file-library-help p {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) #workspace-files-pagination nav button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .priority-task-icon {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .priority-row>select.priority-status {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) #workspace-main .file-library-view .file-folder-open strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #workspace-main .file-library-view .file-folder-new {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .priority-task-icon {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-title {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta,.orbita:not(.canvas-fullscreen) .today-panel .my-day-task-meta time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-popover .notification-center-heading h2 {font-size:1.125rem!important
+}
+.orbita:not(.canvas-fullscreen) .notification-popover .notification-tabs [role=tab] {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-popover #notifications-mark-all {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-popover .notification-copy strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-popover .notification-description {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-popover .notification-copy time {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #notification-compose label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #notification-compose textarea {font:0.8125rem/1.5 Inter,sans-serif
+}
+.orbita:not(.canvas-fullscreen) #notification-compose .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #direct-feedback {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #notification-compose #direct-error {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #notification-compose .mention-suggestions button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-card h3 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .field-hint {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-option {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll legend {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-pie-results li {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-pie-results strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .poll-pie-results small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-no-votes {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-pie-results li,.orbita:not(.canvas-fullscreen) .notification-poll .poll-pie-results strong {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-card h3 {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .field-hint {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll legend {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-option {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-tool-grid .button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-web strong {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-web small {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-web .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-media p {font-size:0.75rem!important
+}
+.orbita:not(.canvas-fullscreen) .spatial-media .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-drawing .subtle-button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-stack-picker label {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-search-results .button {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) #spatial-scratch>small {font-size:0.75rem
+}
+@media (max-width:500px) {
+  .orbita:not(.canvas-fullscreen) .spatial-tool-grid .button {font-size:0.75rem
+  }
+}
+.orbita:not(.canvas-fullscreen) .poll-column-axis {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .poll-column-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .notification-poll .poll-column-label,.orbita:not(.canvas-fullscreen) .notification-poll .poll-column-axis {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-node-face .linked-page-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #canvas-selection-actions span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #canvas-selection-actions button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-group-body {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-stack-actions button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-gif button {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-video>button:not([hidden]) {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-preview-title {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-preview-copy {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-preview-empty {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-deck-count {font-size:0.75rem;line-height:1.1875rem
+}
+.orbita:not(.canvas-fullscreen) .stack-drop-label {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) #canvas-nodes .canvas-card-title {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-card-form :is(input,textarea,[data-card-editor]) {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-title-line {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .spatial-web-preview.preview-unavailable>span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-private-folder span {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-private-folder strong {font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-detail-card h2 {font-size:clamp(1.375rem,4vw,2.375rem)
+}
+.orbita:not(.canvas-fullscreen) .canvas-shortcuts dt,.orbita:not(.canvas-fullscreen) .canvas-shortcuts dd {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-shortcuts kbd {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-disband {
+  font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen) .stack-preview-note {
+  font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen) .idea-cloud-author {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen) .inside-folder #workspace-current-folder {font-size:0.8125rem!important
+}
+.orbita:not(.canvas-fullscreen) #canvas-frame .canvas-heading h1 {
+  font-size: clamp(1.0625rem, 2.3vw, 1.4375rem)
+}
+.orbita:not(.canvas-fullscreen) .canvas-tools-menu button { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-file-preview pre { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-shortcuts-menu h2 { font-size: 0.875rem
+}
+.orbita:not(.canvas-fullscreen) .canvas-shortcuts-menu p { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen) #canvas-detail .canvas-detail-back {
+  font-size: 1.25rem
+}
+.orbita:not(.canvas-fullscreen) .task-card-menu > summary {
+  font-size: 1rem
+}
+.orbita:not(.canvas-fullscreen) :is(small, .field-hint, .section-note, .form-error, .notification-copy time) {
+  font-size: max(.8125rem, 0.8125rem)
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace {
+  font-size: 0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .sidebar .nav-item { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .sidebar :is(.store-submenu,.team-submenu) button { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .sidebar .nav-count { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .topbar .breadcrumbs { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main .page-heading h1 { font: 600 1.75rem/1.2 var(--primary-family)
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main .page-heading p { font-size: 0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main :is(.panel-heading,.scheduling-panel-heading) h2 { font-size: 1rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace :is(#workspace-main,#editor-dialog) .button { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace :is(#workspace-main,#editor-dialog) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]) { font-size: 0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace :is(.form-grid,.settings-panel,.module-form,#reservation-entry-form,#reservation-create-form,#reservation-state-form) label { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace :is(.strong-tabs,.chart-tabs) button { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .table-panel :is(th,td) { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .editor-dialog h2 { font-size: 1.375rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .editor-dialog label { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .empty-state { font-size: 0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .subtle-button { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-period p { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-period label { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-metric > div { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-metric > strong { font-size: 1.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-metric small { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-panel-heading p { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-chart text { font: 0.75rem var(--primary-family)
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-chart figcaption { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-legend { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-time strong { font-size: 0.9375rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-time small { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-appointment-copy strong { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-appointment-copy span { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-appointment-copy small { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-appointment-end .subtle-button { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .reservation-state { font-size: 0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-ranking li > div:first-child { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-ranking li > div > span { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-empty { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .reservation-card h2 { font-size: 1.0625rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .reservation-card p { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .reservation-settings h2 { font-size: 1.125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .reservation-table :is(th,td) { font-size: 0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .reservation-table small { font-size: 0.8125rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main .page-heading h1 { font-size: 1.5rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-metric > strong { font-size: 1.625rem
+  }
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main [data-panel=reservations] .page-heading > .heading-actions > .button { font-size: 0.8125rem !important
+  }
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #reservations-content .scheduling-metric small { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-directory-empty h2 { font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-directory-empty p,.orbita:not(.canvas-fullscreen)#orbita-workspace .directory-count { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main .panel-heading h2 { font-size:1rem !important
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main :is(.settings-panel,.module-panel) > h2 { font-size:1.125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace #workspace-main .page-heading .eyebrow { font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-today .scheduling-panel-heading h2 { font-size:1.25rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .booking-detail-facts dt { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .booking-detail-facts dd {font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .button.compact-table-action {font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .reservation-table .commerce-pill { font-size:0.75rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-chart text { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-data {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-data :is(th,td) {font-size:0.8125rem
+}
+@media (max-width:680px) {
+  .orbita:not(.canvas-fullscreen)#orbita-workspace .scheduling-chart text { font-size:1.25rem
+  }
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .booking-history {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .booking-history time {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .service-duration-options legend { font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .catalog-category-label { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .catalog-image-frame {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .catalog-image-editor legend { font-size:0.875rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .package-includes {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .package-includes small {font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .package-sessions-editor > legend { font-size:0.9375rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .package-session-row legend { font-size:0.8125rem
+}
+.orbita:not(.canvas-fullscreen)#orbita-workspace .payment-hold-note p {font-size:0.8125rem
+}

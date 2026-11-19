@@ -1,4 +1,12 @@
-import {installModules} from "./workspace-modules";
+import {installProjectCalendar} from "./workspace-project-calendar";
+import {installDatePointer} from "./date-pointer";
+import {adjustTaskRange,eventRange,eventDates,validEventDates} from "@/lib/saas/date-ranges";
+import {taskProgress,memberAvatar,timelineWindow,timelineRows} from "@/lib/saas/task-presentation";
+import {showNotice,installDrawer} from "@/lib/saas/ui-feedback";
+import {applyBusinessPalette} from "@/lib/saas/business-palette";
+import { schedulingSection, schedulingPath } from "@/lib/saas/scheduling";
+import { installReservations } from "./workspace-reservations";
+import {installBilling} from "./workspace-billing";
 import { readWorkspaceCache, writeWorkspaceCache } from "@/lib/saas/workspace-cache";
 import { noteColors, noteTextColor, visibleNoteColor } from "@/lib/saas/spatial";
 import demoCanvasImage from "@/assets/orbita-demo/diseno.png?inline";
@@ -8,9 +16,10 @@ import { canvasHoverRepulsion, canvasNeighborOffset, canvasProfile } from "./wor
 import {installSpatial} from './workspace-spatial';
 import {chartSamples,installChartInspection} from './workspace-chart-inspect';
 import {smoothLine} from '@/lib/saas/chart-path';
+import {installOverflowHints} from '@/lib/saas/overflow-hints';
 import {installChartMotion,enterWorkspaceView} from './workspace-chart-motion';
 import {installWork,workModeField} from "./workspace-work";
-import {reconcileWork,retainWorkOnUndo,workModes,modeOf,type WorkMode} from "@/lib/saas/work-management";
+import {reconcileWork,retainWorkOnUndo,companyDay,workModes,modeOf,type WorkMode} from "@/lib/saas/work-management";
 import {isSelectionDelete} from "@/lib/saas/selection-keyboard";
 import {installPlanning} from "./workspace-planning";
 import { clipboardImageFiles, prepareCanvasScreenshot } from "@/lib/saas/canvas-image";
@@ -94,7 +103,8 @@ const storageKey = cloud ? "orbita:" + String(initialUser.id) + ":v1" : "orbita:
 let cloudDirty = false;
 let localSavePending = false;
 let changeVersion = 0;
-let moduleView: ReturnType<typeof installModules> | undefined;
+let billingView: ReturnType<typeof installBilling> | undefined;
+let reservationsView: ReturnType<typeof installReservations> | undefined;
 let activeView = "overview";
 let activeSpace = "Negocio";
 let privateKind: "spaces" | "tasks" | "pages" = "spaces";
@@ -106,8 +116,9 @@ function viewSection(view: string): Section {
       ? { spaces: "canvas", tasks: "tasks", pages: "pages" }[privateKind]
       : (
           {
-            modules: "settings",
+            accounting: "invoices",
             polls: "profile",
+            reservations: "calendar",
             search: "profile",
             trash: "profile",
             "private-index": "profile",
@@ -156,7 +167,8 @@ let canvasDetailMotion: Animation | undefined;
 const demoActorId = "demo-me";
 const initialActor: WorkspaceMember = initialUser ?? state.demoMembers![0];
 let taskMode = "board";
-let mobileTaskMode: "board" | "list" | undefined;
+let mobileTaskMode: "board" | "list" | "timeline" | undefined;
+let timelineOffset=0;let timelineGrouping:"tasks"|"projects"="tasks";
 let chartKind = "sales";
 let analyticsKind = "sales";
 let connectedProviders: string[] = [];
@@ -165,7 +177,7 @@ let connectionsRequest = 0;
 let commerceReport: any = null;
 let seoReport: any = null;
 let cartsReport: any = null;
-let calendarDate = new Date();
+let projectCalendar:ReturnType<typeof installProjectCalendar>;
 let tool = "select";
 let connectFrom = "";
 let camera = { x: 0, y: 0, z: 1 };
@@ -180,6 +192,7 @@ let syncing = false;
 let dragDirty = false;
 let remotePending = false;
 const dialog = $<HTMLDialogElement>("#editor-dialog");
+const drawer=installDrawer(dialog);
 const channel =
   typeof BroadcastChannel !== "undefined"
     ? new BroadcastChannel("orbita-demo")
@@ -221,6 +234,8 @@ dialog.addEventListener("close", () => {
   }
 });
 function notify(message: string) {
+  if(!document.body.classList.contains("canvas-fullscreen")){showNotice($("#toast"),message);return;}
+  $("#toast").classList.remove("ui-toast");$("#toast").hidden=false;
   $("#toast").textContent = message;
   $("#toast").classList.add("visible");
   clearTimeout(toastTimer);
@@ -303,6 +318,7 @@ function save() {
     }, 450);
   }
   renderCommon();
+  syncPrivateChrome();
 }
 function mutate(fn: () => void) {
   history();
@@ -354,7 +370,18 @@ function modal(html: string) {
     showStep(false, false);
   }
   applyAccess();
-  if (!dialog.open) dialog.showModal();
+  dialog.classList.toggle("search-dialog", !!dialog.querySelector("#global-search") && !document.body.classList.contains("canvas-fullscreen"));
+  if(!document.body.classList.contains("canvas-fullscreen")) {
+    $("#sidebar").classList.remove("open");
+    syncSidebarFocus();
+  }
+  if(dialog.classList.contains("search-dialog")){
+    const r=document.querySelector('.sidebar-search')!.getBoundingClientRect();
+    dialog.style.setProperty('--search-left',`${r.left}px`);dialog.style.setProperty('--search-top',`${r.top}px`);dialog.style.setProperty('--search-width',`${r.width}px`);
+  }
+  dialog.classList.toggle('compact-drawer',!!dialog.querySelector('.create-grid,#focus-options'));
+  dialog.classList.toggle('focus-drawer',!!dialog.querySelector('#focus-options'));
+  drawer.open();
   setTimeout(
     () =>
       dialog
@@ -364,7 +391,7 @@ function modal(html: string) {
   );
 }
 function close() {
-  dialog.close();
+  drawer.close();
 }
 function syncSidebarFocus() {
   const sidebar = $("#sidebar");
@@ -380,6 +407,17 @@ function syncSidebarFocus() {
 window
   .matchMedia("(max-width: 1024px)")
   .addEventListener("change", syncSidebarFocus);
+function expandNavigation(group: string | null) {
+  for (const name of ["store", "scheduling", "creative", "company"]) {
+    const submenu = document.querySelector<HTMLElement>("#" + name + "-submenu");
+    if (submenu) submenu.hidden = name !== group;
+    document.querySelector(`[data-action="toggle-${name}"]`)?.setAttribute("aria-expanded", String(name === group));
+  }
+}
+function toggleNavigation(group: string) {
+  const submenu = document.querySelector<HTMLElement>("#" + group + "-submenu");
+  expandNavigation(submenu?.hidden ? group : null);
+}
 function show(view: string, keepSpace = false) {
   if (view === "integrations") {
     view = "settings";
@@ -408,15 +446,30 @@ function show(view: string, keepSpace = false) {
   if (view !== "canvas" || !keepSpace) { closeCanvasDetail(false); canvasOpen = false; }
   if (!document.querySelector(`[data-panel="${view}"]`)) return;
   activeView = view;
-  if(view === "team" || view === "polls"){$("#team-submenu").hidden=false;document.querySelector("[data-action=toggle-team]")?.setAttribute("aria-expanded","true");}
+  expandNavigation(view === "reservations" ? "scheduling" : ["analytics", "orders", "order", "invoices", "customers", "customer"].includes(view) ? "store" : ["canvas", "tasks", "task", "pages", "page", "calendar", "event", "files"].includes(view) ? "creative" : ["documents", "document", "vault", "team", "polls"].includes(view) ? "company" : null);
+  if (view === "reservations") {
+    const menu = document.querySelector<HTMLElement>("#scheduling-submenu");
+    if (menu) menu.hidden = false;
+    document.querySelector('[data-action="toggle-scheduling"]')?.setAttribute("aria-expanded", "true");
+  }
+  const sidebarSections = [
+    { views: ["canvas", "tasks", "pages", "calendar", "files", "task", "page", "event"], menu: "creative-submenu", action: "toggle-creative" },
+    { views: ["documents", "document", "vault", "team", "polls"], menu: "company-submenu", action: "toggle-company" },
+  ];
+  sidebarSections.forEach((section) => {
+    if (!section.views.includes(view)) return;
+    $("#" + section.menu).hidden = false;
+    document.querySelector(`[data-action="${section.action}"]`)?.setAttribute("aria-expanded", "true");
+  });
   $$("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== view));
+  if (view !== "reservations") document.querySelectorAll("[data-scheduling-section]").forEach((button) => { button.classList.remove("active"); button.removeAttribute("aria-current"); });
   $$("[data-view]").forEach((b) =>
     b.classList.toggle("active", b.dataset.view === view),
   );
   $("#breadcrumb").textContent = (
     {
-      modules: "Módulos",
       overview: "Vista general",
+      reservations: "Agendamiento",
       search: "Resultados de búsqueda",
       event: "Detalle del evento",
       canvas: "Espacios",
@@ -448,8 +501,8 @@ function show(view: string, keepSpace = false) {
   )[view];
   $("#sidebar").classList.remove("open");
   syncSidebarFocus();
-  document.title = $("#breadcrumb").textContent + " · Orbital";
-  let path = "/app/" + (routeNames[view] || "vista-general");
+  document.title = $("#breadcrumb").textContent + " · Órbita";
+  let path = view === "reservations" ? schedulingPath(reservationsView?.section() || "dashboard") : "/app/" + (routeNames[view] || "vista-general");
   if (view === "canvas" && canvasOpen) {
     const space = state.spaces.find((s) => s.id === activeSpace)!;
     path =
@@ -600,6 +653,11 @@ function routeHash() {
       .split("/")
       .filter(Boolean)
       .map((p) => slugify(decodeURIComponent(p)));
+    if(['empresa','proyecto'].includes(parts[0]))parts.shift();
+    if(parts[0]==='equipo'&&parts[1]==='personas')parts.splice(1,1);
+    if(parts[0]==='equipo'&&parts[1]==='votaciones')parts.shift();
+    const scheduling = schedulingSection(location.pathname);
+    if (scheduling) { reservationsView?.setSection(scheduling); show("reservations"); return; }
     if(parts[0]==="tareas"&&parts.length===1&&new URLSearchParams(location.search).get("alcance")==="personal"){openPersonalTasks();return;}
     if(parts[0]==="tienda"&&parts[1]==="analitica")parts[1]="metricas";
     if (parts[0] === "paginas") parts[0] = "notas";
@@ -814,8 +872,10 @@ function applyAccess() {
   );
   $("#spaces-list").hidden = true;
   $("#store-navigation").hidden = !canView(me, "analytics");
-  const teamNavigation = $(".team-navigation");
-  teamNavigation.hidden = !canView(me, "team") && !canView(me, "profile");
+  $("#creative-navigation").hidden = !["canvas", "tasks", "pages", "calendar", "files"]
+    .some((section) => canView(me, section as Section));
+  $("#company-navigation").hidden = !["documents", "vault", "team", "profile"]
+    .some((section) => canView(me, section as Section));
   $$("[data-store-summary]").forEach(
     (el) => (el.hidden = !canView(me, "analytics")),
   );
@@ -862,7 +922,8 @@ function applyAccess() {
   $("#profile-name").textContent =
     "Hola, " + (me.firstName || me.name.split(" ")[0]);
   $("#profile-role").textContent =
-    roleLabel(me.role) + (cloud ? "" : " · demo");
+    roleLabel(!cloud && me.role === "owner" ? "admin" : me.role) + (cloud ? "" : " · demo");
+  for(const selector of ["#profile-name","#profile-role"]){const label=$(selector);label.title=label.textContent||"";}
   const avatar = $("#profile-avatar");
   const initials = me.name
     .split(" ")
@@ -914,7 +975,7 @@ function renderCommon() {
       )
       .map(
         (k) =>
-          `<button class="nav-item private-direct" data-private-kind="${k}"><span class="sidebar-section-icon sidebar-section-${{spaces:"espacios",tasks:"tareas",pages:"notas"}[k]}" aria-hidden="true"></span><span>${{ spaces: "Espacios", tasks: "Tareas", pages: "Notas" }[k]}</span></button>`,
+          `<button class="nav-item private-direct" data-private-kind="${k}"><span>${{ spaces: "Espacios", tasks: "Tareas", pages: "Notas" }[k]}</span></button>`,
       )
       .join("") ||
     '<p class="private-area-empty">Agrega tu primer espacio, tablero o nota.</p>';
@@ -1136,22 +1197,19 @@ function renderTasks() {
     x.setAttribute("aria-pressed", String(active));
   });
   const showComments = preferences?.get()?.showTaskComments !== false;
-  const commentToggle = document.querySelector<HTMLElement>(
-    '[data-action="toggle-task-comments"]',
-  )!;
-  commentToggle.textContent = showComments
-    ? "Ocultar comentarios"
-    : "Mostrar comentarios";
-  commentToggle.setAttribute("aria-pressed", String(showComments));
 
   const selectedBoard=state.boards?.find(b=>b.id===activeBoard),limit=selectedBoard?.work?.limit;
   const allBoardTasks=state.tasks.filter(t=>(t.boardId||"general")===activeBoard&&(t.privateOwner||"")===(selectedBoard?.privateOwner||""));
   const doingCount=allBoardTasks.filter(t=>t.status==='doing').length;
+  const completed=allBoardTasks.filter(task=>task.status === "done").length;
+  $("#task-board-progress").innerHTML=`<div><strong>Avance del tablero</strong><span>${completed} de ${allBoardTasks.length} tareas completadas</span></div><progress max="${allBoardTasks.length || 1}" value="${completed}" aria-label="Avance del tablero"></progress>`;
+  $("#kanban-board").classList.toggle("timeline-mode",taskMode === "timeline");
+  if(taskMode === "timeline"){renderTimeline(allBoardTasks.filter(t=>(!work||work.filterTask(t))&&t.title.toLowerCase().includes(term)&&(filter==='all'||t.priority===filter)));return;}
   $("#kanban-board").classList.toggle("list-mode", taskMode === "list");
   $("#kanban-board").innerHTML = (["todo", "doing", "done"] as const)
     .map((status, i) => {
       const tasks = orderedTasks(allBoardTasks,status).filter(t=>(!work||work.filterTask(t))&&t.title.toLowerCase().includes(term)&&(filter==='all'||t.priority===filter));
-      return `<section class="kanban-column" data-drop-status="${status}" aria-label="${["Por hacer", "En progreso", "Completado"][i]}"><h2><span class="space-dot ${i === 1 ? "orange" : "green"}"></span>${["Por hacer", "En progreso", "Completado"][i]}<span>${status==="doing"&&limit?`${doingCount} de ${limit}${tasks.length!==doingCount?" · "+tasks.length+" visibles":""}`:tasks.length}</span></h2><span class="task-drop-indicator" aria-hidden="true"></span>${status==="doing"&&limit&&doingCount>limit?'<p class="work-limit-warning" role="status">Hay más tareas en curso de las acordadas. Revisa si puedes terminar alguna antes de empezar otra.</p>':""}<div class="task-drop-list">${tasks
+      return `<section class="kanban-column" data-drop-status="${status}" aria-label="${esc(board?.columnNames?.[status] || ["Por hacer", "En progreso", "Completado"][i])}"><h2><span class="space-dot ${i === 1 ? "orange" : "green"}"></span><button class="column-name" data-column-name="${status}" ${writable ? 'title="Doble clic, Enter o F2 para cambiar el nombre"' : "disabled"}>${esc(board?.columnNames?.[status] || ["Por hacer", "En progreso", "Completado"][i])}</button><span>${status==="doing"&&limit?`${doingCount} de ${limit}${tasks.length!==doingCount?" · "+tasks.length+" visibles":""}`:tasks.length}</span></h2><span class="task-drop-indicator" aria-hidden="true"></span>${status==="doing"&&limit&&doingCount>limit?'<p class="work-limit-warning" role="status">Hay más tareas en curso de las acordadas. Revisa si puedes terminar alguna antes de empezar otra.</p>':""}<div class="task-drop-list">${tasks
         .map((t) => {
           const count = (state.comments || []).filter(
             (c) => c.taskId === t.id,
@@ -1165,13 +1223,54 @@ function renderTasks() {
                 ${writable ? `<button class="button secondary" data-delete-task="${t.id}">${uiIcon("trash", 15)} Eliminar</button>` : ""}
               </div>
             </details>`;
-          return `<article class="kanban-task" draggable="false" data-drag-task="${t.id}">${inline.taskContent(t, taskActions)}${t.blockedAt&&t.status!=="done"?`<p class="task-blocked" title="${esc(t.blockedReason)}">${uiIcon("lock",13)} Bloqueada desde ${new Date(t.blockedAt).toLocaleDateString("es-CL")}${t.blockedReason?" · "+esc(t.blockedReason):""}</p>`:""}<div class="task-footer"><span class="priority-label"><i class="priority-dot ${t.priority}"></i>${t.priority === "high" ? "Alta prioridad" : "Normal"}</span>${t.due?`<span>◷ ${esc(relativeDue(t.due))}</span>`:""}${t.assigneeId?`<span>${esc(features.directory().find(m=>String(m.id)===t.assigneeId)?.name||"Responsable")}</span>`:""}</div>${showComments ? `<section class="card-comments" data-card-comments="${t.id}">${features.commentPreview(t.id)}</section>` : ""}</article>`;
+          return `<article class="kanban-task" draggable="false" data-drag-task="${t.id}">${inline.taskContent(t, taskActions)}${t.blockedAt&&t.status!=="done"?`<p class="task-blocked" title="${esc(t.blockedReason)}">${uiIcon("lock",13)} Bloqueada desde ${new Date(t.blockedAt).toLocaleDateString("es-CL")}${t.blockedReason?" · "+esc(t.blockedReason):""}</p>`:""}<div class="task-progress-summary"><span>${taskProgress(t).hasChecklist ? `${taskProgress(t).done}/${taskProgress(t).total} pasos` : t.status === "done" ? "Completada" : "Por completar"}</span><strong>${taskProgress(t).percent}%</strong><progress max="100" value="${taskProgress(t).percent}" aria-label="Avance de ${esc(t.title)}"></progress></div><div class="task-card-signals">${memberAvatar(features.directory().find(member=>String(member.id)===t.assigneeId))}<button type="button" data-task-comments="${t.id}" aria-label="${count} comentarios de ${esc(t.title)}">${uiIcon("comment",15)}<span>${count}</span></button>${t.links?.length ? `<span title="Enlaces adjuntos">${uiIcon("link",15)}${t.links.length}</span>` : ""}</div><div class="task-footer"><span class="priority-label"><i class="priority-dot ${t.priority}"></i>${t.priority === "high" ? "Alta prioridad" : "Normal"}</span>${t.due?`<span>◷ ${esc(relativeDue(t.due))}</span>`:""}${t.assigneeId?`<span>${esc(features.directory().find(m=>String(m.id)===t.assigneeId)?.name||"Responsable")}</span>`:""}</div>${showComments ? `<section class="card-comments" data-card-comments="${t.id}">${features.commentPreview(t.id)}</section>` : ""}</article>`;
         })
         .join(
           "",
         )}</div>${writable ? `<button class="add-task-inline" data-new-status="${status}">+ Agregar tarea</button>` : ""}</section>`;
     })
     .join("");
+  document.querySelectorAll<HTMLButtonElement>('[data-column-name]').forEach(button=>{
+    const begin=()=>{
+      const status=button.dataset.columnName as Task['status'];if(!board || !canWrite(actor(),'tasks') || button.querySelector('input'))return;
+      const old=button.textContent || '',input=document.createElement('input');input.className='board-name-input column-name-input';input.value=old;input.maxLength=60;input.setAttribute('aria-label','Nombre de la columna');let cancel=false;
+      input.onkeydown=event=>{if(['Enter','Escape'].includes(event.key)&&!event.isComposing){event.preventDefault();event.stopPropagation();cancel=event.key==='Escape';input.blur();}};
+      input.addEventListener('blur',()=>{const name=input.value.trim();button.textContent=old;if(!cancel && name && name!==old && canWrite(actor(),'tasks'))mutate(()=>{board.columnNames={...board.columnNames,[status]:name};});},{once:true});
+      button.replaceChildren(input);input.focus();input.select();
+    };
+    button.ondblclick=begin;button.onkeydown=event=>{if(event.target===button && ['Enter','F2'].includes(event.key)){event.preventDefault();begin();}};
+  });
+}
+function renderTimeline(tasks:Task[]){
+  const today=companyDay(state.settings.timezone),days=timelineWindow(today,timelineOffset),rows=timelineRows(tasks,timelineGrouping),dated=rows.filter(row=>row.range && row.range.start<=days[6] && row.range.end>=days[0]),undated=rows.filter(row=>!row.range);
+  const stamp=(value:string)=>new Date(value+'T12:00:00Z').toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+  $("#kanban-board").classList.remove('list-mode');
+  $("#kanban-board").innerHTML=`<section class="project-timeline"><div class="timeline-toolbar"><div><h2>Timeline de ${timelineGrouping === 'tasks'?'tareas':'proyectos'}</h2><p>${stamp(days[0])} — ${stamp(days[6])}</p></div><div class="heading-actions"><div class="segmented"><button data-timeline-group="tasks" aria-pressed="${timelineGrouping === 'tasks'}">Tareas</button><button data-timeline-group="projects" aria-pressed="${timelineGrouping === 'projects'}">Proyectos</button></div><button class="button secondary" data-timeline-shift="-1" aria-label="Semana anterior">${uiIcon('left',16)}</button><button class="button secondary" data-timeline-today>Hoy</button><button class="button secondary" data-timeline-shift="1" aria-label="Semana siguiente">${uiIcon('arrowRight',16)}</button></div></div><div class="timeline-scroll"><div class="timeline-grid"><div class="timeline-head"><strong>${timelineGrouping === 'tasks'?'Tarea y responsable':'Proyecto'}</strong>${days.map(day=>`<span class="${day===today?'is-today':''}">${new Date(day+'T12:00:00Z').toLocaleDateString('es-CL',{weekday:'short',day:'numeric'})}</span>`).join('')}</div>${dated.map((row,index)=>{
+    const start=Math.max(0,Math.ceil((Date.parse(row.range!.start)-Date.parse(days[0]))/86400000)),end=Math.min(6,Math.floor((Date.parse(row.range!.end)-Date.parse(days[0]))/86400000));const done=row.tasks.filter(t=>t.status==='done').length;
+    return `<div class="timeline-row"><div class="timeline-person">${memberAvatar(features.directory().find(member=>String(member.id)===row.tasks[0].assigneeId))}<span><strong>${esc(row.name)}</strong><small>${timelineGrouping==='projects'?`${done}/${row.tasks.length} completadas`:esc(row.tasks[0].project || 'Sin proyecto')}</small></span></div><div class="timeline-track">${days.map(day=>`<span class="timeline-day ${day===today?'is-today':''}"></span>`).join('')}<button class="timeline-range tone-${index%3}" ${timelineGrouping==='tasks'&&canWrite(actor(),'tasks')?`data-timeline-task="${esc(row.id)}" data-timeline-week="${days[0]}"`:""} style="--from:${start+1};--span:${end-start+1}" ${timelineGrouping==='tasks'?`data-edit-task="${row.id}"`:`data-timeline-project="${esc(row.name)}"`}>${timelineGrouping==='tasks'&&canWrite(actor(),'tasks')?'<span class="timeline-resize-handle start" data-date-handle="start" role="button" tabindex="0" aria-label="Cambiar fecha de inicio con flechas izquierda y derecha"></span>':""}<strong>${esc(row.name)}</strong><small>${stamp(row.range!.start)} — ${stamp(row.range!.end)}</small>${timelineGrouping==='tasks'&&canWrite(actor(),'tasks')?'<span class="timeline-resize-handle end" data-date-handle="end" role="button" tabindex="0" aria-label="Cambiar fecha de vencimiento con flechas izquierda y derecha"></span>':""}</button></div></div>`;
+  }).join('') || '<p class="timeline-empty">No hay elementos con fechas en esta semana. Revisa otro período o asigna fechas a tus tareas.</p>'}</div></div>${undated.length?`<details class="timeline-undated"><summary>${undated.length} elementos sin fechas</summary>${undated.flatMap(row=>row.tasks).map(task=>`<button class="button secondary" data-edit-task="${task.id}">${esc(task.title)} · Asignar fechas</button>`).join('')}</details>`:''}</section>`;
+  document.querySelectorAll<HTMLButtonElement>('[data-timeline-shift]').forEach(button=>button.onclick=()=>{timelineOffset+=Number(button.dataset.timelineShift);renderTasks();});
+  document.querySelector<HTMLButtonElement>('[data-timeline-today]')!.onclick=()=>{timelineOffset=0;renderTasks();};
+  document.querySelectorAll<HTMLButtonElement>('[data-timeline-group]').forEach(button=>button.onclick=()=>{timelineGrouping=button.dataset.timelineGroup as 'tasks'|'projects';renderTasks();});
+  document.querySelectorAll<HTMLButtonElement>('[data-timeline-project]').forEach(button=>button.onclick=()=>{const selected=tasks.filter(task=>(task.project.trim()||'Sin proyecto')===button.dataset.timelineProject);modal(`<h2>${esc(button.dataset.timelineProject)}</h2><p>${selected.filter(t=>t.status==='done').length} de ${selected.length} tareas completadas</p><div class="timeline-project-tasks">${selected.map(task=>`<button class="button secondary" data-edit-task="${task.id}">${esc(task.title)} · ${task.status==='done'?'Completada':relativeDue(task.due)}</button>`).join('')}</div>`);});
+}
+function installTaskTimelineDates(){
+  const root=$('#kanban-board');
+  const find=(node:HTMLElement)=>state.tasks.find(task=>task.id===node.dataset.timelineTask&&isMine(task.privateOwner));
+  installDatePointer(root,'.timeline-range[data-timeline-task]',(node,event)=>{
+    const task=find(node);if(!task||!canWrite(actor(),'tasks'))return null;
+    const start=task.startDate||task.due,end=task.due||task.startDate;if(!start||!end)return null;
+    const mode=((event.target as Element).closest<HTMLElement>('[data-date-handle]')?.dataset.dateHandle||'move') as 'move'|'start'|'end';
+    const x=event.clientX,cell=node.parentElement!.getBoundingClientRect().width/7,week=node.dataset.timelineWeek!;
+    let next={start,end};const before=node.style.cssText,copy=node.querySelector('small')!,label=copy.textContent;
+    return{move:e=>{next=adjustTaskRange({start,end},mode,Math.round((e.clientX-x)/cell));const a=Math.max(0,Math.min(6,(Date.parse(next.start)-Date.parse(week))/86400000)),b=Math.max(a,Math.min(6,(Date.parse(next.end)-Date.parse(week))/86400000));node.style.setProperty('--from',String(a+1));node.style.setProperty('--span',String(b-a+1));copy.textContent=next.start+' — '+next.end;},cancel:()=>{node.style.cssText=before;copy.textContent=label;},commit:()=>{if(!canWrite(actor(),'tasks'))return;if(next.start!==start||next.end!==end){const current=find(node);if(!current)return;mutate(()=>{current.startDate=next.start;current.due=next.end;});notify('Fechas de la tarea actualizadas.');}}};
+  });
+  root.addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight'].includes(event.key))return;const target=event.target as HTMLElement,node=target.closest<HTMLElement>('[data-timeline-task]');if(!node)return;
+    const handle=target.closest<HTMLElement>('[data-date-handle]');if(!handle&&!event.altKey)return;
+    const task=find(node);if(!task||!canWrite(actor(),'tasks'))return;const start=task.startDate||task.due,end=task.due||task.startDate;if(!start||!end)return;
+    event.preventDefault();event.stopPropagation();const mode=(handle?.dataset.dateHandle||'move') as 'start'|'end'|'move',next=adjustTaskRange({start,end},mode,event.key==='ArrowLeft'?-1:1);mutate(()=>{task.startDate=next.start;task.due=next.end;});
+  });
 }
 function taskComments(id: string) {
   const task = state.tasks.find((t) => t.id === id && isMine(t.privateOwner));
@@ -1224,7 +1323,7 @@ async function taskEditor(id?: string, status = "todo", privateArea = false) {
       )
       .join(
         "",
-      )}</select></label><label>Proyecto<input name="project" maxlength="60" value="${esc(t?.project || "Mi negocio")}"/></label></div><div class="task-scheduling-row"><label>Fecha de vencimiento<input type="date" name="due" value="${esc(t?.due || "")}"/></label><label>Estado<select name="status">${[
+      )}</select></label><label>Proyecto<input name="project" maxlength="60" value="${esc(t?.project || "Mi negocio")}"/></label></div><div class="task-scheduling-row">${document.body.classList.contains("canvas-fullscreen") ? "" : `<label>Fecha de inicio<input type="date" name="startDate" value="${esc(t?.startDate || "")}"/></label>`}<label>Fecha de vencimiento<input type="date" name="due" value="${esc(t?.due || "")}"/></label><label>Estado<select name="status">${[
       ["todo", "Por hacer"],
       ["doing", "En progreso"],
       ["done", "Completado"],
@@ -1249,6 +1348,7 @@ async function taskEditor(id?: string, status = "todo", privateArea = false) {
     e.preventDefault();
     if (!canWrite(actor(), "tasks")) return;
     const f = new FormData(e.target as HTMLFormElement);
+    if(f.get("startDate") && f.get("due") && String(f.get("startDate"))>String(f.get("due"))){notify("La fecha de inicio debe ser anterior o igual al vencimiento.");return;}
     const savedTaskId = t?.id || uid();
     mutate(() => {
       const value = {
@@ -1263,6 +1363,7 @@ async function taskEditor(id?: string, status = "todo", privateArea = false) {
         title: String(f.get("title")).trim(),
         project: String(f.get("project")),
         due: String(f.get("due")),
+        startDate:f.has("startDate") ? String(f.get("startDate") || "") : t?.startDate,
         priority: String(f.get("priority")) as Task["priority"],
         status: String(f.get("status")) as Task["status"],
         description: $("#task-description-editor").innerText.slice(0,5000),
@@ -1427,7 +1528,7 @@ function renderCanvas(groupTransition = false) {
       const noteColor = n.kind === "note" ? noteColors[visibleNoteColor(n.noteColor)] : "";
       const palette = writable && noteColor ? `<div class="canvas-note-palette" role="group" aria-label="Color de la nota">${Object.entries(noteColors).map(([key, color]) => `<button type="button" style="--swatch:${color}" data-note-color="${key}" aria-pressed="${color === noteColor}" aria-label="Color ${key === "verdeLima" ? "verde lima" : key}"></button>`).join("")}</div>` : "";
       const deletion=writable?`<button class="icon-btn node-delete-button" data-delete-node="${n.id}" aria-label="Eliminar ${esc(title)}">${uiIcon("trash",15)}</button>`:"";
-      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`height:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Orbital · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
+      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`height:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Órbita · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
     })
     .join("") + canvasFolders().filter(folder => !folder.folder.groupId || org?.activeGroup() === folder.folder.groupId).map(folder => {
       const groupId = org?.activeGroup();
@@ -1524,7 +1625,7 @@ function toggleCanvasToolsMenu(kind: "folders" | "metrics" | "shortcuts") {
   menu.classList.toggle("canvas-shortcuts-menu", kind === "shortcuts");
   if (kind === "shortcuts") {
     menu.setAttribute("aria-label", "Atajos del lienzo");
-    menu.innerHTML = `<div class="shortcut-dialog"><p>Usa ⌘ en Mac o Ctrl en Windows.</p><dl class="canvas-shortcuts"><div><dt>Buscar en Orbital</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt>Agrupar la selección</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>G</kbd></dd></div><div><dt>Deshacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Z</kbd></dd></div><div><dt>Rehacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Mayús</kbd> <kbd>Z</kbd></dd></div><div><dt>Captura rápida</dt><dd><kbd>Alt</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover el lienzo</dt><dd><kbd>⌘ / Ctrl</kbd> + arrastrar</dd></div><div><dt>Acercar o alejar</dt><dd><kbd>⌘ / Ctrl</kbd> + rueda</dd></div><div><dt>Abrir el elemento enfocado</dt><dd><kbd>Enter</kbd> o doble clic</dd></div><div><dt>Seleccionar la tarjeta enfocada</dt><dd><kbd>Mayús</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover tarjeta enfocada</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>Agrupar al soltar</dt><dd>Arrastra una tarjeta sobre otra</dd></div><div><dt>Reordenar en un grupo abierto</dt><dd><kbd>Alt</kbd> + flechas</dd></div><div><dt>Eliminar tarjeta enfocada</dt><dd><kbd>Delete</kbd></dd></div><div><dt>Salir del detalle o del grupo</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Pegar una imagen</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>V</kbd></dd></div></dl></div>`;
+    menu.innerHTML = `<div class="shortcut-dialog"><p>Usa ⌘ en Mac o Ctrl en Windows.</p><dl class="canvas-shortcuts"><div><dt>Buscar en Órbita</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt>Agrupar la selección</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>G</kbd></dd></div><div><dt>Deshacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Z</kbd></dd></div><div><dt>Rehacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Mayús</kbd> <kbd>Z</kbd></dd></div><div><dt>Captura rápida</dt><dd><kbd>Alt</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover el lienzo</dt><dd><kbd>⌘ / Ctrl</kbd> + arrastrar</dd></div><div><dt>Acercar o alejar</dt><dd><kbd>⌘ / Ctrl</kbd> + rueda</dd></div><div><dt>Abrir el elemento enfocado</dt><dd><kbd>Enter</kbd> o doble clic</dd></div><div><dt>Seleccionar la tarjeta enfocada</dt><dd><kbd>Mayús</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover tarjeta enfocada</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>Agrupar al soltar</dt><dd>Arrastra una tarjeta sobre otra</dd></div><div><dt>Reordenar en un grupo abierto</dt><dd><kbd>Alt</kbd> + flechas</dd></div><div><dt>Eliminar tarjeta enfocada</dt><dd><kbd>Delete</kbd></dd></div><div><dt>Salir del detalle o del grupo</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Pegar una imagen</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>V</kbd></dd></div></dl></div>`;
     const panel = menu.querySelector<HTMLElement>(".shortcut-dialog")!;
     const list = panel.querySelector("dl")!;
     const rows = [...list.children] as HTMLElement[];
@@ -2430,40 +2531,14 @@ document.addEventListener("keydown", (e) => {
     el.blur();
   }
 });
-function renderCalendar() {
-  const year = calendarDate.getFullYear(),
-    month = calendarDate.getMonth();
-  $("#calendar-month").textContent = calendarDate
-    .toLocaleDateString("es-CL", { month: "long", year: "numeric" })
-    .replace(/^./, (c) => c.toUpperCase());
-  const first = new Date(year, month, 1);
-  const start = new Date(year, month, 1 - ((first.getDay() + 6) % 7));
-  const cells = Array.from({ length: 42 }, (_, i) => {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    return d;
-  });
-  $("#calendar-grid").innerHTML = cells
-    .map((d) => {
-      const key = dateKey(d);
-      return `<button class="calendar-day ${d.getMonth() !== month ? "outside" : ""} ${key === dateKey(new Date()) ? "today" : ""}" data-event-date="${key}" aria-label="${esc(d.toLocaleDateString("es-CL", { dateStyle: "full" }))}"><span>${d.getDate()}</span>${state.events
-        .filter((e) => e.date === key)
-        .sort((a, b) => a.time.localeCompare(b.time))
-        .slice(0, 3)
-        .map(
-          (e) =>
-            `<span class="event-chip" data-edit-event="${e.id}" title="${esc(e.title)}">${esc(e.time)} ${esc(e.title)}</span>`,
-        )
-        .join("")}${canView(actor(),"tasks")?(state.boards||[]).filter(b=>isMine(b.privateOwner)).flatMap(b=>[...(b.work?.cycles||[]).filter(c=>c.status!=="draft").map(c=>({start:c.start,end:c.end,title:c.name,board:b.id})),...(b.work?.periods||[]).map(p=>({start:p.start,end:p.end,title:b.name,board:b.id}))]).filter(p=>p.start===key||p.end===key).slice(0,2).map(p=>`<span class="event-chip" data-calendar-board="${p.board}">${p.start===key?"Inicio":"Fin"}: ${esc(p.title)}</span>`).join(""):""}</button>`;
-    })
-    .join("");
-}
-function eventEditor(id?: string, date?: string) {
+function renderCalendar() {projectCalendar?.render();}
+function eventEditor(id?: string, date?: string, time?:string) {
   if (!canView(actor(), "calendar") || (!id && !canWrite(actor(), "calendar")))
     return;
   const event = state.events.find((e) => e.id === id);
+  const initialEnd=eventDates(eventRange(event||{date:date||companyDay(state.settings.timezone),time:time||"10:00"}).start,eventRange(event||{date:date||companyDay(state.settings.timezone),time:time||"10:00"}).end);
   modal(
-    `<div class="event-dialog-heading"><h2>${event ? "Editar evento" : "Nuevo evento"}</h2><button type="button" class="button secondary small-button" id="export-event">↓ Descargar .ics</button></div><p>Añade la fecha, la hora y los detalles que necesitas recordar.</p><form id="event-form"><label>Nombre del evento<input required name="title" maxlength="120" value="${esc(event?.title || "")}"/></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><label>Fecha<input required type="date" name="date" value="${esc(event?.date || date || dateKey(new Date()))}"/></label><label>Hora<input required type="time" name="time" value="${esc(event?.time || "10:00")}"/></label></div><label>Notas<textarea name="description" maxlength="5000">${esc(event?.description || "")}</textarea></label><div class="dialog-actions">${event ? '<button type="button" class="danger-button" id="delete-event">Eliminar</button>' : ""}${event && connectedProviders.includes("google") ? '<button type="button" class="button secondary" id="google-event">Enviar a Google</button>' : ""}<button class="button primary">Guardar evento</button></div></form>`,
+    `<div class="event-dialog-heading"><h2>${event ? "Editar evento" : "Nuevo evento"}</h2><button type="button" class="button secondary small-button" id="export-event">↓ Descargar .ics</button></div><p>Añade la fecha, la hora y los detalles que necesitas recordar.</p><form id="event-form"><label>Nombre del evento<input required name="title" maxlength="120" value="${esc(event?.title || "")}"/></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><label>Fecha<input required type="date" name="date" value="${esc(event?.date || date || companyDay(state.settings.timezone))}"/></label><label>Hora<input required type="time" name="time" value="${esc(event?.time || time || "10:00")}"/></label><label>Fecha de término<input required type="date" name="endDate" value="${initialEnd.endDate}"/></label><label>Hora de término<input required type="time" name="endTime" value="${initialEnd.endTime}"/></label></div><label>Notas<textarea name="description" maxlength="5000">${esc(event?.description || "")}</textarea></label><div class="dialog-actions">${event ? '<button type="button" class="danger-button" id="delete-event">Eliminar</button>' : ""}${event && connectedProviders.includes("google") ? '<button type="button" class="button secondary" id="google-event">Enviar a Google</button>' : ""}<button class="button primary">Guardar evento</button></div></form>`,
   );
   if (!canWrite(actor(), "calendar")) {
     $$("#event-form input,#event-form textarea").forEach(
@@ -2476,7 +2551,9 @@ function eventEditor(id?: string, date?: string) {
   function value() {
     const f = new FormData($<HTMLFormElement>("#event-form"));
     return {
+      ...event,
       id: event?.id || uid(),
+      endDate:String(f.get("endDate")),endTime:String(f.get("endTime")),
       title: String(f.get("title")),
       date: String(f.get("date")),
       time: String(f.get("time")),
@@ -2487,6 +2564,7 @@ function eventEditor(id?: string, date?: string) {
     e.preventDefault();
     if (!canWrite(actor(), "calendar")) return;
     const v = value();
+    if(!validEventDates(v)){notify("El término debe ser posterior al inicio del evento.");return;}
     mutate(() => {
       if (event)
         state.events = state.events.map((x) => (x.id === event.id ? v : x));
@@ -2499,6 +2577,7 @@ function eventEditor(id?: string, date?: string) {
     const f = $<HTMLFormElement>("#event-form");
     if (!f.reportValidity()) return;
     const v = value();
+    if(!validEventDates(v)){notify("Revisa el inicio y el término del evento.");return;}
     const dt = new Date(`${v.date}T${v.time}:00`);
     const ics = (s: string) =>
       s
@@ -2513,7 +2592,7 @@ function eventEditor(id?: string, date?: string) {
         .replace(/\.\d{3}/, "");
     download(
       "evento-orbita.ics",
-      `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Orbita//Workspace//ES\r\nBEGIN:VEVENT\r\nUID:${v.id}@orbita.local\r\nDTSTAMP:${stamp(new Date())}\r\nDTSTART:${stamp(dt)}\r\nDTEND:${stamp(new Date(dt.getTime() + 3600000))}\r\nSUMMARY:${ics(v.title)}\r\nDESCRIPTION:${ics(v.description)}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`,
+      `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Orbita//Workspace//ES\r\nBEGIN:VEVENT\r\nUID:${v.id}@orbita.local\r\nDTSTAMP:${stamp(new Date())}\r\nDTSTART:${stamp(dt)}\r\nDTEND:${stamp(new Date(`${v.endDate}T${v.endTime}:00`))}\r\nSUMMARY:${ics(v.title)}\r\nDESCRIPTION:${ics(v.description)}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`,
       "text/calendar",
     );
   };
@@ -2693,8 +2772,8 @@ function liveMetric(kind: string): {
         ],
         ["Ventana de medición", "30 días"],
       ],
-      source: "WooCommerce · Orbital",
-      note: "Carros con más de 30 minutos de inactividad. Datos capturados desde la instalación del plugin Orbital Business Metrics; no incluyen historial anterior.",
+      source: "WooCommerce · Órbita",
+      note: "Carros con más de 30 minutos de inactividad. Datos capturados desde la instalación del plugin Órbita Business Metrics; no incluyen historial anterior.",
       values: rows.map((r) => Number(r.count)),
       labels: rows.map((r) => r.date),
     };
@@ -2873,6 +2952,7 @@ function integrationInfo(id: string) {
           ["url", "URL de Payload CMS", "url", "https://tienda.ejemplo.cl"],
           ["token", "API key de lectura", "password", "API key de la tienda"],
           ["authCollection", "Colección de usuarios", "text", "users"],
+          ["customers", "Colección de clientes", "text", "users"],
           ["products", "Colección de productos", "text", "products"],
           ["orders", "Colección de pedidos", "text", "orders"],
         ]
@@ -3005,6 +3085,29 @@ async function loadCommerce() {
   }
 }
 
+const syncHeaderScroll=()=>document.querySelector('.topbar')?.classList.toggle('is-scrolled',window.scrollY>8);
+window.addEventListener('scroll',syncHeaderScroll,{passive:true});
+syncHeaderScroll();
+function syncPrivateChrome(){
+  const sidebarNavigation=document.querySelector<HTMLElement>('.sidebar-navigation');
+  const hasModuleLinks=Array.from(sidebarNavigation?.querySelector('nav')?.children||[]).some(el=>el instanceof HTMLElement&&!el.hidden&&getComputedStyle(el).display!=='none');
+  sidebarNavigation?.classList.toggle('private-only',!hasModuleLinks);
+}
+function syncModuleChrome(){
+  const module=activeView === "accounting"?"accounting":activeView === "reservations"?'scheduling':['analytics','orders','order','customers','customer','invoices'].includes(activeView)?'store':['canvas','tasks','task','pages','page','calendar','event','files'].includes(activeView)?'creative':['team','polls','documents','document','vault'].includes(activeView)?'company':activeView==='overview'?'general':'none';
+  document.body.dataset.uiModule=module;
+  document.querySelectorAll<HTMLButtonElement>('[data-shell-module]').forEach(button=>{
+    const key=button.dataset.shellModule!;
+    const sections:Record<string,Section[]>={accounting:['invoices'],general:['overview'],creative:['canvas','tasks','pages','calendar','files'],store:['analytics','orders','customers','invoices'],company:['team','vault','documents'],scheduling:['calendar']};
+    button.hidden=!sections[key]?.some(section=>canView(actor(),section)) || (key==='scheduling' && !JSON.parse(document.body.dataset.enabledModules || '[]').includes('reservations'));
+    button.classList.toggle('active',module===key);button.setAttribute('aria-pressed',String(module===key));
+  });
+}
+document.querySelectorAll<HTMLButtonElement>('[data-shell-module]').forEach(button=>button.onclick=()=>{
+  const key=button.dataset.shellModule;
+  const candidates=key==='accounting'?['accounting']:key==='general'?['overview']:key==='store'?['analytics','orders','invoices']:key==='company'?['documents','vault','team']:key==='scheduling'?['reservations']:['canvas','tasks','pages','calendar','files'];
+  const view=candidates.find(view=>canView(actor(),viewSection(view)));if(view){if(view==='reservations')reservationsView?.setSection('dashboard');show(view);}
+});
 function render() {
   if (activeView !== "blocked" && !canView(actor(), viewSection(activeView))) {
     show(activeView);
@@ -3014,7 +3117,10 @@ function render() {
     "canvas-fullscreen",
     activeView === "canvas" && canvasOpen,
   );
+  applyBusinessPalette(state.settings.palette);
+  syncModuleChrome();
   renderCommon();
+  syncPrivateChrome();
   if (activeView === "overview") {renderOverview();planning?.renderOverview();}
   if (activeView === "tasks") {
     renderBoardHome();
@@ -3035,7 +3141,8 @@ function render() {
   if (activeView === "vault") void features.renderVault();
   if (activeView === "trash") void trash.render();
   if (activeView === "private-index") renderPrivateIndex();
-  if (activeView === "modules") moduleView?.render();
+  if (activeView === "accounting") billingView?.render();
+  if (activeView === "reservations") reservationsView?.render();
   advanced?.render(activeView);
   workspaceFiles?.render(activeView);
   preferences?.render();
@@ -3513,16 +3620,10 @@ const actions: Record<string, () => void> = {
       show("private");
     } else show("tasks");
   },
-  "toggle-team": () => {
-    const menu=$("#team-submenu");menu.hidden=!menu.hidden;document.querySelector("[data-action=toggle-team]")?.setAttribute("aria-expanded",String(!menu.hidden));
-  },
-  "toggle-store": () => {
-    const menu = $("#store-submenu");
-    menu.hidden = !menu.hidden;
-    document
-      .querySelector("[data-action=toggle-store]")
-      ?.setAttribute("aria-expanded", String(!menu.hidden));
-  },
+  "toggle-scheduling": () => toggleNavigation("scheduling"),
+  "toggle-creative": () => toggleNavigation("creative"),
+  "toggle-company": () => toggleNavigation("company"),
+  "toggle-store": () => toggleNavigation("store"),
   "new-sales": () => nodeEditor(undefined, "sales"),
   image: () => {
     close();
@@ -3552,7 +3653,7 @@ const actions: Record<string, () => void> = {
   },
   plan: () =>
     modal(
-      '<div class="eyebrow">HECHO PARA CRECER CONTIGO</div><h2>Tu negocio tiene futuro.</h2><p>Esta es la base de Orbital. Los planes de pago y la facturación todavía no están habilitados.</p><p>La arquitectura separa los datos de cada negocio y permite extender el producto con límites de uso, membresías y suscripciones.</p><button class="button primary" data-close>Seguir explorando</button>',
+      '<div class="eyebrow">HECHO PARA CRECER CONTIGO</div><h2>Tu negocio tiene futuro.</h2><p>Esta es la base de Órbita. Los planes de pago y la facturación todavía no están habilitados.</p><p>La arquitectura separa los datos de cada negocio y permite extender el producto con límites de uso, membresías y suscripciones.</p><button class="button primary" data-close>Seguir explorando</button>',
     ),
   google: () => integrationInfo("google"),
   export: () =>
@@ -3661,16 +3762,13 @@ const actions: Record<string, () => void> = {
     applyCamera();
   },
   "calendar-prev": () => {
-    calendarDate.setMonth(calendarDate.getMonth() - 1);
-    renderCalendar();
+    projectCalendar.shift(-1);
   },
   "calendar-next": () => {
-    calendarDate.setMonth(calendarDate.getMonth() + 1);
-    renderCalendar();
+    projectCalendar.shift(1);
   },
   "calendar-today": () => {
-    calendarDate = new Date();
-    renderCalendar();
+    projectCalendar.today();
   },
 };
 document.addEventListener("click", (e) => {
@@ -3798,8 +3896,8 @@ document.addEventListener("click", (e) => {
   }
   if (b.dataset.taskMode) {
     taskMode = b.dataset.taskMode;
-    if (window.matchMedia("(max-width: 680px)").matches) mobileTaskMode = taskMode as "board" | "list";
-    else preferences.update({ taskMode: taskMode as "board" | "list" });
+    if (window.matchMedia("(max-width: 680px)").matches) mobileTaskMode = taskMode as "board" | "list" | "timeline";
+    else preferences.update({ taskMode: taskMode as "board" | "list" | "timeline" });
     $$("[data-task-mode]").forEach((x) =>
       x.classList.toggle("active", x === b),
     );
@@ -3947,7 +4045,7 @@ $<HTMLInputElement>("#import-input").onchange = async (e) => {
       notify("Tu respaldo está de vuelta.");
     };
   } catch {
-    notify("Este archivo no es un respaldo válido de Orbital.");
+    notify("Este archivo no es un respaldo válido de Órbita.");
   }
   input.value = "";
 };
@@ -4931,7 +5029,7 @@ async function fetchCloud(draw = true) {
   const next = initialState(false);
   next.spaces = [];
   next.boards = [];
-  next.settings = state.settings;
+  next.settings = {...state.settings,palette:data.palette};
   next.comments = state.comments || [];
   next.notifications = state.notifications || [];
   cloudRows.clear();
@@ -5058,7 +5156,7 @@ async function ensureDemoCanvasExamples() {
   if(!visible.some(n=>n.kind==="note"))add({kind:"note",title:"Una idea rápida",body:"Escribe una idea y envíala a Notas cuando esté lista."});
   if(!visible.some(n=>n.kind==="page"&&!n.spatial&&n.borderStyle!=="dashed"))add({kind:"page",title:"Texto de ejemplo",body:"Una tarjeta para dar contexto al equipo."});
   if(!visible.some(n=>n.kind==="tasks"))add({kind:"tasks",title:"Lista de lanzamiento",body:"",checklist:[{id:uid(),text:"Preparar las fotos",done:false}]});
-  if(!visible.some(n=>n.borderStyle==="dashed"))add({kind:"page",title:"Marco de ejemplo",body:"Una hipótesis para probar antes de publicar.",borderStyle:"dashed",cloudAuthor:"Orbital · Demo"});
+  if(!visible.some(n=>n.borderStyle==="dashed"))add({kind:"page",title:"Marco de ejemplo",body:"Una hipótesis para probar antes de publicar.",borderStyle:"dashed",cloudAuthor:"Órbita · Demo"});
   if(!visible.some(n=>n.kind==="sales"))add({kind:"sales",title:"Ventas de ejemplo",body:""});
   if(!visible.some(n=>n.kind==="image"))add({kind:"image",title:"Diseño de ejemplo",body:"Una referencia visual para el lanzamiento.",image:demoCanvasImage});
   if(!visible.some(n=>n.spatial?.type==="web"))add({kind:"page",title:"Referencia · Spatial",body:"",spatial:{type:"web",url:"https://www.get-spatial.com/"}});
@@ -5205,7 +5303,8 @@ async function bootstrap() {
     })().catch(() => {});
   }, 12000);
 }
-moduleView = installModules({cloud:()=>cloud, identity:()=>String(actor().id)});
+billingView = installBilling({cloud:()=>cloud, identity:()=>String(actor().id)});
+reservationsView = installReservations({ modal, close, notify, demo:!cloud, navigate: () => show("reservations") });
 advanced = installBusiness({
   state: () => state,
   actor,
@@ -5360,6 +5459,7 @@ presence = installPresence({
   },
 });
 installRichToolbar();
+projectCalendar=installProjectCalendar({events:()=>state.events,writable:()=>canWrite(actor(),'calendar'),mutate,create:(day,time)=>eventEditor(undefined,day,time),notify,today:()=>companyDay(state.settings.timezone),milestones:()=>canView(actor(),'tasks')?(state.boards||[]).filter(b=>isMine(b.privateOwner)).flatMap(b=>[...(b.work?.cycles||[]).filter(c=>c.status!=="draft").map(c=>({start:c.start,end:c.end,title:c.name,board:b.id})),...(b.work?.periods||[]).map(p=>({start:p.start,end:p.end,title:b.name,board:b.id}))]):[]});
 void bootstrap().then(() => {
   if (!cloud) trash.expire();
   void features.preload();
@@ -5414,4 +5514,6 @@ window.matchMedia("(max-width:680px)").addEventListener("change", () => {
 });
 
 installChartMotion();
+installTaskTimelineDates();
+installOverflowHints();
 installChartInspection();

@@ -101,7 +101,7 @@ export const inviteMemberEndpoint: Endpoint = {
       });
       if (!token) throw Error();
       const url =
-          origin + "/acceso/invitacion#token=" + encodeURIComponent(token),
+          origin + "/acceso/invitacion?negocio=" + encodeURIComponent(String(tenant(member))) + "#token=" + encodeURIComponent(token),
         expiresAt = new Date(Date.now() + 3600000).toISOString();
       let emailSent = false;
       if (process.env.RESEND_API_KEY && process.env.INVITATION_FROM) {
@@ -115,8 +115,8 @@ export const inviteMemberEndpoint: Endpoint = {
             body: JSON.stringify({
               from: process.env.INVITATION_FROM,
               to: [member.email],
-              subject: "Te invitaron a trabajar en Orbital",
-              text: `Hola, ${member.name}.\n\nTu equipo te invita a Orbital. Crea tu contraseña en este enlace:\n${url}\n\nEl enlace vence en una hora y solo puede usarse una vez. Si no esperabas esta invitación, ignórala.`,
+              subject: "Te invitaron a trabajar en Órbita",
+              text: `Hola, ${member.name}.\n\nTu equipo te invita a Órbita. Crea tu contraseña en este enlace:\n${url}\n\nEl enlace vence en una hora y solo puede usarse una vez. Si no esperabas esta invitación, ignórala.`,
             }),
             signal: AbortSignal.timeout(15000),
           });

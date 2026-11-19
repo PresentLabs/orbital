@@ -48,7 +48,7 @@ export function meetingBody(
   return {
     id,
     summary: input.title.trim(),
-    description: "Reunión organizada desde Orbital.",
+    description: "Reunión organizada desde Órbita.",
     start: {
       dateTime: input.date + "T" + input.time + ":00",
       timeZone: timezone,

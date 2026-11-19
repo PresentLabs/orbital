@@ -1,6 +1,6 @@
 import { isAdmin } from "@/lib/saas/permissions";
 import type { APIRoute } from "astro";
-import { currentUser, setting } from "@/lib/saas/server";
+import { currentUser, publicOrigin, setting } from "@/lib/saas/server";
 import { saveConnection, connection } from "@/lib/saas/integrations";
 export const GET: APIRoute = async (ctx) => {
   const user = await currentUser(ctx);
@@ -18,7 +18,7 @@ export const GET: APIRoute = async (ctx) => {
         client_secret: setting(ctx, "GOOGLE_CLIENT_SECRET"),
         code: ctx.url.searchParams.get("code") || "",
         grant_type: "authorization_code",
-        redirect_uri: ctx.url.origin + "/api/saas/google/callback",
+        redirect_uri: publicOrigin(ctx) + "/api/saas/google/callback",
       }),
       signal: AbortSignal.timeout(12000),
     });

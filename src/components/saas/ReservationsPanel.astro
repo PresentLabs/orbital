@@ -1,0 +1,43 @@
+---
+import Icon from "./Icon.astro";
+---
+<section class="view" data-panel="reservations" hidden>
+  <div class="page-heading compact">
+    <div><h1 id="scheduling-title">Resumen</h1><p id="scheduling-description">Revisa el movimiento de tu agenda y las próximas horas de atención.</p></div>
+    <div class="heading-actions"><button type="button" class="button secondary" id="reservations-refresh"><Icon name="rotate" size={16}/>Actualizar</button><button type="button" class="button primary" id="reservation-new"><Icon name="plus" size={16}/>Agendar hora</button></div>
+  </div>
+  <p id="reservations-message" hidden class="section-note" role="status" aria-live="polite"></p>
+  <div id="reservations-content" aria-labelledby="scheduling-title"></div>
+</section>
+<style>
+  #reservations-content :global(.directory-pagination) { display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-top:18px }
+  #reservations-content :global(.reservations-toolbar) { display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px;flex-wrap:wrap }
+  #reservations-content :global(.reservations-toolbar input) { width:auto;min-width:160px }
+  #reservations-content :global(.reservation-grid) { display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px }
+  #reservations-content :global(.reservation-card) { padding:22px;display:flex;flex-direction:column;gap:14px }
+  #reservations-content :global(.reservation-card h2) { font-size:17px;margin:0;overflow-wrap:anywhere }
+  #reservations-content :global(.reservation-card p) { font-size:12px;line-height:1.6;color:var(--muted);margin:0 }
+  #reservations-content :global(.reservation-card .heading-actions) { margin-top:auto;justify-content:space-between;align-items:center }
+  #reservations-content :global(.reservation-state) { display:inline-flex;padding:4px 8px;font-size:11px;background:var(--background);border:1px solid var(--line);border-radius:6px }
+  #reservations-content :global(.reservation-table) { min-width:760px;width:100%;border-collapse:collapse }
+  #reservations-content :global(.reservation-table th), #reservations-content :global(.reservation-table td) { text-align:left;padding:15px;border-bottom:1px solid var(--line);font-size:12px }
+  #reservations-content :global(.reservation-table th) { color:var(--muted);font-weight:400 }
+  #reservations-content :global(.reservation-table small) { display:block;color:var(--muted);margin-top:5px;font-size:11px }
+  #reservations-content :global(.reservation-settings) { padding:24px;max-width:850px }
+  #reservations-content :global(.reservation-week) { display:grid;gap:12px;margin-block:20px }
+  #reservations-content :global(.reservation-day) { display:grid;grid-template-columns:minmax(110px,1fr) 1fr 1fr;align-items:center;gap:12px }
+  #reservations-content :global(.reservation-day label:first-child) { display:flex;gap:8px;align-items:center }
+  #reservations-content :global(input[type=checkbox]) { width:17px;min-width:17px;height:17px;accent-color:#6e00fe }
+  :global(.reservation-hours) { border:1px solid var(--line);border-radius:12px;padding:18px;margin:20px 0;min-width:0 }
+  :global(.reservation-hours legend) { padding-inline:6px;font-size:14px }
+  :global(.reservation-hours .section-note) { font-size:12px;line-height:1.6;margin-block:14px }
+  :global(.reservation-period) { display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:14px }
+  :global(.reservation-period label) { flex:1;min-width:100px }
+  :global(.reservation-period .inline-check) { min-height:42px }
+  :global(.reservation-period button) { align-self:end;min-height:42px }
+  :global(.reservation-period input[type=time]), :global(.reservation-period input[type=date]) { width:100% }
+  @media(max-width:600px) {
+    #reservations-content :global(.reservation-day) { grid-template-columns:1fr 1fr }
+    #reservations-content :global(.reservation-day label:first-child) { grid-column:1/-1 }
+  }
+</style>

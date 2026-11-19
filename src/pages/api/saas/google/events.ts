@@ -1,3 +1,4 @@
+import {eventRange,eventDates,validEventDates} from "@/lib/saas/date-ranges";
 import { canWrite } from "@/lib/saas/permissions";
 import type { APIRoute } from "astro";
 import { currentUser, json, payload, sameOrigin } from "@/lib/saas/server";
@@ -32,12 +33,8 @@ export const POST: APIRoute = async (ctx) => {
     const googleId = Array.from(new Uint8Array(hash))
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
-    const hour = Number(event.time.slice(0, 2));
-    const next = new Date(event.date + "T12:00:00Z");
-    next.setUTCDate(next.getUTCDate() + 1);
-    const endDate = hour === 23 ? next.toISOString().slice(0, 10) : event.date;
-    const endTime =
-      String((hour + 1) % 24).padStart(2, "0") + event.time.slice(2);
+    if(!validEventDates(event))return json({error:"Fechas del evento no válidas"},400);
+    const {endDate,endTime}=eventDates(eventRange(event).start,eventRange(event).end);
     const body = JSON.stringify({
       id: googleId,
       summary: event.title,

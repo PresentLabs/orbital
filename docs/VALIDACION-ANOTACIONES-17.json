@@ -1,0 +1,120 @@
+{
+  "motion": [
+    {
+      "delay": 0,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 45,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 90,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 135,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 180,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 225,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 270,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 315,
+      "direction": "normal",
+      "duration": 480,
+      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    }
+  ],
+  "focus": {
+    "width": 480,
+    "border": "0px",
+    "left": 32,
+    "right": 64,
+    "bottom": 31.109375,
+    "buttonWidth": 384,
+    "contentWidth": 384,
+    "duration": "0.46s",
+    "overflow": 0
+  },
+  "menu": [
+    915,
+    915,
+    915
+  ],
+  "agenda": {
+    "background": "rgb(24, 60, 57)",
+    "color": "rgb(255, 255, 255)",
+    "titleColor": "rgb(255, 255, 255)",
+    "subtitleColor": "rgb(255, 255, 255)",
+    "lastBottom": 670.703125,
+    "panelBottom": 694.703125,
+    "timezone": false,
+    "headerDisplay": "grid",
+    "titleTop": 331.421875,
+    "buttonTop": 331.421875,
+    "templates": [
+      "56px 273.5px",
+      "56px 273.5px"
+    ],
+    "gradient": "linear-gradient(90deg, color(srgb 0.612549 0.498235 0.998235), rgb(110, 0, 254))"
+  },
+  "adminIconRestrictedBySSR": true,
+  "billingRedundantCardRemoved": true,
+  "consoleErrors": []
+}

@@ -1,0 +1,30 @@
+{
+  "catalog": {
+    "upload": true,
+    "previewBeforeSave": true,
+    "keepOnNormalEdit": true,
+    "replace": true,
+    "copy": true,
+    "cancelRemovalKeepsImage": true,
+    "remove": true,
+    "copySurvivesRemoval": true,
+    "extraUpload": true
+  },
+  "sameRowHeights": [
+    414.40625,
+    414.40625
+  ],
+  "mobileOverflow": 0,
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "consoleErrors": [],
+  "updatedAt": "2026-11-18",
+  "frontendTests": 73,
+  "backendTests": 81,
+  "typechecks": "pass frontend/backend",
+  "astroBuild": "pass",
+  "databaseIntegration": "pass; tenant isolation, read permission, admin-only upload, duplicate image snapshot, removal, invalid file rollback, stale version, module disabled",
+  "referenceRuntimeVerified": false
+}

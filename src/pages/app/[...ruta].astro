@@ -1,5 +1,7 @@
 ---
 import App from './index.astro';
 export const prerender = false;
+if (Astro.params.ruta === "modulos")
+  return Astro.redirect("/app/tienda/facturas-y-boletas" + (Astro.url.searchParams.get("demo") === "1" ? "?demo=1" : ""), 302);
 ---
 <App />

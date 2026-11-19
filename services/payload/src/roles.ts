@@ -6,5 +6,5 @@ export const roleOptions = [
 ] as const;
 export const roleLabel = (role: string) =>
   role === "owner"
-    ? "Administrador"
+    ? "Propietario"
     : roleOptions.find((r) => r.value === role)?.label || "Colaborador";

@@ -9,16 +9,17 @@ process.env.INTEGRATION_ALLOWED_HOSTS='shop.example.test';
 const capabilities={module:'woo-dte-chile',apiVersion:1,environment:'certification'};
 function fixture() {
   const records=[], calls=[], upstream=[];
+  const grant={id:1,workspace:12,moduleId:"woo-dte-chile",enabled:true};
   const store={id:1,credentials:seal({url:'https://shop.example.test',key:'not-for-wp',secret:'not-for-wp'})};
   const req={method:'POST',headers:new Headers({Authorization:'JWT test'}),user:{id:7,role:'admin',workspace:12},json:async()=>({}),payload:{
-    find:async args=>{calls.push(args);assert.equal(args.where.workspace?.equals || args.where.and[0].workspace.equals,12);return {docs:args.collection==='integrations'?[store]:records};},
+    find:async args=>{calls.push(args);assert.equal(args.where.workspace?.equals || args.where.and[0].workspace.equals,12);return {docs:args.collection==='module-grants' ? (grant.enabled && args.where.and.some(item=>item.moduleId?.equals===grant.moduleId) ? [grant] : []) : args.collection==='integrations'?[store]:records};},
     create:async args=>{calls.push(args);records.push({id:99,...args.data});return records.at(-1);},
     update:async args=>{calls.push(args);assert.equal(args.id,99);Object.assign(records[0],args.data);return records[0];},
   }};
   const woo=async(...args)=>{upstream.push(args);return args[1]==='capabilities'?capabilities:[];};
   const send=async body=>{req.method='POST';req.json=async()=>({moduleId:'woo-dte-chile',...body});return handleModules(req,woo);};
   const install=()=>send({action:'install',username:'manager',password:'abcd efgh ijkl mnop qrst uvwx'});
-  return {req,records,calls,upstream,store,woo,send,install};
+  return {req,records,calls,upstream,store,woo,send,install,grant};
 }
 test('denies anonymous, disabled and ordinary members before DB access',async()=>{
   for(const user of [null,{role:'member',workspace:12},{role:'admin',disabled:true,workspace:12},{role:'admin'}]) {
@@ -34,7 +35,19 @@ test('installation derives tenant, verifies plugin and encrypts credentials',asy
   assert.ok(!JSON.stringify(await r.json()).includes('password'));assert.equal(f.upstream[0][1],'capabilities');
 });
 test('catalog redacts credentials; unknown module rejected',async()=>{const f=fixture();await f.install();f.req.method='GET';const r=await handleModules(f.req,f.woo);assert.ok(!(await r.text()).includes('credentials'));assert.equal((await f.send({moduleId:'arbitrary-code',action:'install'})).status,404);});
-test('disable keeps record and prevents operations; credential rotation re-enables',async()=>{const f=fixture();await f.install();await f.send({action:'disable'});assert.equal(f.records.length,1);assert.equal((await f.send({action:'documents',orderId:1})).status,409);assert.equal((await f.install()).status,200);assert.equal(f.records.length,1);});
+test('only the SaaS activation grant enables a business module',async()=>{
+  const f=fixture();
+  f.grant.enabled=false;
+  assert.equal((await f.install()).status,403);
+  assert.equal(f.records.length,0);
+  f.grant.enabled=true;
+  assert.equal((await f.install()).status,200);
+  assert.equal((await f.send({action:'disable'})).status,403);
+  assert.equal(f.records.length,1);
+  f.grant.enabled=false;
+  assert.equal((await f.send({action:'documents',orderId:1})).status,403);
+  assert.equal((await f.install()).status,403);
+});
 test('changed Woo store blocks operations and rebinding existing installation',async()=>{const f=fixture();await f.install();process.env.INTEGRATION_ALLOWED_HOSTS='shop.example.test,other.example.test';f.store.credentials=seal({url:'https://other.example.test'});assert.equal((await f.send({action:'documents',orderId:1})).status,409);assert.equal((await f.install()).status,409);process.env.INTEGRATION_ALLOWED_HOSTS='shop.example.test';});
 test('requests preserve adjustment operation key and only allowed fields',async()=>{const f=fixture();await f.install();const body={action:'adjust',documentId:8,type:61,amount:5000,reason:'Devolución',kind:'return',cancel:false,operationKey:'same-operation-key',environment:'production',refund_id:999};await f.send(body);await f.send(body);assert.equal(f.upstream[1][4],f.upstream[2][4]);assert.equal(f.upstream[1][1],'documents/8/adjust');assert.ok(!('environment' in f.upstream[1][3]));assert.ok(!('refund_id' in f.upstream[1][3]));});
 test('validates IDs, DTE scope, amount, keys and allowlisted commands',()=>{
@@ -56,4 +69,13 @@ test('Woo adapter uses WP Basic auth, forbids redirect, preserves key, handles u
   await wooRequest(connection,'documents/1/adjust','POST',{amount:1},'operation-123',async(url,init)=>{assert.equal(url,'https://shop.example.test/wp-json/woo-dte-chile/v1/documents/1/adjust');assert.equal(init.redirect,'error');assert.equal(init.headers['Idempotency-Key'],'operation-123');assert.equal(init.headers.Authorization,'Basic '+Buffer.from('admin:application-password').toString('base64'));return Response.json({id:2});});
   await assert.rejects(()=>wooRequest(connection,'capabilities','GET',undefined,undefined,async()=>{throw new Error('secret');}),e=>e.status===504&&!e.message.includes('secret'));
   await assert.rejects(()=>wooRequest(connection,'capabilities','GET',undefined,undefined,async()=>new Response('secret-stack',{status:500})),e=>e.status===502&&!e.message.includes('secret'));
+});
+
+test('canonical Órbita endpoints preserve legacy clients with the same handlers',async()=>{
+ const {modulesEndpoints}=await import('../src/modules/index.ts');
+ const {reservationEndpoints}=await import('../src/reservations/api.ts');
+ for(const endpoints of [modulesEndpoints,reservationEndpoints])for(const old of endpoints.filter(e=>e.path.startsWith('/orbital-'))){
+  const current=endpoints.find(e=>e.path===old.path.replace('/orbital-','/orbita-')&&e.method===old.method);
+  assert.ok(current);assert.equal(current.handler,old.handler);
+ }
 });

@@ -1,0 +1,2093 @@
+{
+  "updatedAt": "2026-11-18",
+  "archiveSha256": "8f517955b99555e688ae52ff4483076c9490dcda08a919d6ae88c2bdb609cf3b",
+  "completeFunctionalParity": false,
+  "counts": {
+    "parcial": 41,
+    "pendiente": 58,
+    "implementado": 4
+  },
+  "sourceAudit": "AUDITORIA-ZIP-AGENDAMIENTO.json",
+  "sourceInventory": "INVENTARIO-MODULO-RESERVAS.json",
+  "allFeaturesRetained": true,
+  "features": [
+    {
+      "id": "CAT01",
+      "title": "Servicios, estado, imagen, descripción, precio de referencia y precio de cobro",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/services_controller.php"
+        }
+      ],
+      "acceptance": "Crear, duplicar, editar y desactivar un servicio conservando reservas históricas.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts",
+        "services/payload/tests/reservations.test.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-EXTRAS-AGENDAMIENTO.json",
+        "services/payload/src/reservations/images.ts",
+        "services/payload/src/migrations/20261118_050000_reservations_images.ts",
+        "docs/VALIDACION-IMAGENES-AGENDAMIENTO.json"
+      ],
+      "currentScope": "Crear, duplicar, editar y desactivar servicios; imagen con previsualización/reemplazo/retiro y copia independiente, precio de referencia separado del cobro. Imágenes procesadas y guardadas atómicamente con permisos del negocio. Falta comparación funcional ejecutable con referencia y catálogo público.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT02",
+      "title": "Categorías y jerarquía de servicios",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_service_categories_helper.php"
+        }
+      ],
+      "acceptance": "Asignar categorías y mostrar el catálogo filtrado con el orden configurado.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/migrations/20261118_030000_reservations_catalog.ts",
+        "src/scripts/workspace-reservations.ts",
+        "services/payload/tests/reservations.test.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-F2-AGENDAMIENTO.json"
+      ],
+      "currentScope": "Categorías con jerarquía y orden, asignación de servicios y filtro que incluye descendientes. Se rechazan ciclos y referencias a otro negocio. Pendiente catálogo público y comparación con la referencia ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT03",
+      "title": "Duraciones alternativas y sus precios",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_service_durations_helper.php"
+        }
+      ],
+      "acceptance": "Cambiar duración recalcula importe, fin de cita y disponibilidad.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/migrations/20261118_030000_reservations_catalog.ts",
+        "src/scripts/workspace-reservations.ts",
+        "services/payload/tests/reservations.test.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-F2-AGENDAMIENTO.json"
+      ],
+      "currentScope": "Duraciones alternativas con precio propio; disponibilidad, importe y término recalculados en servidor. Reprogramación conserva duración e importe históricos y reintentos no duplican tras retirar una alternativa. Pendientes portal público, paquetes y comparación con la referencia ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT04",
+      "title": "Extras, cantidades, duración y selección mínima/máxima",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_service_extras_helper.php"
+        }
+      ],
+      "acceptance": "Validar restricciones y sumar duración e importe según las cantidades elegidas.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/migrations/20261118_040000_reservations_extras.ts",
+        "src/scripts/workspace-reservations.ts",
+        "services/payload/tests/reservations.test.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-EXTRAS-AGENDAMIENTO.json",
+        "services/payload/src/reservations/images.ts",
+        "services/payload/src/migrations/20261118_050000_reservations_images.ts",
+        "docs/VALIDACION-IMAGENES-AGENDAMIENTO.json"
+      ],
+      "currentScope": "Catálogo de extras con imagen, unidades máximas, mínimo/máximo de tipos distintos y precio/duración por unidad; disponibilidad e importe calculados por servidor. Edición de extras vigentes sin pago con versión, permisos, cupo e historial. Ajustes de horas pagadas dependen de la tienda aún pendiente. Faltan flujos públicos y comparación ejecutable con referencia.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT05",
+      "title": "Paquetes y saldo de sesiones por servicio",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/bundles_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/bundle_model.php"
+        }
+      ],
+      "acceptance": "Comprar y consumir sesiones sin exceder el saldo, incluso con dos solicitudes simultáneas.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/migrations/20261118_060000_reservations_packages.ts",
+        "src/lib/saas/scheduling.ts",
+        "src/scripts/workspace-reservations.ts",
+        "services/payload/tests/reservations.test.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-PAQUETES-AGENDAMIENTO.json"
+      ],
+      "currentScope": "Catálogo de paquetes: alta, edición, duplicado con imagen propia, desactivación, precio de cobro/referencia, visibilidad y orden; sesiones por servicio con duración ofrecida y personas dentro de capacidad. Configuración aislada por negocio y versionada. Pendientes compra/pago verificado de tienda, acreditación y consumo de saldo concurrente, reglas de devolución/cancelación, depósitos y rango de referencia, portal y comparación ejecutable. No hay otorgamiento manual de saldo ni venta simulada.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT06",
+      "title": "Visualización de servicios individuales, paquetes o ambos",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_service_display_mode_helper.php"
+        }
+      ],
+      "acceptance": "El catálogo público respeta el modo y la visibilidad interna de cada producto.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT07",
+      "title": "Profesionales múltiples, perfiles, contactos y servicios ofrecidos",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/agents_controller.php"
+        }
+      ],
+      "acceptance": "Administrar perfiles y asignar servicios, sedes y usuarios internos sin ampliar sus permisos.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Profesionales vinculados a usuarios; faltan perfiles y asignaciones avanzadas por sede.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT08",
+      "title": "Sedes múltiples, categorías, dirección y datos de contacto",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/locations_controller.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/location_categories_controller.php"
+        }
+      ],
+      "acceptance": "Cada servicio/profesional solo ofrece las sedes autorizadas.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Sucursales con dirección; faltan categorías y relaciones avanzadas.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT09",
+      "title": "Recursos físicos y cantidades disponibles",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_assets_helper.php"
+        }
+      ],
+      "acceptance": "Reservar salas o equipamiento respetando unidades, disponibilidad y ámbito del negocio.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Recursos y cantidades; faltan políticas avanzadas de disponibilidad.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CAT10",
+      "title": "Asignación automática de profesional y sede",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/booking_helper.php"
+        }
+      ],
+      "acceptance": "La opción cualquier profesional/sede elige una combinación realmente disponible.",
+      "phase": "F3",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS01",
+      "title": "Horarios semanales de negocio, servicio, profesional y sede",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/work_period_model.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/views/agents/_form.php"
+        }
+      ],
+      "acceptance": "Resolver prioridades y cruces de horarios con varias franjas diarias.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Franjas semanales múltiples e intersección por entidad. Pendiente validar contra referencia ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS02",
+      "title": "Días especiales, rangos, feriados, ausencias y bloqueos rápidos",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/off_period_model.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/custom_day_schedule_form.php"
+        }
+      ],
+      "acceptance": "Los días especiales y bloqueos eliminan los horarios afectados al instante.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Excepciones por fecha y cierres. Faltan rangos y bloqueos rápidos.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS03",
+      "title": "Buffers antes/después e intervalos de inicio",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/services/_form.php"
+        }
+      ],
+      "acceptance": "Los márgenes ocupan recursos y los inicios respetan el intervalo configurado.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Buffers e intervalos implementados y probados; pendiente comparación con referencia.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS04",
+      "title": "Anticipación mínima, horizonte máximo y fechas fijas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/services/_form.php"
+        }
+      ],
+      "acceptance": "Aplicar reglas globales y excepciones por servicio con límites exactos.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Anticipación y horizonte globales; faltan excepciones por servicio y fechas fijas.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS05",
+      "title": "Máximos diarios de negocio, servicio y profesional",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_max_bookings_per_day_helper.php"
+        }
+      ],
+      "acceptance": "La última reserva admitida cierra el día correspondiente de forma atómica.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Máximos diarios globales, por servicio y por profesional implementados; falta la comparación funcional con la referencia ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS06",
+      "title": "Máximo de reservas futuras por cliente",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        }
+      ],
+      "acceptance": "Un cliente no supera su cupo aunque reserve desde varias pestañas.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/tests/reservations-db.test.mjs"
+      ],
+      "currentScope": "Máximo de horas futuras por cliente implementado con validación transaccional y prueba de dos solicitudes simultáneas; falta validarlo en el portal público aún pendiente.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS07",
+      "title": "Zonas horarias, formato horario e intervalos DST",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_timezone_helper.php"
+        }
+      ],
+      "acceptance": "Mostrar zona explícita y resolver horas inexistentes/duplicadas y cambios estacionales.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Zona horaria y rechazo de horas inexistentes; falta selección explícita de horas repetidas.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS08",
+      "title": "Reglas de concurrencia entre profesionales, sedes y servicios",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/resource_helper.php"
+        }
+      ],
+      "acceptance": "Respetar exclusividad de sede y presencia del profesional, además de simultaneidad autorizada.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Capacidad y conflictos de profesional/servicio/recursos; faltan políticas configurables de sucursal y simultaneidad.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS09",
+      "title": "Retención temporal del cupo durante checkout",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/booking_helper.php"
+        }
+      ],
+      "acceptance": "Crear, renovar según política y expirar holds sin vender dos veces el último cupo.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/holds.ts",
+        "services/payload/src/reservations/domain.ts",
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/migrations/20261118_070000_reservations_payment_holds.ts",
+        "services/payload/reservations-worker.mjs",
+        "services/payload/tests/reservations-db.test.mjs",
+        "docs/VALIDACION-PLAZOS-AGENDAMIENTO.json",
+        "docs/OPERACION-AGENDAMIENTO.md"
+      ],
+      "currentScope": "Retención de reservas internas pendientes sin pago con plazo configurable 5–120 minutos, expiración transaccional y auditoría; liberación de cupo y cuota sin exceder capacidad con ocho solicitudes simultáneas. Reagendar/editar no renueva el plazo. Proceso periódico y limpieza en consultas/operaciones, con interfaz de vencimiento y protección de borradores. Faltan vincular intención de checkout de tienda, política de renovación durante checkout, flujo público y comparación ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "DIS10",
+      "title": "Disponibilidad rápida, primer horario y ocultación de agotados",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/steps_helper.php"
+        }
+      ],
+      "acceptance": "La búsqueda rápida y el calendario completo ofrecen el mismo inventario.",
+      "phase": "F3",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES01",
+      "title": "Crear, editar, aprobar, rechazar y cancelar citas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/bookings_controller.php"
+        }
+      ],
+      "acceptance": "Cada transición registra actor, motivo y versión y respeta los permisos.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Creación, estados fijos, motivos y versiones; detalle legible para estados cerrados. Falta edición ampliada de la cita.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES02",
+      "title": "Estados configurables y reglas de bloqueo del calendario",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        }
+      ],
+      "acceptance": "Los estados adicionales respetan su efecto sobre cupos, pendientes y visibilidad.",
+      "phase": "F3",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES03",
+      "title": "Reprogramación y motivos de cambio/cancelación",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_booking_reasons_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/customer_helper.php"
+        }
+      ],
+      "acceptance": "Reservar el nuevo horario y liberar el anterior en una única operación lógica.",
+      "phase": "F3",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Reprogramación atómica, importe preservado y motivo auditado; faltan las políticas y acciones del portal cliente.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES04",
+      "title": "Recurrencia diaria, semanal y mensual, fin y excepciones",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_recurring_bookings_helper.php"
+        }
+      ],
+      "acceptance": "Previsualizar toda la serie, conflictos y límites antes de confirmar sus ocurrencias.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES05",
+      "title": "Reservas grupales, mínimos, máximos y participantes",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_group_bookings_helper.php"
+        }
+      ],
+      "acceptance": "La capacidad y la política de bloqueo por mínimo se aplican a cada franja.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Cantidad de personas y capacidad compartida; faltan mínimos y participantes individuales.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES06",
+      "title": "Cargos por persona, tarifa base, extras y depósito grupal",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_group_bookings_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_base_fee_helper.php"
+        }
+      ],
+      "acceptance": "Calcular una tarifa base por reserva y multiplicar solo los conceptos configurados.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Cálculo por persona y tarifa base del motor; faltan extras, depósitos y configuración completa.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES07",
+      "title": "Ausencias y restricción por no-show",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_no_show_restrictions_helper.php"
+        }
+      ],
+      "acceptance": "Contabilizar reversiblemente las ausencias y exigir prepago o bloquear según configuración.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Estado no asistió; faltan restricciones y prepago por ausencias.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES08",
+      "title": "Agenda día/semana/mes, filtros y edición rápida",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/calendars_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/bookings_controller.php"
+        }
+      ],
+      "acceptance": "Visualizar y gestionar citas por profesional, servicio, sede y estado en escritorio/móvil.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Tabla con fecha y búsqueda; faltan calendario día/semana/mes y filtros ampliados.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES09",
+      "title": "Selección múltiple, acciones masivas y exportación de reservas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/bookings_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/booking_helper.php"
+        }
+      ],
+      "acceptance": "Previsualizar alcance, validar cada registro y reportar resultados parciales sin ocultar errores.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "RES10",
+      "title": "Búsqueda global, pendientes y actividad de reservas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/search_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/activities_controller.php"
+        }
+      ],
+      "acceptance": "Encontrar reservas y revisar cambios con acceso limitado al negocio y rol.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Búsqueda local de cliente/correo/servicio; faltan búsqueda global y actividad navegable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT01",
+      "title": "Eventos publicados, categorías y múltiples fechas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/events_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/event_date_model.php"
+        }
+      ],
+      "acceptance": "Publicar eventos por fecha y zona horaria con estados y categorías.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT02",
+      "title": "Cupos, precio e inscripciones de eventos",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/event_registrations_controller.php"
+        }
+      ],
+      "acceptance": "Inscribir, cancelar y exportar participantes sin superar capacidad.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT03",
+      "title": "Tipos de entrada y capacidad por tipo",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_ticket_types_helper.php"
+        }
+      ],
+      "acceptance": "Ofrecer General/VIP u otros tipos y comprobar simultáneamente cupo global y por tipo.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT04",
+      "title": "Tarifas de entradas por rango de fechas",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_ticket_types_helper.php"
+        }
+      ],
+      "acceptance": "Seleccionar la tarifa vigente y pedir confirmación si cambia antes del pago.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT05",
+      "title": "Entradas individuales/grupales, PDF y QR",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_tickets_helper.php"
+        }
+      ],
+      "acceptance": "Emitir las entradas que corresponden al pedido y anularlas cuando proceda.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT06",
+      "title": "Escáner QR, código manual y check-in",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/event_tickets_controller.php"
+        }
+      ],
+      "acceptance": "Impedir escaneos duplicados y validar fecha, evento y asistentes pendientes bajo concurrencia.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT07",
+      "title": "Lista de espera por evento/tipo y cantidad",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_waiting_list_helper.php"
+        }
+      ],
+      "acceptance": "Ingresar en cola con posición y cantidad, evitando duplicados y exceso de espera.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT08",
+      "title": "Invitar, promover, retirar y reclamar cupos de espera",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_waiting_list_helper.php"
+        }
+      ],
+      "acceptance": "Reservar cupos para una invitación con plazo y convertirla una sola vez tras reclamación.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "EVT09",
+      "title": "Automatizaciones, avisos y portal para entradas/espera",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_waiting_list_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_event_tickets_helper.php"
+        }
+      ],
+      "acceptance": "Enviar confirmaciones y mostrar al cliente sus entradas y el estado de sus invitaciones.",
+      "phase": "F6",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI01",
+      "title": "Ficha, historial y datos de contacto de clientes",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/customers_controller.php"
+        }
+      ],
+      "acceptance": "Consultar citas, paquetes, pedidos y contacto del cliente dentro de su negocio.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Contacto básico; falta ficha completa con historial, paquetes y pedidos.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI02",
+      "title": "Importar clientes CSV, mapeo, duplicados y exportar",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/customer_import_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/csv_helper.php"
+        }
+      ],
+      "acceptance": "Previsualizar columnas, validar filas y evitar duplicados por contacto y negocio.",
+      "phase": "F8",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI03",
+      "title": "Acceso cliente por contraseña u OTP y recuperación",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/auth_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/otp_helper.php"
+        }
+      ],
+      "acceptance": "Autenticar al cliente y verificar cambios de contacto con tokens de uso único y límites de intento.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI04",
+      "title": "Acceso Google y Facebook",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/social_helper.php"
+        }
+      ],
+      "acceptance": "Vincular identidades verificadas al cliente correcto sin vincular por un contacto sin verificar.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI05",
+      "title": "Reserva como invitado y autenticación simplificada",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/auth_controller.php"
+        }
+      ],
+      "acceptance": "Aplicar opciones del negocio para identificación, registro, invitado y verificación.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI06",
+      "title": "Portal cliente, perfil, historial, paquetes, pagos y próximas citas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/customer_cabinet_controller.php"
+        }
+      ],
+      "acceptance": "Cada cliente accede exclusivamente a su información y sus acciones habilitadas.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI07",
+      "title": "Enlaces privados para gestionar reserva y pedido",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/manage_booking_by_key_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/manage_order_by_key_controller.php"
+        }
+      ],
+      "acceptance": "Usar enlaces firmados, revocables y limitados a las operaciones permitidas.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI08",
+      "title": "Reutilización de cliente por correo/teléfono y vínculo con tienda",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/customer_helper.php"
+        }
+      ],
+      "acceptance": "Deduplicar según política del negocio y mantener las identidades de clientes y personal diferenciadas.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Deduplicación por correo; faltan teléfono, políticas y vínculo con tienda.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "CLI09",
+      "title": "Mensajería cliente-profesional e historial por reserva",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_messages_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/messages_controller.php"
+        }
+      ],
+      "acceptance": "Enviar y leer conversaciones solo si el actor participa y conservar avisos de lectura/envío.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR01",
+      "title": "Asistente de reserva por pasos y progreso",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/steps_helper.php"
+        }
+      ],
+      "acceptance": "Completar servicio, sede, profesional, fecha, contacto y pago conservando el estado al volver.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Formulario interno de reserva; falta asistente público con progreso y pago.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR02",
+      "title": "Orden y personalización de pasos con dependencias",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/booking_form_settings_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/steps_helper.php"
+        }
+      ],
+      "acceptance": "Reordenar pasos válidos, omitir opciones únicas y rechazar secuencias incompatibles.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR03",
+      "title": "Campos nativos y personalizados para cliente y reserva",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_custom_fields_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/views/custom_fields/_custom_field_form.php"
+        }
+      ],
+      "acceptance": "Respetar tipo, condición, valor inicial, obligatoriedad, ancho y visibilidad por rol.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR04",
+      "title": "Adjuntos y autocompletado de dirección",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_custom_fields_helper.php"
+        }
+      ],
+      "acceptance": "Validar archivos privados y consultar direcciones con la integración autorizada.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR05",
+      "title": "Precarga desde URL y restricciones de servicio/profesional/sede",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_url_prefill_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/steps_helper.php"
+        }
+      ],
+      "acceptance": "Aceptar solo campos públicos permitidos y validar que las opciones precargadas sean reservables.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR06",
+      "title": "Páginas instantáneas, enlace, botón y formulario incrustable",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/generate_instant_booking_page.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/shortcodes_helper.php"
+        }
+      ],
+      "acceptance": "Compartir o incrustar reservas/eventos en Shopify, WooCommerce y Payload con el tema del negocio.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR07",
+      "title": "Marca por negocio, idioma, textos, diseño y vista previa",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_white_label_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/styles_helper.php"
+        }
+      ],
+      "acceptance": "Aplicar logo y preferencias del negocio junto a los componentes y estética de Orbital.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Layout y marca del negocio en el panel; faltan personalización y publicación pública.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR08",
+      "title": "Validación de teléfonos, países y formatos monetarios",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        }
+      ],
+      "acceptance": "Validar según país y presentar moneda/fecha sin convertir importes por el formato visual.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Moneda explícita y email normalizado; faltan reglas internacionales de teléfono y país.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR09",
+      "title": "Antispam, Turnstile y registro opcional de IP",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_cloudflare_turnstile_helper.php"
+        }
+      ],
+      "acceptance": "Verificar el token en servidor y respetar la configuración de trazabilidad del negocio.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR10",
+      "title": "Enlaces de calendario e iCalendar/QR de confirmación",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/icalendar_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_qrcode_helper.php"
+        }
+      ],
+      "acceptance": "Exportar fechas, zonas, cambios y cancelaciones de la cita correcta.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG01",
+      "title": "Carrito con varias citas, paquetes y eventos",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/carts_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/order_intent_model.php"
+        }
+      ],
+      "acceptance": "Crear un checkout coherente para todos sus elementos y retener sus recursos en conjunto.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG02",
+      "title": "Pago completo, depósito fijo/porcentaje y saldo posterior",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/booking_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/payments_helper.php"
+        }
+      ],
+      "acceptance": "Separar precio total, cobrado, saldo y reserva; reconciliar cada pago real de la tienda.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG03",
+      "title": "Pago posterior/local y enlaces para cobrar saldo",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/invoices_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/payments_helper.php"
+        }
+      ],
+      "acceptance": "Crear un pedido/enlace nativo y confirmar el pago manual autorizado solo con registro de actor y evidencia.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Permiso de confirmar con saldo pendiente; no hay enlaces de cobro de saldo.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG04",
+      "title": "Cupones, reglas, vigencia y límites de uso",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/coupons_controller.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_coupons_helper.php"
+        }
+      ],
+      "acceptance": "Aplicar una única política de descuento y consumir usos de forma atómica, también con paquetes/eventos.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG05",
+      "title": "Impuestos, tasas y desglose de cargos",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/taxes_controller.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/taxes_helper.php"
+        }
+      ],
+      "acceptance": "Reconciliar el desglose calculado por la tienda y conservar una instantánea del pedido aceptado.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG06",
+      "title": "Pedidos, transacciones y comprobantes/facturas comerciales",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/orders_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/invoices_helper.php"
+        }
+      ],
+      "acceptance": "Mantener referencias de tienda, estado, importe y enlaces de comprobantes con acceso adecuado.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG07",
+      "title": "Reembolsos parciales/totales y conciliación",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/transaction_refund_model.php"
+        },
+        {
+          "package": "latepoint-payments-paypal.2.1.1.zip",
+          "path": "latepoint-payments-paypal/lib/helpers/payments_paypal_helper.php"
+        },
+        {
+          "package": "latepoint-payments-mercadopago.2.0.3.zip",
+          "path": "latepoint-payments-mercadopago/lib/helpers/payments_mercadopago_helper.php"
+        }
+      ],
+      "acceptance": "Solicitar el reembolso mediante la tienda y reflejar el movimiento financiero confirmado una sola vez.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG08",
+      "title": "Checkout WooCommerce y productos de servicio/paquete",
+      "sources": [
+        {
+          "package": "latepoint-payments-woocommerce-1.5.0.zip",
+          "path": "latepoint-payments-woocommerce/lib/controllers/payments_woocommerce_controller.php"
+        },
+        {
+          "package": "latepoint-payments-woocommerce-1.5.0.zip",
+          "path": "latepoint-payments-woocommerce/lib/helpers/payments_woocommerce_helper.php"
+        }
+      ],
+      "acceptance": "Crear/vincular productos y pedidos; cobrar con los métodos habilitados en esa tienda.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG09",
+      "title": "Capacidades PayPal del complemento, mediante la tienda activa",
+      "sources": [
+        {
+          "package": "latepoint-payments-paypal.2.1.1.zip",
+          "path": "latepoint-payments-paypal/lib/helpers/payments_paypal_helper.php"
+        },
+        {
+          "package": "latepoint-payments-paypal.2.1.1.zip",
+          "path": "latepoint-payments-paypal/lib/controllers/payments_paypal_controller.php"
+        }
+      ],
+      "acceptance": "Conciliar pagos y reembolsos PayPal cuando la tienda tenga esa pasarela configurada.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG10",
+      "title": "Capacidades Mercado Pago del complemento, mediante la tienda activa",
+      "sources": [
+        {
+          "package": "latepoint-payments-mercadopago.2.0.3.zip",
+          "path": "latepoint-payments-mercadopago/lib/helpers/payments_mercadopago_helper.php"
+        }
+      ],
+      "acceptance": "Conciliar preferencia/pedido, pago y devolución usando el identificador canónico que exponga la tienda.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG11",
+      "title": "Monedas, decimales, importes y ambientes de prueba/producción",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/money_helper.php"
+        },
+        {
+          "package": "latepoint-payments-mercadopago.2.0.3.zip",
+          "path": "latepoint-payments-mercadopago/lib/helpers/payments_mercadopago_helper.php"
+        }
+      ],
+      "acceptance": "Usar unidades menores de cada moneda y distinguir pagos de prueba, autorización, captura y devolución.",
+      "phase": "F4",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Unidades menores y moneda explícita; faltan checkout y verificación de ambientes en los tres proveedores.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "PAG12",
+      "title": "Holds, intenciones, reintentos y confirmación fiable de pago",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/payment_request_model.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/models/transaction_intent_model.php"
+        }
+      ],
+      "acceptance": "Tolerar webhooks duplicados/fuera de orden y pagos tardíos sin confirmar una reserva sin cupo.",
+      "phase": "F4",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT01",
+      "title": "Workflows con disparadores, condiciones y acciones",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/processes_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/misc/process_action.php"
+        }
+      ],
+      "acceptance": "Crear, previsualizar y ejecutar reglas sobre citas, eventos, pedidos, pagos y clientes.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT02",
+      "title": "Recordatorios antes/después y trabajos programados",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_reminders_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/process_jobs_controller.php"
+        }
+      ],
+      "acceptance": "Ejecutar en la zona correcta y cancelar/replanificar trabajos tras reprogramación o cancelación.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT03",
+      "title": "Plantillas, variables, destinatarios y adjuntos de correo",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/notifications.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/email_helper.php"
+        }
+      ],
+      "acceptance": "Previsualizar variables y enviar mensajes con adjuntos y destinatarios autorizados.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT04",
+      "title": "Canal SMS y selección de procesador externo",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/sms_helper.php"
+        }
+      ],
+      "acceptance": "Ofrecer el canal con su adaptador configurado y mostrar los fallos reales de entrega.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT05",
+      "title": "WhatsApp Meta, plantillas y envío",
+      "sources": [
+        {
+          "package": "latepoint-whatsapp-meta.1.1.0.zip",
+          "path": "latepoint-whatsapp-meta/lib/helpers/whatsapp_meta_helper.php"
+        }
+      ],
+      "acceptance": "Seleccionar plantillas del negocio, validar parámetros y registrar envío/error con sus credenciales.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT06",
+      "title": "Webhooks salientes, cuerpo y variables",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_webhooks_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/webhooks_controller.php"
+        }
+      ],
+      "acceptance": "Enviar eventos autorizados con firma, reintentos y registro de respuestas.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "AUT07",
+      "title": "Carrito abandonado, recuperación y conversión",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_cart_abandonment_helper.php"
+        }
+      ],
+      "acceptance": "Generar enlace de continuación sin retener cupos indefinidamente y detener avisos al convertir.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT01",
+      "title": "Google Calendar por profesional y múltiples calendarios",
+      "sources": [
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/helpers/google_calendar_helper.php"
+        }
+      ],
+      "acceptance": "Conectar por profesional, elegir calendarios de lectura y calendario de escritura.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT02",
+      "title": "Sincronización Google bidireccional, recurrencias y excepciones",
+      "sources": [
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/models/gcal_event_recurrence_model.php"
+        },
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/helpers/google_calendar_helper.php"
+        }
+      ],
+      "acceptance": "Detectar cambios y borrados sin ciclos de sincronización ni pérdida de excepciones.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT03",
+      "title": "Google push/watch, renovaciones, tokens y errores permanentes",
+      "sources": [
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/helpers/google_calendar_helper.php"
+        },
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/helpers/google_calendar_relay_helper.php"
+        }
+      ],
+      "acceptance": "Renovar suscripciones y credenciales, reconstruir una sincronización invalidada y mostrar desconexiones.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT04",
+      "title": "Google Meet para citas individuales/grupales",
+      "sources": [
+        {
+          "package": "latepoint-google-calendar-1.6.3.zip",
+          "path": "latepoint-google-calendar/lib/helpers/google_calendar_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/helpers/feature_group_bookings_helper.php"
+        }
+      ],
+      "acceptance": "Crear/actualizar el enlace y los asistentes; respetar modo compartido o reunión por reserva.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT05",
+      "title": "Zoom, usuarios, reuniones, contraseña y ciclo de vida",
+      "sources": [
+        {
+          "package": "latepoint-zoom.1.1.1.zip",
+          "path": "latepoint-zoom/lib/helpers/zoom_helper.php"
+        }
+      ],
+      "acceptance": "Crear/actualizar/eliminar reuniones por profesional sin duplicar las compartidas.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT06",
+      "title": "Mailchimp, audiencias y contactos",
+      "sources": [
+        {
+          "package": "latepoint-mailchimp.1.0.1.zip",
+          "path": "latepoint-mailchimp/lib/helpers/mailchimp_helper.php"
+        },
+        {
+          "package": "latepoint-mailchimp.1.0.1.zip",
+          "path": "latepoint-mailchimp/lib/controllers/mailchimp_controller.php"
+        }
+      ],
+      "acceptance": "Elegir audiencia y crear/actualizar el contacto con el consentimiento y estado adecuados.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT07",
+      "title": "Extensibilidad de reuniones, SMS, marketing y enlaces cortos",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/meeting_systems_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/marketing_systems_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/short_links_systems_helper.php"
+        }
+      ],
+      "acceptance": "Mantener contratos de adaptador y distinguir los procesadores presentes de los que requieren integración adicional.",
+      "phase": "F7",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "INT08",
+      "title": "Integración con editores WordPress y sitios de la tienda",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/blocks_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/elementor_helper.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/bricks_helper.php"
+        }
+      ],
+      "acceptance": "Ofrecer equivalentes de botón/lista/formulario mediante incrustación y puentes de tienda.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS01",
+      "title": "Panel de control, estadísticas y servicios más solicitados",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/dashboard_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/abilities/analytics/"
+        }
+      ],
+      "acceptance": "Mostrar datos reales por período, profesional, servicio y sede con definiciones de métricas.",
+      "phase": "F8",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/dashboard.ts",
+        "src/scripts/scheduling-dashboard.ts",
+        "services/payload/tests/reservations-db.test.mjs"
+      ],
+      "currentScope": "Resumen operativo con Agenda de hoy primero, estadísticas y curva consultable de 7/30 días; falta comparar todos los widgets contra la referencia ejecutable.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS02",
+      "title": "Roles personalizados, capacidades y acceso por registro",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/roles_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/roles_helper.php"
+        }
+      ],
+      "acceptance": "Restringir lectura/escritura de agenda, clientes, cobros, sedes y profesionales según rol.",
+      "phase": "F1",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Permisos existentes de calendario y administrador; faltan roles personalizados por capacidad.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS03",
+      "title": "Panel propio del profesional y relación con usuario interno",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/agents_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/default_agent_controller.php"
+        }
+      ],
+      "acceptance": "Un profesional gestiona solo los registros que tiene asignados/autorizados.",
+      "phase": "F5",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Filtro de agenda propia y vínculo con usuario; falta panel profesional completo.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS04",
+      "title": "Auditoría, registros de actividad y diagnóstico",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/activities_controller.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/debug_controller.php"
+        }
+      ],
+      "acceptance": "Registrar cambios y errores operativos con identificadores correlacionados y secretos redactados.",
+      "phase": "F8",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Auditoría persistente y consulta de historial por registro con permisos; falta diagnóstico completo de trabajos e integraciones.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS05",
+      "title": "Importar/exportar respaldo y migrar versiones de datos",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/import_modal.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/migrations_helper.php"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/updates_controller.php"
+        }
+      ],
+      "acceptance": "Previsualizar la migración, preservar referencias y restaurar un respaldo probado en un negocio de ensayo.",
+      "phase": "F8",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS06",
+      "title": "Onboarding y configuración inicial",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/wizard_controller.php"
+        }
+      ],
+      "acceptance": "Completar servicio, profesional, horario, marca, tienda y una reserva de prueba con progreso guardado.",
+      "phase": "F2",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Estados vacíos y configuración básica; falta onboarding guiado y validación de publicación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS07",
+      "title": "API REST, filtros, paginación, serializadores y claves",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/api/"
+        }
+      ],
+      "acceptance": "Exponer servicios, disponibilidad, profesionales, sedes, clientes, reservas, pedidos, pagos y cupones con scopes.",
+      "phase": "F8",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "API privada con JWT, filtros y paginación; faltan API externa, claves y contratos de extensión.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS08",
+      "title": "Abilities/MCP con lectura, edición y eliminación configurables",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/abilities/"
+        },
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/abilities/"
+        }
+      ],
+      "acceptance": "Aplicar scopes, permisos por registro y revocación a cada herramienta; probar también cobros/reembolsos.",
+      "phase": "F8",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS09",
+      "title": "Ayuda contextual, accesos rápidos y tareas operativas",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/support_topics_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/controllers/todos_controller.php"
+        }
+      ],
+      "acceptance": "Vincular ayuda y pendientes del módulo a los flujos de Orbital con contexto del negocio.",
+      "phase": "F8",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Accesos del resumen a agenda; faltan ayuda contextual y tareas operativas completas.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "OPS10",
+      "title": "Activación, versiones, marca y analítica opcional del producto",
+      "sources": [
+        {
+          "package": "latepoint-pro-features-1.7.7.zip",
+          "path": "latepoint-pro-features/lib/controllers/addons_controller.php"
+        },
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/helpers/analytics_helper.php"
+        }
+      ],
+      "acceptance": "Administrar disponibilidad/versiones desde el SaaS y dejar cualquier analítica externa sujeta a configuración explícita.",
+      "phase": "F1",
+      "status": "parcial",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Activación y versión del módulo; faltan preferencias/analítica opcional y publicación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "FOR11",
+      "title": "Código de conversión y variables de confirmación",
+      "sources": [
+        {
+          "package": "latepoint.5.7.9-CORE.zip",
+          "path": "latepoint/lib/views/settings/general.php"
+        }
+      ],
+      "acceptance": "Configurar seguimiento de conversión por negocio con sus variables y verificar el aislamiento del código público respecto del panel interno.",
+      "phase": "F5",
+      "status": "pendiente",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB01",
+      "title": "Activar y desactivar Reservas por negocio desde /administracion",
+      "sources": [],
+      "acceptance": "Solo el dueño del SaaS concede acceso; comprobar API directa y sesión de un propietario de negocio.",
+      "phase": "F1",
+      "status": "implementado",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementationEvidence": [
+        "services/payload/src/modules/grants.ts",
+        "services/payload/src/platform-admin.ts",
+        "services/payload/tests/reservations-db.test.mjs"
+      ],
+      "currentScope": "Concesión/revocación SaaS y bloqueo de activación por el propietario; pruebas de API y PostgreSQL.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB02",
+      "title": "Nuevo menú Reservas dentro de Orbital",
+      "sources": [],
+      "acceptance": "Mostrar el menú solo cuando coincidan activación global, configuración del negocio y permisos.",
+      "phase": "F1",
+      "status": "parcial",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Menú y rutas de Agendamiento con concesión/permisos; falta estado listo para publicar.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB03",
+      "title": "Pagos Shopify y Payload mediante sus checkouts existentes",
+      "sources": [],
+      "acceptance": "Completar la misma matriz de pagos y devoluciones en Shopify, WooCommerce y Payload.",
+      "phase": "F4",
+      "status": "pendiente",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementationEvidence": [],
+      "currentScope": "Sin implementación equivalente identificada. Debe cumplirse íntegramente el criterio de aceptación.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB04",
+      "title": "Gestión Creativa como padre de Espacios, Tareas, Notas, Calendario y Archivos",
+      "sources": [],
+      "acceptance": "Expandir/contraer y revelar el hijo activo incluso al entrar por URL directa.",
+      "phase": "F0",
+      "status": "implementado",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementation": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts",
+        "src/styles/workspace.css"
+      ],
+      "validation": "Compilación Astro, suite existente y navegador local en demo. Grupos, enlaces directos, hover primario y color blanco/drop-shadow en modo oscuro.",
+      "implementationEvidence": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts"
+      ],
+      "currentScope": "Gestión Creativa anida las secciones y revela el hijo activo.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB05",
+      "title": "Empresa como padre de Documentos, Accesos y Equipo",
+      "sources": [],
+      "acceptance": "Respetar permisos de hijos y conservar Personas/Votaciones bajo Equipo.",
+      "phase": "F0",
+      "status": "implementado",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementation": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts",
+        "src/styles/workspace.css"
+      ],
+      "validation": "Compilación Astro, suite existente y navegador local en demo. Grupos, enlaces directos, hover primario y color blanco/drop-shadow en modo oscuro.",
+      "implementationEvidence": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts"
+      ],
+      "currentScope": "Empresa anida Documentos, Accesos y Equipo; alineación del grupo Equipo en revisión visual.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB06",
+      "title": "Iconos primarios al hover y blancos con brillo en dark mode",
+      "sources": [],
+      "acceptance": "Comprobar SVG, iconos con máscara y navegación de teclado en ambos temas.",
+      "phase": "F0",
+      "status": "implementado",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementation": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts",
+        "src/styles/workspace.css"
+      ],
+      "validation": "Compilación Astro, suite existente y navegador local en demo. Grupos, enlaces directos, hover primario y color blanco/drop-shadow en modo oscuro.",
+      "implementationEvidence": [
+        "src/layouts/WorkspaceLayout.astro",
+        "src/scripts/workspace.ts"
+      ],
+      "currentScope": "Color primario al hover y foco; blanco con brillo en modo oscuro para íconos principales.",
+      "referenceRuntimeVerified": false
+    },
+    {
+      "id": "ORB07",
+      "title": "UX compartida, responsive y accesible",
+      "sources": [],
+      "acceptance": "Completar flujos por teclado y móvil con estados de carga, errores recuperables y confirmación de operaciones.",
+      "phase": "F5",
+      "status": "parcial",
+      "requirementOrigin": "Petición explícita del usuario",
+      "implementationEvidence": [
+        "services/payload/src/reservations/api.ts",
+        "services/payload/src/reservations/domain.ts",
+        "src/scripts/workspace-reservations.ts"
+      ],
+      "currentScope": "Coherencia con Vista general, modo claro/oscuro, móvil/escritorio, estados, botones y tabla verificados en navegador aislado. Siguen pendientes los flujos públicos e integraciones del plan.",
+      "referenceRuntimeVerified": false
+    }
+  ]
+}

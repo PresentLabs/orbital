@@ -2,10 +2,21 @@ import {fileFormat} from './files-library';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 export async function fileThumbnail(blob:Blob,name:string):Promise<Blob>{
  const canvas=document.createElement('canvas');canvas.width=480;canvas.height=300;const ctx=canvas.getContext('2d')!;
- ctx.fillStyle=`hsl(${fileFormat(name,blob.type).hue} 70% 94%)`;ctx.fillRect(0,0,480,300);
+ ctx.fillStyle="#fff";ctx.fillRect(0,0,480,300);
  let drawn=false;
  if(['image/png','image/jpeg','image/webp','image/gif'].includes(blob.type)){
   const bitmap=await createImageBitmap(blob,{resizeWidth:480,resizeQuality:'high'});const ratio=Math.min(480/bitmap.width,300/bitmap.height);ctx.drawImage(bitmap,(480-bitmap.width*ratio)/2,(300-bitmap.height*ratio)/2,bitmap.width*ratio,bitmap.height*ratio);bitmap.close();drawn=true;
+ }else if(blob.type==='image/svg+xml'){
+  const url=URL.createObjectURL(blob);
+  try{
+   const image=new Image();
+   image.src=url;
+   await image.decode();
+   const ratio=Math.min(480/image.naturalWidth,300/image.naturalHeight);
+   const width=image.naturalWidth*ratio,height=image.naturalHeight*ratio;
+   ctx.drawImage(image,(480-width)/2,(300-height)/2,width,height);
+   drawn=true;
+  }finally{URL.revokeObjectURL(url);}
  }else if(blob.type==='application/pdf'){
   const pdfjs=await import('pdfjs-dist');pdfjs.GlobalWorkerOptions.workerSrc=workerUrl;
   const task=pdfjs.getDocument({data:new Uint8Array(await blob.arrayBuffer())});

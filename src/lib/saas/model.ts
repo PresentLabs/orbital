@@ -1,3 +1,5 @@
+import {validEventDates} from "./date-ranges.ts";
+import {validBusinessPalette,validColumnNames,type BusinessPalette} from "../../../services/payload/src/ui-settings.ts";
 import {isNoteColor,validSpatial,type NoteColor,type SpatialBlock} from './spatial.ts';
 import {validDemoPolls} from '../../../services/payload/src/poll-policy.ts';
 import {validBoardWork,validTaskWork,type BoardWork,type ResourceLink} from "../../../services/payload/src/work-management.ts";
@@ -10,6 +12,7 @@ import {
 } from "../../../services/payload/src/formats.ts";
 export type TaskStatus = "todo" | "doing" | "done";
 export interface Task {
+  startDate?:string;
   assigneeId?:string; blockedAt?:string; blockedReason?:string; descriptionHtml?:string; links?:ResourceLink[]; activity?:{at:string;kind:"completed"|"reopened"}[];
   id: string;
   title: string;
@@ -63,6 +66,7 @@ export interface CanvasNode {
   checklist?: { id: string; text: string; done: boolean }[];
 }
 export interface TaskBoard {
+  columnNames?:Partial<Record<TaskStatus,string>>;
   work?:BoardWork;
   sprints?: Sprint[];
   privateOwner?: string;
@@ -84,6 +88,8 @@ export interface Page {
   updated: string;
 }
 export interface CalendarEvent {
+  endDate?: string;
+  endTime?: string;
   meetUrl?: string;
   googleEventId?: string;
   id: string;
@@ -109,6 +115,7 @@ export interface Edge {
   to: string;
 }
 export interface Settings {
+  palette?:BusinessPalette;
   name: string;
   email: string;
   currency: string;
@@ -155,7 +162,7 @@ export interface PersonalFocus {
   theme?: "light" | "dark";
   showTaskComments?: boolean;
   showMoney?: boolean;
-  taskMode?: "board" | "list";
+  taskMode?: "board" | "list" | "timeline";
 }
 export interface DemoTrash {
   id: string;
@@ -487,7 +494,7 @@ export function validateState(value: unknown): value is WorkspaceState {
                 typeof f.showTaskComments === "boolean") &&
               (f.showMoney === undefined || typeof f.showMoney === "boolean") &&
               (f.taskMode === undefined ||
-                ["board", "list"].includes(f.taskMode)) &&
+                ["board", "list", "timeline"].includes(f.taskMode)) &&
               Array.isArray(f.selections) &&
               f.selections.length <= 1000 &&
               f.selections.every(
@@ -501,7 +508,7 @@ export function validateState(value: unknown): value is WorkspaceState {
         const a = (v as unknown as Record<string, unknown>)[k];
         return Array.isArray(a) && a.length <= 1000;
       }) &&
-      text(v.settings?.name, 80) &&
+      validBusinessPalette(v.settings?.palette) && text(v.settings?.name, 80) &&
       text(v.settings.email, 254) &&
       ["CLP", "USD", "EUR"].includes(v.settings.currency) &&
       text(v.settings.timezone, 80) &&
@@ -578,15 +585,14 @@ export function validateState(value: unknown): value is WorkspaceState {
           id(e.id) &&
           text(e.title, 120) &&
           text(e.description, 5000) &&
-          date(e.date) &&
-          /^\d{2}:\d{2}$/.test(e.time),
+          date(e.date) && validEventDates(e),
       ) &&
       (v.boards === undefined ||
         (Array.isArray(v.boards) &&
           v.boards.length <= 1000 &&
           v.boards.every(
             (b) =>
-              id(b.id) &&
+              id(b.id) && validColumnNames(b.columnNames) &&
               (b.privateOwner === undefined || id(b.privateOwner)) &&
               validSprints(b.sprints) && validBoardWork(b.work) &&
               text(b.name, 80) &&

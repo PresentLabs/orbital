@@ -1,0 +1,142 @@
+{
+  "visual": {
+    "scheduling": {
+      "graph": 397,
+      "total": 814,
+      "rankings": 397,
+      "stack": [
+        931.421875,
+        1113.953125
+      ],
+      "pillBg": "rgb(110, 0, 254)",
+      "primary": "rgb(110, 0, 254)",
+      "pillColor": "rgb(255, 255, 255)",
+      "demoBg": "rgb(255, 255, 255)",
+      "demoRadius": "20px",
+      "cardRadius": "20px",
+      "thumbBorder": "0px",
+      "gradient": "linear-gradient(358deg, rgb(190, 205, 255), rgb(227, 232, 255) 55%, rgb(255, 255, 255))"
+    },
+    "settings": {
+      "form": "rgba(0, 0, 0, 0)",
+      "preferences": "rgb(255, 255, 255)",
+      "hours": "rgb(238, 240, 244)",
+      "sidebar": "rgb(238, 240, 244)"
+    },
+    "cards": [
+      {
+        "path": "espacios",
+        "border": "0px",
+        "count": 4
+      },
+      {
+        "path": "tareas",
+        "border": "0px",
+        "count": 1
+      },
+      {
+        "path": "notas",
+        "border": "0px",
+        "count": 3
+      },
+      {
+        "path": "archivos",
+        "border": "0px",
+        "count": 1
+      }
+    ],
+    "shell": {
+      "body": "rgb(245, 246, 248)",
+      "header": "rgb(245, 246, 248)",
+      "sidebar": "rgb(245, 246, 248)",
+      "menu": "240px"
+    },
+    "progress": {
+      "tabs": 285.7684326171875,
+      "progress": 295.1434326171875,
+      "right": true
+    },
+    "timeline": {
+      "handleHeight": 59.99993896484375,
+      "handleWidth": 5,
+      "current": "rgb(110, 0, 254)",
+      "inactive": "rgb(255, 255, 255)",
+      "groupRadius": "15984px"
+    },
+    "orderHeader": "rgb(232, 237, 249)",
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "interaction": {
+    "beforeTask": {
+      "startDate": "2026-11-19",
+      "due": "2026-11-21"
+    },
+    "movedTask": {
+      "startDate": "2026-11-20",
+      "due": "2026-11-22"
+    },
+    "grownTask": {
+      "startDate": "2026-11-20",
+      "due": "2026-11-23"
+    },
+    "expandedTask": {
+      "startDate": "2026-11-19",
+      "due": "2026-11-23"
+    },
+    "movedEvent": {
+      "date": "2026-11-20",
+      "time": "10:30",
+      "endDate": "2026-11-20",
+      "endTime": "11:30"
+    },
+    "grownEvent": {
+      "date": "2026-11-20",
+      "time": "10:30",
+      "endDate": "2026-11-20",
+      "endTime": "12:00"
+    },
+    "earlyEvent": {
+      "date": "2026-11-20",
+      "time": "10:15",
+      "endDate": "2026-11-20",
+      "endTime": "12:00"
+    },
+    "multiDay": {
+      "date": "2026-11-20",
+      "time": "10:15",
+      "endDate": "2026-11-21",
+      "endTime": "12:00"
+    },
+    "monthMove": {
+      "date": "2026-11-21",
+      "time": "10:15",
+      "endDate": "2026-11-22",
+      "endTime": "12:00"
+    },
+    "monthResize": {
+      "date": "2026-11-21",
+      "time": "10:15",
+      "endDate": "2026-11-23",
+      "endTime": "12:00"
+    },
+    "persisted": {
+      "date": "2026-11-19",
+      "time": "10:00",
+      "endDate": "2026-11-19",
+      "endTime": "11:30"
+    },
+    "taskReload": true,
+    "eventReload": true,
+    "realApiPersistence": true,
+    "readOnlyNoHandles": true,
+    "cancelWithEscape": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "frontendTests": 82,
+  "typescript": "pass",
+  "build": "pass",
+  "protectedSpace": "pass",
+  "externalGoogleCalls": false
+}

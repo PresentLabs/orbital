@@ -1,3 +1,6 @@
+import {defaultPalette,completePalette,paletteKeys,validBusinessPalette,type BusinessPalette} from "../../services/payload/src/ui-settings";
+import {applyBusinessPalette} from "@/lib/saas/business-palette";
+import {uiIcon} from "@/lib/saas/icons";
 import { documentZip } from "@/lib/saas/zip";
 import { prepareAvatar } from "@/lib/saas/avatar";
 import { expired } from "../../services/payload/src/retention";
@@ -117,7 +120,10 @@ async function localFiles() {
 export function installBusiness(ctx: Ctx) {
   let settingsTab = "company",
     pendingLogo: string | undefined;
+  let pendingPalette:BusinessPalette|undefined;
   let pendingAvatar: string | undefined;
+  let customerRequest = 0;
+  let customerProvider = "";
   let customerOrderPage = 1;
   let customerId = "",
     customerPage = 1,
@@ -183,6 +189,8 @@ export function installBusiness(ctx: Ctx) {
     customer_note: "",
   }));
   function brand() {
+    const identity=document.querySelector<HTMLElement>(".header-identity");
+    if(identity){const image=pendingLogo ?? ctx.state().settings.logoData;identity.innerHTML=image && validLogo(image)?`<img src="${esc(image)}" alt="${esc(ctx.state().settings.name)}"/>`:`<span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>órbita</strong>`;}
     const logo = pendingLogo ?? ctx.state().settings.logoData;
     const element = $<HTMLAnchorElement>(".brand");
     if (logo && validLogo(logo)) {
@@ -190,8 +198,8 @@ export function installBusiness(ctx: Ctx) {
       element.setAttribute("aria-label", ctx.state().settings.name);
     } else {
       element.innerHTML =
-        '<span class="brand-symbol">✳</span> orbital<span class="brand-period">®</span>';
-      element.setAttribute("aria-label", "Orbital");
+        '<span class="brand-symbol">✳</span> órbita<span class="brand-period">®</span>';
+      element.setAttribute("aria-label", "Órbita");
     }
     $("#profile-name").textContent =
       "Hola, " + (ctx.actor().firstName || ctx.actor().name.split(" ")[0]);
@@ -206,10 +214,30 @@ export function installBusiness(ctx: Ctx) {
         : "✳";
     $("#store-navigation").hidden = !isAdmin(ctx.actor());
   }
+  const paletteLabels={accent:'Color principal',background:'Fondo de página',surface:'Tarjetas y paneles',text:'Texto principal',sidebar:'Navegación',secondary:'Botón secundario',outline:'Botón con contorno'};
+  function renderPalette(){
+    const palette=completePalette(pendingPalette || ctx.state().settings.palette);
+    const mode=($("#palette-mode") as HTMLSelectElement).value as 'light'|'dark';
+    $("#business-palette-fields").innerHTML=paletteKeys.map(key=>`<label class="palette-field"><span>${paletteLabels[key]}</span><code>${palette[mode][key]}</code><input type="color" data-palette-key="${key}" value="${palette[mode][key]}" aria-label="${paletteLabels[key]} del tema ${mode === 'light' ? 'claro' : 'oscuro'}"/></label>`).join('')+`<div class="palette-preview"><strong>Así se verán tus acciones</strong><div class="heading-actions"><button type="button" class="button primary">Acción principal</button><button type="button" class="button secondary">Secundaria</button><button type="button" class="button outline">Con contorno</button></div></div>`;
+    $("#palette-feedback").textContent=validBusinessPalette(palette)?'La vista previa es local. Guarda para aplicar los colores a todo el equipo.':'El texto necesita más contraste con el fondo y las tarjetas. Ajusta esos colores para poder guardar.';
+  }
+  $("#palette-mode").addEventListener('change',renderPalette);
+  $("#business-palette-fields").addEventListener('input',event=>{
+    if(!isAdmin(ctx.actor()))return;
+    const input=event.target as HTMLInputElement,key=input.dataset.paletteKey as typeof paletteKeys[number];if(!paletteKeys.includes(key))return;
+    pendingPalette??=structuredClone(completePalette(ctx.state().settings.palette));
+    const mode=($("#palette-mode") as HTMLSelectElement).value as 'light'|'dark';pendingPalette[mode][key]=input.value;
+    input.closest('label')!.querySelector('code')!.textContent=input.value;
+    $("#palette-feedback").textContent=validBusinessPalette(pendingPalette)?'Guarda para aplicar los colores a todo el equipo.':'Aumenta el contraste del texto con el fondo y las tarjetas antes de guardar.';
+    if(validBusinessPalette(pendingPalette))applyBusinessPalette(pendingPalette);
+  });
+  $("#palette-reset").onclick=()=>{if(!isAdmin(ctx.actor()))return;pendingPalette=structuredClone(defaultPalette);applyBusinessPalette(pendingPalette);renderPalette();};
+  $("#palette-discard").onclick=()=>{pendingPalette=undefined;applyBusinessPalette(ctx.state().settings.palette);renderPalette();};
   function tab(value: string, navigate = false) {
     settingsTab = [
       "company",
       "brand",
+      "appearance",
       "preferences",
       "social",
       "integrations",
@@ -229,6 +257,7 @@ export function installBusiness(ctx: Ctx) {
       );
     $("#settings-form").hidden = settingsTab === "integrations";
     if (settingsTab === "integrations") ctx.integrations();
+    if (settingsTab === "appearance") renderPalette();
     if (
       navigate &&
       location.pathname.startsWith("/app/configuracion") &&
@@ -263,6 +292,8 @@ export function installBusiness(ctx: Ctx) {
   };
   $("#settings-form").onsubmit = (e) => {
     e.preventDefault();
+    if(!isAdmin(ctx.actor()))return;
+    if(!validBusinessPalette(pendingPalette)){ $("#settings-error").textContent="Aumenta el contraste del texto con el fondo y las tarjetas.";return;}
     const f = new FormData(e.target as HTMLFormElement),
       rut = formatRut(String(f.get("rut") || ""));
     if (rut && !validRut(rut)) {
@@ -300,11 +331,13 @@ export function installBusiness(ctx: Ctx) {
         phone: formatPhone(String(f.get("phone") || "")),
         socialLinks,
         logoData: logo,
+        palette: pendingPalette || ctx.state().settings.palette,
         currency: String(f.get("currency")),
         timezone: String(f.get("timezone")),
       };
     });
     pendingLogo = undefined;
+    pendingPalette=undefined;applyBusinessPalette(ctx.state().settings.palette);
     brand();
     ctx.notify("Configuración guardada.");
   };
@@ -749,7 +782,7 @@ export function installBusiness(ctx: Ctx) {
       return;
     }
     ctx.modal(
-      `<h2>${receiptUpload ? "Subir comprobante" : "Subir documento"}</h2><p>${esc(file.name)} · ${Math.max(1, Math.round(file.size / 1024))} KB</p><form id="upload-file-form"><label>Título<input name="title" required maxlength="160" value="${esc(file.name.replace(/\.[^.]+$/, ""))}"/></label><label>Tipo<select name="kind" id="upload-file-kind"><option value="documento" ${!receiptUpload ? "selected" : ""}>Documento</option><option value="factura">Factura</option><option value="boleta" ${receiptUpload ? "selected" : ""}>Boleta</option></select></label><div id="receipt-fields"><label>Pedido asociado<input name="orderId" type="number" min="1" placeholder="Número de pedido"/></label><label>Folio<input name="folio" maxlength="80" placeholder="Folio del comprobante emitido"/></label></div><p class="field-hint">Sube un comprobante emitido por tu facturador. Orbital lo guarda, no lo emite.</p><p id="upload-error" class="form-error" role="alert"></p><button class="button primary">Guardar archivo</button></form>`,
+      `<h2>${receiptUpload ? "Subir comprobante" : "Subir documento"}</h2><p>${esc(file.name)} · ${Math.max(1, Math.round(file.size / 1024))} KB</p><form id="upload-file-form"><label>Título<input name="title" required maxlength="160" value="${esc(file.name.replace(/\.[^.]+$/, ""))}"/></label><label>Tipo<select name="kind" id="upload-file-kind"><option value="documento" ${!receiptUpload ? "selected" : ""}>Documento</option><option value="factura">Factura</option><option value="boleta" ${receiptUpload ? "selected" : ""}>Boleta</option></select></label><div id="receipt-fields"><label>Pedido asociado<input name="orderId" type="number" min="1" placeholder="Número de pedido"/></label><label>Folio<input name="folio" maxlength="80" placeholder="Folio del comprobante emitido"/></label></div><p class="field-hint">Sube un comprobante emitido por tu facturador. Órbita lo guarda, no lo emite.</p><p id="upload-error" class="form-error" role="alert"></p><button class="button primary">Guardar archivo</button></form>`,
     );
     const kind = $<HTMLSelectElement>("#upload-file-kind");
     const syncKind = () => {
@@ -1072,11 +1105,11 @@ export function installBusiness(ctx: Ctx) {
   async function customerData(detail = false) {
     if (ctx.cloud())
       return ctx.api(
-        "customers?page=" +
+        "customers?provider="+encodeURIComponent(customerProvider)+"&page=" +
           (detail ? customerOrderPage : customerPage) +
           "&q=" +
           encodeURIComponent(customerQuery) +
-          (detail ? "&id=" + customerId : ""),
+          (detail ? "&id=" + encodeURIComponent(customerId) : ""),
       );
     const all = demoOrders.map((o, index) => ({
       id: String(index + 1),
@@ -1111,10 +1144,11 @@ export function installBusiness(ctx: Ctx) {
   }
   async function renderCustomers() {
     if (!isAdmin(ctx.actor())) return;
+    const request=++customerRequest;
     const host = $("#customers-content");
     if (!host.querySelector("#customer-search"))
       host.innerHTML =
-        '<div class="page-heading compact"><div><h1>Clientes de la tienda</h1><p>Clientes registrados en WooCommerce y sus pedidos asociados.</p></div></div><label class="customer-search">Buscar cliente<input id="customer-search" type="search" placeholder="Nombre o correo"/></label><div class="panel" id="customer-table" tabindex="0" role="region" aria-label="Listado de clientes"></div><div class="pagination" id="customer-pagination"></div>';
+        '<div class="page-heading compact"><div><h1>Clientes de la tienda</h1><p>Clientes de la tienda conectada: WooCommerce, Shopify o Payload.</p></div></div><label>Tienda<select id="customer-provider" aria-label="Tienda de clientes"></select></label><label class="customer-search">Buscar cliente<input id="customer-search" type="search" placeholder="Nombre o correo"/></label><div class="panel" id="customer-table" tabindex="0" role="region" aria-label="Listado de clientes"></div><div class="pagination" id="customer-pagination"></div>';
     $("#customer-search").oninput = (e) => {
       customerQuery = (e.target as HTMLInputElement).value;
       customerPage = 1;
@@ -1123,6 +1157,13 @@ export function installBusiness(ctx: Ctx) {
     };
     try {
       const data = await customerData();
+      if(request!==customerRequest)return;
+      if(data.provider)customerProvider=data.provider;
+      const select=$<HTMLSelectElement>("#customer-provider");
+      const providers=data.providers||["woo"];
+      select.innerHTML=(providers.length>1?'<option value="">Selecciona una tienda</option>':'')+providers.map((p:string)=>`<option value="${esc(p)}">${esc(({woo:'WooCommerce',shopify:'Shopify',payload:'Payload'} as Record<string,string>)[p]||p)}</option>`).join('');
+      select.closest("label")!.hidden=providers.length<2;
+      select.value=customerProvider;select.onchange=()=>{customerProvider=select.value;customerPage=1;void renderCustomers();};
       let note = host.querySelector(".customer-data-note");
       if (!note) {
         note = document.createElement("p");
@@ -1132,12 +1173,12 @@ export function installBusiness(ctx: Ctx) {
       note.textContent = !ctx.cloud()
         ? "Datos de ejemplo"
         : !data.connected
-          ? "Conecta WooCommerce en Configuración → Integraciones."
+          ? data.chooseStore ? "Selecciona la tienda que quieres consultar." : "Conecta WooCommerce, Shopify o Payload en Configuración → Integraciones."
           : "Clientes registrados; las compras como invitado aparecen en Pedidos.";
       $("#customer-table").innerHTML =
-        `<table class="business-table"><thead><tr><th>Cliente</th><th>Correo</th><th>Teléfono</th><th></th></tr></thead><tbody>${data.docs.map((c: any) => `<tr><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone || "—")}</td><td><button class="button primary compact-table-action" data-open-customer="${c.id}">Ver pedidos ↗</button></td></tr>`).join("") || '<tr><td colspan="4">No encontramos clientes.</td></tr>'}</tbody></table>`;
+        `<table class="business-table"><thead><tr><th>Cliente</th><th>Correo</th><th>Teléfono</th><th></th></tr></thead><tbody>${data.docs.map((c: any) => `<tr><td>${esc(c.name)}</td><td>${esc(c.email)}</td><td>${esc(c.phone || "—")}</td><td><button class="button primary compact-table-action" data-open-customer="${esc(c.id)}">Ver pedidos ↗</button></td></tr>`).join("") || '<tr><td colspan="4">No encontramos clientes.</td></tr>'}</tbody></table>`;
       $("#customer-pagination").innerHTML =
-        `<span>${data.total} clientes · Página ${customerPage} de ${Math.max(1, data.pages)}</span><div><button class="button secondary" data-customer-page="${customerPage - 1}" ${customerPage <= 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-customer-page="${customerPage + 1}" ${customerPage >= data.pages ? "disabled" : ""}>Siguiente →</button></div>`;
+        `<span>${data.total ?? "Más"} clientes · Página ${customerPage} de ${Math.max(1, data.pages)}</span><div><button class="button secondary" data-customer-page="${customerPage - 1}" ${customerPage <= 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-customer-page="${customerPage + 1}" ${customerPage >= data.pages ? "disabled" : ""}>Siguiente →</button></div>`;
     } catch {
       $("#customer-table").textContent = "No pudimos cargar los clientes.";
     }
@@ -1147,7 +1188,7 @@ export function installBusiness(ctx: Ctx) {
     customerId = id;
     customerOrderPage = 1;
     ctx.show("customer");
-    window.history.replaceState(null, "", demoPath("/app/tienda/clientes/ver/" + id));
+    window.history.replaceState(null, "", demoPath("/app/tienda/clientes/ver/" + encodeURIComponent(id)));
   }
   async function renderCustomer() {
     if (!isAdmin(ctx.actor())) return;
@@ -1157,7 +1198,7 @@ export function installBusiness(ctx: Ctx) {
       const data = await customerData(true),
         c = data.doc;
       if (!c) throw Error();
-      host.innerHTML = `<button class="back-link" data-view="customers">← Volver a clientes</button><div class="page-heading compact"><div><h1>${esc(c.name)}</h1><p>${esc(c.email)} · ${esc(c.phone || "Sin teléfono")}</p></div></div><div class="panel"><table class="business-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr></thead><tbody>${data.orders.map((o: any) => `<tr><td>#${esc(o.number)}</td><td>${esc(new Date(o.date_created).toLocaleDateString("es-CL"))}</td><td>${esc(status(o.status))}</td><td>${esc(money(o.total, o.currency))}</td><td><a class="button primary compact-table-action" href="${orderHref(o.id)}">Ver pedido ↗</a></td></tr>`).join("") || '<tr><td colspan="5">Este cliente no tiene pedidos.</td></tr>'}</tbody></table></div><div class="pagination"><span>${data.total} ${data.total === 1 ? "pedido" : "pedidos"} · Página ${customerOrderPage} de ${Math.max(1, data.pages)}</span><div><button class="button secondary" data-customer-order-page="${customerOrderPage - 1}" ${customerOrderPage <= 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-customer-order-page="${customerOrderPage + 1}" ${customerOrderPage >= data.pages ? "disabled" : ""}>Siguiente →</button></div></div>`;
+      host.innerHTML = `<button class="back-link" data-view="customers">← Volver a clientes</button><div class="page-heading compact"><div><h1>${esc(c.name)}</h1><p>${esc(c.email)} · ${esc(c.phone || "Sin teléfono")}</p></div></div><div class="panel"><table class="business-table"><thead><tr><th>Pedido</th><th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr></thead><tbody>${data.orders.map((o: any) => `<tr><td>#${esc(o.number)}</td><td>${esc(new Date(o.date_created).toLocaleDateString("es-CL"))}</td><td>${esc(status(o.status))}</td><td>${esc(money(o.total, o.currency))}</td><td><a class="button primary compact-table-action" href="${data.provider && data.provider!=="woo" ? esc(o.storeUrl) : orderHref(o.id)}">Ver pedido ↗</a></td></tr>`).join("") || '<tr><td colspan="5">Este cliente no tiene pedidos.</td></tr>'}</tbody></table></div><div class="pagination"><span>${data.total ?? "Más"} ${data.total === 1 ? "pedido" : "pedidos"} · Página ${customerOrderPage} de ${Math.max(1, data.pages)}</span><div><button class="button secondary" data-customer-order-page="${customerOrderPage - 1}" ${customerOrderPage <= 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-customer-order-page="${customerOrderPage + 1}" ${customerOrderPage >= data.pages ? "disabled" : ""}>Siguiente →</button></div></div>`;
     } catch {
       host.textContent = "No pudimos cargar el cliente.";
     }

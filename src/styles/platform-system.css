@@ -1,0 +1,86 @@
+/* Shared shell and business chooser refinements. */
+#platform-dialog.ui-drawer {position:fixed;inset:0 0 0 auto;margin:0;height:100dvh;max-height:100dvh;width:min(38rem,100vw);max-width:100vw;padding:2rem;border:0;border-radius:1.5rem 0 0 1.5rem;background:var(--surface);color:var(--text);}
+body {font-size:.875rem;}
+.platform-layout {display:block;max-width:90rem;margin:auto;padding:0 1.5rem;}
+.business-detail {padding:2rem 0;}
+.business-picker-trigger {display:flex;align-items:center;gap:.625rem;max-width:19rem;background:var(--surface-hover);border:0;border-radius:2rem;padding:.625rem 1rem;color:var(--text);font-size:.8125rem;}
+.business-picker-trigger span {overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+#business-directory[popover] {position:fixed;inset:6rem 2rem auto auto;margin:0;width:min(42rem,calc(100vw - 2rem));height:auto;max-height:min(75dvh,45rem);padding:1.5rem;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:1.5rem;box-shadow:0 1rem 4rem #10152226;}
+#business-directory[popover]:not(:popover-open) {display:none!important;}
+#business-directory[popover]:popover-open {display:flex;flex-direction:column;gap:1.125rem;}
+#business-directory .directory-heading h2 {font-size:1.125rem;}
+#business-directory .businesses {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.625rem;overflow:auto;padding:.125rem;max-height:26rem;}
+#business-directory .business-choice {padding:1rem;border-radius:1rem;background:var(--surface-hover);align-items:start;gap:.75rem;}
+#business-directory .business-choice[aria-pressed=true] {background:var(--accent-soft);}
+#business-directory .business-choice strong {font-size:.8125rem;white-space:normal;overflow-wrap:anywhere;line-height:1.5;}
+#business-directory .business-choice small {font-size:.75rem;}
+#business-directory .business-avatar {border:0;border-radius:.75rem;background:var(--surface);}
+#business-directory .search-field {background:var(--surface-hover);border:0;border-radius:2rem;height:2.75rem;}
+#business-directory .search-field input {font-size:.875rem;}
+#business-directory .pagination {margin-top:0;font-size:.75rem;}
+.platform-header {background:var(--page);border:0;}
+.business-heading h2 {font-size:1.875rem;font-weight:600;line-height:1.3;}
+.summary-grid {gap:1rem;}
+.summary-item,.people-panel,.billing-panel,.module-access-panel {border:0;border-radius:1.25rem;background:var(--surface);}
+.summary-label {font-size:.75rem;}
+.summary-value {font-size:1rem;}
+.platform-header :is(h1,a,button,summary),.business-detail :is(p,label,button,input,select,td,th) {font-size:.8125rem;}
+.business-detail :is(h3,h4) {font-size:1rem;}
+.business-detail small {font-size:.75rem;}
+#platform-dialog :is(label,p,input,select,textarea,button) {font-size:.875rem;}
+#platform-dialog h2 {font-size:1.375rem;}
+@media(max-width:760px){.platform-layout{padding:0 1rem;}.platform-header{padding:1rem;gap:.5rem;flex-wrap:wrap;height:auto;}.header-account{gap:.75rem;}.business-picker-trigger{max-width:11rem;}#business-directory[popover]{inset:6rem 1rem auto;}#business-directory .businesses{grid-template-columns:1fr;}.business-heading h2{font-size:1.5rem;}.business-detail{padding-top:1.5rem;}}
+
+/* Dedicated dark operator console and full business directory. */
+html.theme-dark {--page:#101018;--surface:#1a1a27;--surface-hover:#242437;--text:#f4f2ff;--muted:#b4afcb;--line:#35334e;--primary:#b9ff38;--accent:var(--primary);--accent-soft:#303b19;color-scheme:dark;}
+html.theme-dark .primary {background:var(--primary);border-color:var(--primary);color:#1b102d;}
+html.theme-dark .primary:hover {background:#d2ff7a;border-color:#d2ff7a;}
+.directory-home #business-directory {display:flex;flex-direction:column;gap:1.5rem;background:transparent;padding:2.5rem 0;border:0;box-shadow:none;}
+.directory-home .directory-heading h2 {font-size:1.875rem;}
+.directory-home #businesses {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.125rem;overflow:visible;padding:0;margin:0;}
+.directory-home .business-choice {display:flex;align-items:flex-start;gap:1rem;min-height:10rem;padding:1.5rem;background:var(--surface);border:1px solid var(--line);border-radius:1.25rem;transition:border-color .2s,transform .2s;}
+.directory-home .business-choice:hover {border-color:var(--accent);transform:translateY(-2px);}
+.directory-home .business-choice strong {font-size:1rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere;color:var(--text);}
+.directory-home .business-choice small {font-size:.8125rem;line-height:1.6;}
+.directory-home .business-choice-copy {flex:1;gap:.75rem;}
+.directory-home .business-choice .status-pill {width:fit-content;}
+.directory-home .business-avatar {background:var(--accent-soft);color:var(--accent);border:0;border-radius:.875rem;}
+.directory-home #business-search {max-width:30rem;}
+.directory-home .business-choice > svg {display:none;}
+@media(max-width:1000px){.directory-home #businesses{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:600px){.directory-home #businesses{grid-template-columns:1fr;}.directory-home .business-choice{min-height:0;}.directory-home #business-directory{padding:1.5rem 0;}}
+@media(prefers-reduced-motion:reduce){.directory-home .business-choice{transition:none;}}
+
+.platform-layout [hidden],.platform-header [hidden] {display:none!important;}
+
+.directory-home #business-directory {position:static;height:auto;max-height:none;overflow:visible;}
+.directory-home #business-directory #businesses {max-height:none;flex-shrink:0;}
+.directory-home #business-directory .directory-heading h2 {font-size:1.875rem;}
+.directory-home #business-directory .business-choice strong {font-size:1rem;}
+.directory-home #business-directory .business-choice small {font-size:.8125rem;}
+.directory-home #business-directory .business-choice .business-avatar {background:var(--accent-soft);color:var(--accent);}
+.directory-home #business-directory .pagination {margin-top:0;padding-top:.5rem;}
+
+/* Operator navigation and denser business cards. */
+.platform-sidebar {position:fixed;inset:0 auto 0 0;width:14rem;padding:2rem 1.25rem;background:#161620;display:flex;flex-direction:column;gap:2rem;z-index:30;}
+.platform-sidebar .platform-brand {font-size:1.625rem;}
+.platform-sidebar-label {font-size:.6875rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:.5rem;}
+.platform-sidebar nav {display:grid;gap:.5rem;}
+.platform-sidebar nav a {display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-radius:.5rem;background:var(--accent-soft);color:var(--accent);text-decoration:none;font-weight:600;}
+.platform-sidebar-workspace {display:flex;align-items:center;gap:.625rem;margin-top:auto;padding:.75rem 0;color:var(--muted);text-decoration:none;font-size:.8125rem;}
+.platform-header {margin-left:14rem;padding-inline:2rem;}
+.platform-layout {margin-left:14rem;padding-inline:2rem;max-width:none;}
+.directory-home #business-directory {padding-top:1.75rem;}
+.directory-home #businesses {grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;}
+.directory-home #business-directory .business-choice {min-height:0;padding:1.25rem;border:0;border-radius:.625rem;background:var(--surface);}
+.directory-home #business-directory .business-choice:hover {background:var(--surface-hover);transform:none;}
+.directory-home #business-directory .business-choice .business-avatar {width:2rem;height:2rem;border-radius:.375rem;background:var(--surface-hover);color:var(--muted);}
+.directory-home #business-directory .business-choice-copy {gap:.5rem;}
+.directory-home #business-directory .business-choice strong {font-size:.9375rem;line-height:1.4;}
+.directory-home #business-directory .business-choice small {font-size:.75rem;}
+.business-renewal {display:flex;align-items:baseline;flex-wrap:wrap;gap:.25rem .75rem;margin-top:.5rem;padding-top:.75rem;box-shadow:0 -1px 0 #ffffff0c;}
+.business-renewal > span {font-size:.6875rem;color:var(--muted);}
+.directory-home #business-directory .business-renewal > strong {font-size:.75rem;font-weight:500;color:var(--text);}
+#business-directory[popover] .business-renewal {display:none;}
+@media(min-width:1500px){.directory-home #businesses {grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:800px){.platform-sidebar{position:static;width:auto;flex-direction:row;align-items:center;padding:1rem;gap:1rem;}.platform-sidebar-label,.platform-sidebar-workspace{display:none;}.platform-sidebar .platform-brand{font-size:1.25rem;}.platform-sidebar nav{margin-left:auto;}.platform-sidebar nav a{padding:.5rem .75rem;}.platform-header{margin-left:0;padding-inline:1rem;}.platform-layout{margin-left:0;padding-inline:1rem;}.directory-home #businesses{grid-template-columns:1fr;}}

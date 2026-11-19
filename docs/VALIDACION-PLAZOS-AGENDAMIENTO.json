@@ -1,0 +1,21 @@
+{
+  "settingsSaved": true,
+  "explicitStateSelection": true,
+  "unpaidConfirmationDisabled": true,
+  "protectSettingsDraft": true,
+  "pendingDeadlineShown": true,
+  "automaticRefreshAtExpiry": true,
+  "expiryReasonInHistory": true,
+  "expiredBookingNotEditable": true,
+  "mobileOverflow": 0,
+  "consoleErrors": [],
+  "updatedAt": "2026-11-18",
+  "frontendTests": 73,
+  "backendTests": 83,
+  "typechecks": "pass frontend/backend",
+  "astroBuild": "pass",
+  "databaseIntegration": "pass; exact expiry boundary, 8 concurrent attempts after expiry, single audit, retry returns canceled record, future quota released, no deadline extension on reschedule/extras, parallel sweeps, paid record preserved",
+  "workerOnce": "pass on isolated database",
+  "checkoutImplemented": false,
+  "referenceRuntimeVerified": false
+}

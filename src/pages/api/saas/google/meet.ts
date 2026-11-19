@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { currentUser, json, payload, sameOrigin } from "@/lib/saas/server";
+import { currentUser, json, payload, sameOrigin, setting } from "@/lib/saas/server";
 import { canWrite } from "@/lib/saas/permissions";
 import { googleToken } from "@/lib/saas/integrations";
 import {
@@ -72,7 +72,14 @@ export const GET: APIRoute = async (ctx) => {
         "integrations?limit=1&depth=0&where[provider][equals]=google",
       ),
     ]);
-    return json({ members: directory.docs, connected: !!connections.docs[0] });
+    const configured = !!(
+      setting(ctx, "GOOGLE_CLIENT_ID") && setting(ctx, "GOOGLE_CLIENT_SECRET")
+    );
+    return json({
+      members: directory.docs,
+      configured,
+      connected: configured && !!connections.docs[0],
+    });
   } catch {
     return json(
       { error: "No pudimos consultar el equipo y la conexión de Google." },

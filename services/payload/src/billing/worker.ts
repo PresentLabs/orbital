@@ -11,7 +11,7 @@ import { emailDocument } from "./api.ts";
 import { ModuleError } from "../modules/security.ts";
 export async function tick(process = processDocument) {
   const installs = await pool.query(
-    "SELECT workspace_id FROM module_installations WHERE module_id='billing-cl' AND enabled=true ORDER BY workspace_id",
+    "SELECT i.workspace_id FROM module_installations i JOIN module_grants g ON g.workspace_id=i.workspace_id AND g.module_id=i.module_id AND g.enabled=true WHERE i.module_id='billing-cl' AND i.enabled=true ORDER BY i.workspace_id",
   );
   for (const { workspace_id: tenant } of installs.rows) {
     const lock = await pool.connect();

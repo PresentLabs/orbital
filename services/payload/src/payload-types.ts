@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     'module-installations': ModuleInstallation;
+    'module-grants': ModuleGrant;
     users: User;
     workspaces: Workspace;
     documents: Document;
@@ -89,6 +90,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     'module-installations': ModuleInstallationsSelect<false> | ModuleInstallationsSelect<true>;
+    'module-grants': ModuleGrantsSelect<false> | ModuleGrantsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     workspaces: WorkspacesSelect<false> | WorkspacesSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
@@ -163,7 +165,23 @@ export interface ModuleInstallation {
 export interface Workspace {
   id: number;
   name: string;
+  nextPaymentAt?: string | null;
+  billingStatus?: string | null;
   plan?: ('starter' | 'pro') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "module-grants".
+ */
+export interface ModuleGrant {
+  id: number;
+  workspace: number | Workspace;
+  moduleId: string;
+  workspaceKey: string;
+  enabled?: boolean | null;
+  changedBy: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -573,6 +591,19 @@ export interface ModuleInstallationsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "module-grants_select".
+ */
+export interface ModuleGrantsSelect<T extends boolean = true> {
+  workspace?: T;
+  moduleId?: T;
+  workspaceKey?: T;
+  enabled?: T;
+  changedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -611,6 +642,8 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface WorkspacesSelect<T extends boolean = true> {
   name?: T;
+  nextPaymentAt?: T;
+  billingStatus?: T;
   plan?: T;
   updatedAt?: T;
   createdAt?: T;

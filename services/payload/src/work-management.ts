@@ -99,6 +99,7 @@ export function validLinks(v: any) {
 export function validTaskWork(v: any) {
   return (
     (!v.blockedAt || stamp(v.blockedAt)) &&
+    (v.startDate === undefined || v.startDate === "" || (validDay(v.startDate) && (!v.due || v.startDate<=v.due))) &&
     (v.blockedReason === undefined || text(v.blockedReason, 1000)) &&
     (v.assigneeId === undefined || v.assigneeId === "" || id(v.assigneeId)) &&
     (v.descriptionHtml === undefined || text(v.descriptionHtml, 30000)) &&

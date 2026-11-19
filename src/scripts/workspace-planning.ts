@@ -43,10 +43,10 @@ export function installPlanning(ctx: Ctx) {
     !$("#vision-board-pane").closest("[hidden]") ||
     !!document.querySelector(".vision-expanded");
   function stage() {
-    return `<div class="vision-stage" data-vision-stage tabindex="0" aria-label="Vision board privado. Pega o arrastra imágenes.">${images()
+    return `<div class="vision-stage" data-vision-stage tabindex="0" aria-label="Tablero de inspiración privado. Pega o arrastra imágenes.">${images()
       .map(
         (i, n) =>
-          `<div class="vision-image" data-vision-image="${i.id}" tabindex="0" aria-label="Imagen ${n + 1}. Arrastra o usa las flechas para mover. Delete para eliminar." style="left:${i.x / 10}%;top:${i.y / 6.5}%;width:${i.width / 10}%;--vision-rotation:${i.rotation || 0}deg;transform:rotate(${i.rotation || 0}deg)"><div class="vision-image-surface"><img src="${i.image}" alt="Imagen ${n + 1} de mi vision board" draggable="false"/></div><button type="button" class="vision-rotate-handle" data-vision-rotate="${i.id}" role="slider" aria-label="Rotar imagen ${n + 1}" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="${i.rotation || 0}" title="Arrastra para rotar">${uiIcon("rotate", 15)}</button><button type="button" class="vision-resize-handle" data-vision-scale="${i.id}" aria-label="Cambiar tamaño de imagen ${n + 1}" title="Arrastra para cambiar el tamaño"></button></div>`,
+          `<div class="vision-image" data-vision-image="${i.id}" tabindex="0" aria-label="Imagen ${n + 1}. Arrastra o usa las flechas para mover. Delete para eliminar." style="left:${i.x / 10}%;top:${i.y / 6.5}%;width:${i.width / 10}%;--vision-rotation:${i.rotation || 0}deg;transform:rotate(${i.rotation || 0}deg)"><div class="vision-image-surface"><img src="${i.image}" alt="Imagen ${n + 1} de mi tablero de inspiración" draggable="false"/></div><button type="button" class="vision-rotate-handle" data-vision-rotate="${i.id}" role="slider" aria-label="Rotar imagen ${n + 1}" aria-valuemin="-180" aria-valuemax="180" aria-valuenow="${i.rotation || 0}" title="Arrastra para rotar">${uiIcon("rotate", 15)}</button><button type="button" class="vision-resize-handle" data-vision-scale="${i.id}" aria-label="Cambiar tamaño de imagen ${n + 1}" title="Arrastra para cambiar el tamaño"></button></div>`,
       )
       .join(
         "",
@@ -101,11 +101,11 @@ export function installPlanning(ctx: Ctx) {
     const person = String(ctx.actor().id),
       room = 12 - images().length;
     if (room <= 0) {
-      ctx.notify("Puedes guardar hasta 12 imágenes en tu vision board.");
+      ctx.notify("Puedes guardar hasta 12 imágenes en tu tablero de inspiración.");
       return;
     }
     uploading = true;
-    ctx.notify("Preparando imágenes para tu vision board…");
+    ctx.notify("Preparando imágenes para tu tablero de inspiración…");
     const prepared: string[] = [];
     for (const file of files.slice(0, room)) {
       try {
@@ -137,7 +137,7 @@ export function installPlanning(ctx: Ctx) {
         });
       }
     });
-    ctx.notify("Imágenes guardadas en tu vision board.");
+    ctx.notify("Imágenes guardadas en tu tablero de inspiración.");
   }
   document.addEventListener("paste", (e) => {
     if (
@@ -376,7 +376,7 @@ export function installPlanning(ctx: Ctx) {
             : "#vision-board-pane [data-vision-stage]",
         )
         ?.focus({ preventScroll: true });
-      ctx.notify("Imagen eliminada del vision board.");
+      ctx.notify("Imagen eliminada del tablero de inspiración.");
       return;
     }
     if (

@@ -1,3 +1,4 @@
+import { moduleGranted } from "./grants.ts";
 import {billingEndpoint,billingCatalog} from '../billing/api.ts';
 import type { CollectionConfig, Endpoint, PayloadRequest } from 'payload';
 import { isAdmin } from '../permissions.ts';
@@ -25,7 +26,7 @@ export async function handleModules(req: PayloadRequest, requestWoo = wooRequest
     if (!isAdmin(req.user) || !workspace(req.user)) throw new ModuleError('Solo administradores del negocio.', 403);
     const tenant = workspace(req.user);
     // Custom route accepts JWT header only; no cross-origin ambient-cookie mutations.
-    if (!req.headers.get('authorization')?.startsWith('JWT ')) throw new ModuleError('Se requiere la sesión de Orbital.', 401);
+    if (!req.headers.get('authorization')?.startsWith('JWT ')) throw new ModuleError('Se requiere la sesión de Órbita.', 401);
     const db = req.payload;
     const installations = await db.find({ collection: 'module-installations', where: { workspace: { equals: tenant } }, limit: 100, depth: 0, overrideAccess: true, req });
     if (req.method === 'GET') return reply({ modules: [await billingCatalog(req)], legacyInstalled:installations.docs.some((x:any)=>x.moduleId==='woo-dte-chile') });
@@ -37,11 +38,10 @@ export async function handleModules(req: PayloadRequest, requestWoo = wooRequest
     const module = moduleById(body.moduleId);
     if (!module) throw new ModuleError('Módulo no registrado.', 404);
     const row = installations.docs.find((x: any) => x.moduleId === module.id);
-    if (body.action === 'disable') {
-      if (!row) throw new ModuleError('Módulo no instalado.', 409);
-      await db.update({ collection: 'module-installations', id: row.id, data: { enabled: false }, overrideAccess: true, req });
-      return reply({ enabled: false });
-    }
+    if (!(await moduleGranted(req, module.id)))
+      throw new ModuleError("El dueño del SaaS debe activar este módulo.", 403);
+    if (body.action === 'disable')
+      throw new ModuleError('La activación de módulos se gestiona en Administración SaaS.', 403);
     const stores = await db.find({ collection: 'integrations', where: { and: [{ workspace: { equals: tenant } }, { provider: { equals: 'woo' } }] }, limit: 1, depth: 0, overrideAccess: true, req });
     if (!stores.docs[0]) throw new ModuleError('Conecta WooCommerce en Configuración → Integraciones.', 409);
     const origin = storeOrigin(unseal(stores.docs[0].credentials).url);
@@ -67,7 +67,8 @@ export async function handleModules(req: PayloadRequest, requestWoo = wooRequest
     return reply({ error: 'No se pudo completar la operación. Revisa la configuración o actualiza el catálogo antes de reintentar.' }, 503);
   }
 }
-export const modulesEndpoints: Endpoint[] = [
+const baseEndpoints: Endpoint[] = [
   { path: '/orbital-modules', method: 'get', handler: req => handleModules(req) },
   { path: '/orbital-modules', method: 'post', handler: req => handleModules(req) },
 ];
+export const modulesEndpoints: Endpoint[] = baseEndpoints.flatMap(endpoint=>endpoint.path?.startsWith('/orbital-')?[{...endpoint,path:endpoint.path.replace('/orbital-','/orbita-')},endpoint]:[endpoint]);

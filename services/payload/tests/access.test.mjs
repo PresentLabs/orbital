@@ -56,6 +56,31 @@ test("document permissions exclude other businesses and hidden sections even thr
     true,
   );
 });
+test("login branding requires explicit business context and keeps authenticated branding scoped", async () => {
+  const endpoint = cfg.endpoints.find((item) => item.path === "/branding");
+  const logoData = "data:image/png;base64,iVBORw0KGgo=";
+  const workspaces = [{ id: 1, name: "Estudio Uno" }, { id: 2, name: "Estudio Dos" }];
+  const settings = workspaces.map(({ id, name }) => ({
+    workspace: id, key: "settings",
+    value: { name, logoData, currency: "CLP", timezone: "America/Santiago" },
+  }));
+  const payload = {
+    find: async ({ collection, where }) => ({
+      docs: (collection === "workspaces" ? workspaces : settings)
+        .filter((record) => !where || matches(where, record)),
+    }),
+  };
+  const branding = async (query = "", user) => (await endpoint.handler({
+    payload, user, url: "https://payload.test/api/branding" + query,
+  })).json();
+  assert.deepEqual(await branding(), {});
+  assert.deepEqual(await branding("?workspace=1"), { name: "Estudio Uno", logoData });
+  assert.deepEqual(await branding("?workspace=2"), { name: "Estudio Dos", logoData });
+  assert.deepEqual(await branding("?workspace=99"), {});
+  assert.deepEqual(await branding("?workspace=2", { workspace: 1 }), {
+    name: "Estudio Uno", logoData, currency: "CLP", timezone: "America/Santiago",
+  });
+});
 test("workspace and document key cannot be reassigned to access another section", async () => {
   const c = collection("documents");
   const data = await c.hooks.beforeValidate[0]({
@@ -532,9 +557,9 @@ test('shared files keep other workspaces and restricted users out',async()=>{
  assert.equal(matches(removal,{workspace:'b',deletedAt:'2026-11-16'}),false);
  const data={workspace:'b',title:'Fixture'};c.hooks.beforeValidate[0]({data,req:allowed,originalDoc:null});assert.equal(data.workspace,'a');
 });
-test('shared file uploads limit size and reject executable or active content',async()=>{
+test('shared file uploads accept SVG, limit size and reject executable formats',async()=>{
  const {validWorkspaceFile,MAX_WORKSPACE_FILE,workspaceFileCategory}=await import('../src/workspace-file-policy.ts');
- assert.equal(validWorkspaceFile('application/pdf',MAX_WORKSPACE_FILE),true);assert.equal(validWorkspaceFile('application/pdf',MAX_WORKSPACE_FILE+1),false);assert.equal(validWorkspaceFile('image/png',0),false);assert.equal(validWorkspaceFile('text/html',100),false);assert.equal(validWorkspaceFile('image/svg+xml',100),false);assert.equal(validWorkspaceFile('application/x-msdownload',100),false);assert.equal(workspaceFileCategory('application/pdf'),'pdf');assert.equal(workspaceFileCategory('video/mp4'),'video');
+ assert.equal(validWorkspaceFile('application/pdf',MAX_WORKSPACE_FILE),true);assert.equal(validWorkspaceFile('application/pdf',MAX_WORKSPACE_FILE+1),false);assert.equal(validWorkspaceFile('image/png',0),false);assert.equal(validWorkspaceFile('text/html',100),false);assert.equal(validWorkspaceFile('image/svg+xml',100),true);assert.equal(validWorkspaceFile('application/x-msdownload',100),false);assert.equal(workspaceFileCategory('application/pdf'),'pdf');assert.equal(workspaceFileCategory('video/mp4'),'video');
 });
 
 test('vision board preferences remain private even from other administrators',async()=>{

@@ -1,6 +1,6 @@
 # Facturación propia · Chile — Orbital 0.3.0
 
-Módulo nativo instalable por negocio desde **Módulos** (`/app/modulos`). Utiliza la tienda activa de ese negocio: **Shopify, WooCommerce o el plugin oficial de ecommerce de Payload**. Astro ofrece la interfaz y el proxy autenticado; Payload administra permisos y configuración; PostgreSQL conserva el libro fiscal; un proceso privado PHP genera y firma los documentos y comunica con el SII. No depende de Facto.
+Módulo nativo habilitado por negocio desde **Administración SaaS → Módulos** (`/administracion`), y configurado por el negocio desde **Tienda → Facturas y boletas**. Utiliza la tienda activa de ese negocio: **Shopify, WooCommerce o el plugin oficial de ecommerce de Payload**. Astro ofrece la interfaz y el proxy autenticado; Payload administra permisos y configuración; PostgreSQL conserva el libro fiscal; un proceso privado PHP genera y firma los documentos y comunica con el SII. No depende de Facto.
 
 Esta entrega está integrada en el código de Orbital. No se desplegó ni se habilitó producción; no se enviaron DTE al SII real. La aceptación oficial está pendiente. Ver [validación y límites](VALIDACION.md).
 
@@ -44,7 +44,7 @@ La instalación antigua `woo-dte-chile` permanece para compatibilidad. **No se i
 
 `GET /api/orbital-modules` devuelve el catálogo y la tienda activa. `POST` recibe `moduleId: "billing-cl"`, `action` y sus datos. Las mutaciones ligadas a tienda incluyen `expectedStoreKey`, obtenido del catálogo. Acciones: `install`, `disable`, `status`, `orders`, `documents`, `history`, `fiscal`, `issue`, `adjust`, `caf`, `file`, `retry`, `email` (ver contratos en `services/payload/src/billing/api.ts`).
 
-El endpoint Payload exige JWT de administrador del negocio; el ámbito se obtiene de la sesión, nunca del cuerpo. El navegador Astro usa `/api/saas/modules`, cookie de sesión y comprobación de mismo origen. No exponer credenciales de tienda ni JWT administrativos en un frontend público. `history` devuelve los últimos 100 documentos, incluidos los de conexiones anteriores; para un pedido usar `documents`. No hay operación pública de borrado fiscal.
+El endpoint Payload exige JWT de administrador del negocio; el ámbito se obtiene de la sesión, nunca del cuerpo. El navegador Astro usa `/api/saas/billing`, cookie de sesión y comprobación de mismo origen. No exponer credenciales de tienda ni JWT administrativos en un frontend público. `history` devuelve los últimos 100 documentos, incluidos los de conexiones anteriores; para un pedido usar `documents`. No hay operación pública de borrado fiscal.
 
 ## Referencias de los conectores
 

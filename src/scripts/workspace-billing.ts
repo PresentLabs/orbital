@@ -10,15 +10,15 @@ type FiscalDocument = {
   order_id: string;
   store_key: string;
 };
-export function installModules(options: {
+export function installBilling(options: {
   cloud: () => boolean;
   identity: () => string;
 }) {
-  const root = document.querySelector<HTMLElement>('[data-panel="modules"]')!;
+  const root = document.querySelector<HTMLElement>('[data-billing-panel]')!;
   const element = <T extends HTMLElement>(id: string) =>
     root.querySelector<T>("#" + id)!;
   const message = (text: string) => {
-    element("modules-message").textContent = text;
+    element("billing-message").textContent = text;
   };
   const form = (id: string) => element<HTMLFormElement>(id);
   const input = (id: string, name: string) =>
@@ -31,10 +31,10 @@ export function installModules(options: {
   async function api(data?: Record<string, unknown>) {
     if (!options.cloud())
       throw new Error(
-        "Inicia sesión en un negocio conectado para instalar módulos.",
+        "Inicia sesión en un negocio conectado para configurar la facturación.",
       );
     const response = await fetch(
-      "/api/saas/modules",
+      "/api/saas/billing",
       data
         ? {
             method: "POST",
@@ -73,12 +73,12 @@ export function installModules(options: {
       root.removeAttribute("aria-busy");
       root
         .querySelectorAll<HTMLButtonElement>("button")
-        .forEach((b) => (b.disabled = false));
+        .forEach((b) => (b.disabled = b.dataset.billingGranted === "false"));
     }
   }
   async function catalog() {
     const result = await api();
-    element("modules-catalog").replaceChildren();
+    element("billing-summary").replaceChildren();
     for (const item of result.modules) {
       if (expectedStoreKey !== item.store?.key) {
         sourceCursor = null;
@@ -88,37 +88,17 @@ export function installModules(options: {
         element("dte-source-orders").replaceChildren();
       }
       expectedStoreKey = item.store?.key || "";
-      const card = document.createElement("article");
-      card.className = "panel module-panel";
-      for (const [tag, text] of [
-        ["h2", item.name],
-        ["p", item.description],
-        ["p", item.certification],
-        [
-          "p",
-          item.installed
-            ? (item.enabled ? "Conectado" : "Desactivado") +
-              " · " +
-              item.installedVersion
-            : "Disponible para instalar",
-        ],
-      ]) {
-        const node = document.createElement(tag);
-        node.textContent = text;
-        card.append(node);
-      }
       const storeText = item.store
         ? `Tienda activa: ${item.store.provider} · ${item.store.origin}`
         : "Conecta Shopify, WooCommerce o Payload para comenzar.";
-      const storeLabel = document.createElement("p");
-      storeLabel.textContent = storeText;
-      card.append(storeLabel);
       element("dte-store").textContent = storeText;
       const configure = document.createElement("button");
       configure.className = "button secondary";
+      configure.dataset.billingGranted = String(item.granted);
+      configure.disabled = !item.granted;
       configure.textContent = item.installed
         ? "Configurar / renovar credenciales"
-        : "Instalar módulo";
+        : "Configurar facturación";
       configure.onclick = () => {
         element("dte-config").hidden = false;
         element("dte-config").scrollIntoView({ behavior: "smooth" });
@@ -136,32 +116,20 @@ export function installModules(options: {
             message("Configuración cargada.");
           });
       };
-      card.append(configure);
-      if (item.enabled) {
-        const disable = document.createElement("button");
-        disable.className = "button secondary";
-        disable.textContent = "Desactivar conexión";
-        disable.onclick = () => {
-          if (
-            confirm(
-              "Desactivar Facturación propia pausa sus automatizaciones y conserva todos los documentos.",
-            )
-          )
-            void run(async () => {
-              await api({ action: "disable" });
-              await catalog();
-            });
-        };
-        card.append(disable);
+      if (item.granted) element("billing-summary").append(configure);
+      element("dte-workspace").hidden = !item.installed || !item.granted;
+      if (!item.granted) {
+        element("dte-config").hidden = true;
+        message("El dueño del SaaS debe activar Facturación para este negocio.");
       }
-      element("modules-catalog").append(card);
-      element("dte-workspace").hidden = !item.installed;
       element("dte-payload-extension").hidden =
         item.store?.provider !== "payload";
     }
     loaded = true;
     message(
-      result.legacyInstalled
+      !result.modules[0]?.granted
+        ? "El dueño del SaaS debe activar Facturación para este negocio."
+        : result.legacyInstalled
         ? "Existe un historial antiguo en WordPress. Debe conciliarse antes de migrar esa tienda al motor nativo."
         : "Catálogo actualizado.",
     );
@@ -256,7 +224,7 @@ export function installModules(options: {
         )
           void run(async () => {
             await api({ action: "email", documentId: doc.id });
-            message("Solicitud de correo registrada en Orbital.");
+            message("Solicitud de correo registrada en Órbita.");
           });
       });
       button("Ajustar", () => prepare(doc, false));
@@ -268,18 +236,18 @@ export function installModules(options: {
           void run(async () => {
             await api({ action: "retry", documentId: doc.id });
             await queryDocuments();
-            message("Revisión encolada en Orbital.");
+            message("Revisión encolada en Órbita.");
           }),
       );
     }
     host.append(table);
   }
   function keyName(id: string) {
-    return `orbital:dte:operation:${options.identity()}:${id}`;
+    return `orbita:dte:operation:${options.identity()}:${id}`;
   }
   function operationKey(id: string, fresh = false) {
     const name = keyName(id);
-    const key = (!fresh && sessionStorage.getItem(name)) || crypto.randomUUID();
+    const key = (!fresh && (sessionStorage.getItem(name) || sessionStorage.getItem(name.replace(/^orbita:/,"orbital:")))) || crypto.randomUUID();
     sessionStorage.setItem(name, key);
     return key;
   }
@@ -369,7 +337,7 @@ export function installModules(options: {
       type: Number(input("dte-issue", "type").value),
     });
     await queryDocuments();
-    message("Solicitud de emisión registrada en Orbital.");
+    message("Solicitud de emisión registrada en Órbita.");
   });
   onSubmit("dte-fiscal", async () => {
     const receiver = Object.fromEntries(
@@ -384,7 +352,7 @@ export function installModules(options: {
       type: Number(input("dte-fiscal", "type").value),
       receiver,
     });
-    message("Receptor guardado en Orbital.");
+    message("Receptor guardado en Órbita.");
   });
   onSubmit("dte-adjust", async () => {
     const documentId = Number(input("dte-adjust", "documentId").value);
@@ -468,7 +436,7 @@ export function installModules(options: {
     row.append(remove);
     host.append(row);
   };
-  element("modules-refresh").onclick = () => void run(catalog);
+  element("billing-refresh").onclick = () => {if(!options.cloud()){message("El dueño del SaaS debe activar Facturación para este negocio.");return;}void run(catalog);};
   let sourceCursor: string | null = null;
   element("dte-load-orders").onclick = () =>
     void run(async () => {
@@ -525,6 +493,13 @@ export function installModules(options: {
     });
   return {
     render: () => {
+      if(!options.cloud()){
+        root.dataset.state='demo';element('billing-refresh').hidden=false;
+        message('El dueño del SaaS debe activar Facturación para este negocio.');
+        element('billing-summary').replaceChildren();
+        element('dte-config').hidden=true;element('dte-workspace').hidden=true;
+        loaded=true;return;
+      }
       if (!loaded && !busy) void run(catalog);
     },
   };

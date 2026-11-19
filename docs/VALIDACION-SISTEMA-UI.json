@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-18",
+  "frontendTests": 75,
+  "backendTests": 84,
+  "postgresIntegration": "passed: isolation, activation, concurrency, idempotency, capacity",
+  "typescriptFrontend": "passed",
+  "typescriptBackend": "passed",
+  "astroBuild": "passed; existing chunk-size and ineffective dynamic import warnings",
+  "ui": {
+    "shell": {
+      "overflow": 0,
+      "save": "13.6px",
+      "rem": "16px",
+      "module": "scheduling"
+    },
+    "drawer": {
+      "right": 1440,
+      "width": 672,
+      "height": 1000,
+      "viewport": 1440,
+      "backdrop": "rgba(15, 15, 22, 0.55)"
+    },
+    "spaceGeometryPreserved": true,
+    "columnsRename": true,
+    "taskSignals": true,
+    "timelineTasksAndProjects": true,
+    "paletteOwnerSave": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "roles": {
+    "roles": {
+      "owner": {
+        "inheritsPalette": true,
+        "saasLink": false,
+        "saasStatus": 403,
+        "paletteWrite": "allowed role"
+      },
+      "admin": {
+        "inheritsPalette": true,
+        "saasLink": false,
+        "saasStatus": 403,
+        "paletteWrite": "allowed role"
+      },
+      "member": {
+        "inheritsPalette": true,
+        "saasLink": false,
+        "saasStatus": 403,
+        "paletteWrite": 403
+      },
+      "viewer": {
+        "inheritsPalette": true,
+        "saasLink": false,
+        "saasStatus": 403,
+        "paletteWrite": 403
+      }
+    },
+    "saasOperatorLink": true,
+    "businessPaletteIsolated": true,
+    "pickerSearchAndSelection": true,
+    "consoleErrors": []
+  },
+  "productionDataChanged": false,
+  "newDatabaseMigration": false,
+  "parityComplete": false
+}

@@ -1,0 +1,115 @@
+{
+  "schedule": {
+    "bg": "rgb(110, 0, 254)",
+    "primary": "rgb(110, 0, 254)",
+    "statusInName": true,
+    "bottomGradient": "linear-gradient(135deg, rgb(219, 212, 255), rgb(255, 224, 238) 55%, rgb(210, 242, 239))",
+    "scrollbar": "color(srgb 0.594706 0.321176 0.991961)"
+  },
+  "profile": {
+    "generalActive": false,
+    "current": true,
+    "currentBg": "rgb(110, 0, 254)",
+    "inputWidth": 747,
+    "formWidth": 747,
+    "iconColor": "rgb(255, 255, 255)",
+    "iconBg": "rgb(110, 0, 254)"
+  },
+  "motion": [
+    {
+      "delay": 0,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 45,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 90,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 135,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 180,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 225,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 270,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    },
+    {
+      "delay": 315,
+      "direction": "normal",
+      "duration": 450,
+      "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+      "endDelay": 0,
+      "fill": "backwards",
+      "iterationStart": 0,
+      "iterations": 1
+    }
+  ],
+  "admin": {
+    "dark": true,
+    "scheme": "dark",
+    "grid": "grid",
+    "columns": 3,
+    "count": "Plan Starter · 3 usuarios",
+    "state": "Activo",
+    "bodyBg": "rgb(16, 16, 24)",
+    "paginationTop": 1848,
+    "lastCardBottom": 1824,
+    "detailHidden": true
+  },
+  "businessCount": 31,
+  "mobileOverflow": 0,
+  "consoleErrors": []
+}

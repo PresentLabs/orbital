@@ -1,0 +1,21 @@
+{
+  "categories": {
+    "hierarchy": true,
+    "cycleRejected": true,
+    "ancestorFilter": true
+  },
+  "duration": {
+    "alternativeMinutes": 30,
+    "quoteMinor": 9000,
+    "creation": true
+  },
+  "mobileOverflow": 0,
+  "consoleErrors": [],
+  "updatedAt": "2026-11-18",
+  "frontendTests": 73,
+  "backendTests": 77,
+  "typechecks": "pass frontend/backend",
+  "astroBuild": "pass",
+  "databaseIntegration": "pass; category cycles, cross-workspace category assignment, alternative quote/end, retry after removal and historical reschedule",
+  "referenceRuntimeVerified": false
+}

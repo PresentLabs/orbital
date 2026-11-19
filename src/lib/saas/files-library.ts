@@ -58,6 +58,7 @@ const extensions = [
   "ogg",
   "mp4",
   "webm",
+  "svg",
 ];
 const mimes = [
   "application/pdf",
@@ -78,10 +79,11 @@ const mimes = [
   "audio/ogg",
   "video/mp4",
   "video/webm",
+  "image/svg+xml",
 ];
 const hues = [
   350, 210, 22, 35, 270, 320, 48, 175, 150, 60, 225, 130, 12, 285, 245, 165,
-  300, 195,
+  300, 195, 180,
 ];
 export function fileFormat(filename: string, mime: string) {
   const ext = (

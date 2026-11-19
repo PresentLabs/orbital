@@ -1,3 +1,4 @@
+import { moduleGranted } from "../modules/grants.ts";
 import type { PayloadRequest } from "payload";
 import { isAdmin } from "../permissions.ts";
 import { ModuleError, seal } from "../modules/security.ts";
@@ -63,6 +64,7 @@ export async function billingCatalog(req: PayloadRequest) {
     ...billingManifest,
     installed: !!row,
     enabled: !!row?.enabled,
+    granted: await moduleGranted(req, "billing-cl"),
     installedVersion: row?.version || null,
     store,
   };
@@ -96,17 +98,10 @@ export async function billingEndpoint(req: PayloadRequest, body: any) {
         req,
       })
     ).docs[0];
-    if (body.action === "disable") {
-      if (row)
-        await req.payload.update({
-          collection: "module-installations",
-          id: row.id,
-          data: { enabled: false },
-          overrideAccess: true,
-          req,
-        });
-      return json({ enabled: false });
-    }
+    if (body.action === "disable")
+      throw new ModuleError("La activación de módulos se gestiona en Administración SaaS.", 403);
+    if (!["history", "file"].includes(body.action) && !(await moduleGranted(req, "billing-cl")))
+      throw new ModuleError("El dueño del SaaS debe activar Facturación para este negocio.", 403);
     if (row && body.action === "history")
       return json(
         (

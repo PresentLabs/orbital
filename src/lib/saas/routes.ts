@@ -1,13 +1,18 @@
 // Capture the requested mode before canonical navigation rewrites the initial URL.
 export const demoMode = typeof location !== "undefined" && new URLSearchParams(location.search).get("demo") === "1";
+export function canonicalAppPath(path:string) {
+ return path.replace(/^\/app\/(?:empresa\/)?equipo\/personas(?=\/|[?#]|$)/,'/app/empresa/equipo').replace(/^\/app\/(?:empresa\/)?equipo\/votaciones(?=\/|[?#]|$)/,'/app/empresa/votaciones').replace(/^\/app\/(espacios|tareas|notas|calendario|archivos)(?=\/|[?#]|$)/,'/app/proyecto/$1').replace(/^\/app\/(documentos|accesos|equipo|votaciones)(?=\/|[?#]|$)/,'/app/empresa/$1');
+}
 export function demoPath(path: string, demo = demoMode) {
+  path=canonicalAppPath(path);
   if (!demo || !/^\/app(?:[/?#]|$)/.test(path)) return path;
   const url = new URL(path, "http://orbita.invalid");
   url.searchParams.set("demo", "1");
   return url.pathname + url.search + url.hash;
 }
 export const routeNames: Record<string, string> = {
-  modules: "modulos",
+  accounting: "contabilidad",
+  reservations: "agendamiento",
   overview: "vista-general",
   trash: "papelera",
   customers: "tienda/clientes",
@@ -27,7 +32,7 @@ export const routeNames: Record<string, string> = {
   document: "documentos/ver",
   vault: "accesos",
   team: "equipo",
-  polls: "equipo/votaciones",
+  polls: "votaciones",
   orders: "tienda/pedidos",
   invoices: "tienda/facturas-y-boletas",
   private: "mi-area-privada",
@@ -38,6 +43,7 @@ export const routeNames: Record<string, string> = {
 export const settingRoutes: Record<string, string> = {
   company: "empresa",
   brand: "logo-y-marca",
+  appearance: "apariencia",
   preferences: "preferencias",
   social: "redes-sociales",
   integrations: "integraciones",

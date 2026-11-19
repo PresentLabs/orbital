@@ -1,5 +1,5 @@
 {
-  "name": "orbital",
+  "name": "orbita",
   "type": "module",
   "version": "0.0.1",
   "license": "MIT",
@@ -10,7 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "start": "node dist/server/entry.mjs",
-    "test": "node --experimental-strip-types --test tests/saas-model.test.mjs tests/saas-shopify.test.mjs tests/saas-home.test.mjs tests/saas-canvas-image.test.mjs tests/saas-planning.test.mjs tests/saas-work.test.mjs"
+    "test": "node --experimental-strip-types --test tests/saas-model.test.mjs tests/saas-shopify.test.mjs tests/saas-home.test.mjs tests/saas-canvas-image.test.mjs tests/saas-planning.test.mjs tests/saas-work.test.mjs tests/scheduling-navigation.test.mjs tests/scheduling-chart.test.mjs tests/task-presentation.test.mjs tests/date-ranges.test.mjs",
+    "check:modules": "tsc --project tsconfig.modules.json --noEmit"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",

@@ -14,13 +14,15 @@
     "generate:types": "payload generate:types",
     "migrate": "payload migrate",
     "migrate:create": "payload migrate:create",
-    "test": "node --experimental-strip-types --test tests/access.test.mjs tests/images.test.mjs tests/invitations.test.mjs tests/polls.test.mjs tests/private-canvas.test.mjs tests/modules.test.mjs tests/billing.test.mjs",
+    "test": "node --experimental-strip-types --test tests/access.test.mjs tests/platform-admin.test.mjs tests/reservations.test.mjs tests/images.test.mjs tests/invitations.test.mjs tests/polls.test.mjs tests/private-canvas.test.mjs tests/modules.test.mjs tests/billing.test.mjs",
     "retention": "node --experimental-strip-types retention.mjs",
     "test:modules": "node --experimental-strip-types --test tests/modules.test.mjs",
     "test:billing": "node --experimental-strip-types --test tests/billing.test.mjs",
     "test:billing-db": "node --experimental-strip-types --test tests/billing-db.test.mjs",
+    "reservations:worker": "node --experimental-strip-types reservations-worker.mjs",
     "billing:worker": "node --experimental-strip-types billing-worker.mjs",
-    "check:billing-extension": "tsc --project ../../modules/billing-cl/tsconfig.json"
+    "check:billing-extension": "tsc --project ../../modules/billing-cl/tsconfig.json",
+    "test:reservations-db": "node --experimental-strip-types --test --test-force-exit tests/reservations-db.test.mjs"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",

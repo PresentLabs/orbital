@@ -525,7 +525,7 @@
   right: 38px;
   top: -9px;
 }
-.orbital {
+.orbita-orbit {
   position: absolute;
   left: 35px;
   top: 35px;
@@ -1914,6 +1914,10 @@
 }
 .auth-story .brand {
   padding: 0;
+}
+.orbita .auth-story .auth-logo {
+  height: 56px;
+  max-width: min(240px, 70vw);
 }
 .auth-story-copy {
   margin: auto 0;
@@ -3943,7 +3947,12 @@ html.theme-dark .orbita #workspace-main :is(input[type=search],input[placeholder
 
 /* Matching header glyphs and a small, finite reminder for a pending vote. */
 html [data-money-toggle] svg{width:12px!important;height:13px!important;flex-shrink:0}
-.orbita .topbar-right :is([data-theme-toggle],[data-money-toggle]) svg{width:17px!important;height:17px!important;flex-shrink:0}
+.orbita .topbar-right > .icon-btn > svg {
+  width: 22px !important;
+  height: 22px !important;
+  flex-shrink: 0;
+}
+.orbita .topbar-right :is(small, .small, .save-state) { font-size: 16px; }
 .orbita .notification-trigger{position:relative;overflow:visible}
 .orbita .vote-notification{position:absolute;right:-8px;top:-6px;padding:2px 5px;border:1px solid var(--background);border-radius:999px;background:#6e00fe;color:#fff;font:600 8px/1.3 var(--primary-family);pointer-events:none;transform-origin:bottom center;animation:orbita-vote-bounce 800ms cubic-bezier(.22,1,.36,1) 2}
 @keyframes orbita-vote-bounce{0%{transform:scale(.78)}40%{transform:scale(1.14)}65%{transform:scale(.96)}85%{transform:scale(1.04)}100%{transform:scale(1)}}
@@ -4075,11 +4084,20 @@ html.theme-dark .orbita #workspace-main .month-goals-card .planning-switch butto
 .orbita .file-library-view .file-folder-open{align-self:stretch;align-items:flex-start;flex-direction:column;justify-content:space-between;gap:16px}
 .orbita .file-library-view .file-folder-open>span{gap:2px}
 .orbita .file-library-view .file-folder>.icon-btn{background:light-dark(#ffffff99,#ffffff12)!important}
-.orbita .file-library-view .asset-card{border:0;border-radius:12px;background:var(--card);overflow:hidden;position:relative}
+.orbita .file-library-view .asset-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: #252230;
+  overflow: hidden;
+  position: relative;
+}
+.orbita .file-library-view .asset-card .asset-preview { background: #fff; }
+.orbita .file-library-view .asset-card .asset-selection { background: #fff; color: #423e4c; }
 .orbita .file-library-view .asset-preview{border:0!important;min-height:0}
 .orbita .file-library-view .asset-preview img{mix-blend-mode:multiply}
 html.theme-dark .orbita .file-library-view .asset-preview img{mix-blend-mode:normal}
-.orbita .file-library-view .asset-preview:has(img[src])>.asset-format{display:none}
+.orbita .file-library-view .asset-preview:has(img.ready)>.asset-format{display:none}
 .orbita .file-library-view .asset-info{min-height:68px}
 .orbita .file-library-view .asset-info h2{font-weight:500}
 .orbita .asset-lifted{opacity:.35}
@@ -4119,15 +4137,43 @@ html.theme-dark .orbita .file-library-view .asset-preview img{mix-blend-mode:nor
 .orbita .file-library-view .assets-list .asset-file-icon{display:none}.orbita .file-library-view .assets-list .asset-info{padding-left:0}
 @media(max-width:650px){.orbita #workspace-main .file-library-view .asset-filters{flex-basis:100%;width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,.85fr)}.orbita #workspace-main .file-library-view .asset-filters .filter-search{width:100%!important;max-width:100%!important;min-width:0!important}.orbita #workspace-main .file-library-view .asset-display-controls{flex-basis:100%;width:100%;gap:8px}.orbita #workspace-main .file-library-view .asset-display-controls .asset-bulk{margin-right:auto}.orbita .file-folder-context h2{flex-basis:calc(100% - 160px)}.orbita .file-folder-context #workspace-folder-actions{margin-left:auto}.orbita .file-library-view .asset-info{padding-left:34px}.orbita .file-library-view .asset-file-icon{left:10px;top:12px}.orbita .file-library-view .asset-file-icon svg{width:15px;height:15px}}
 .orbita .burndown-point{opacity:0;pointer-events:all}.orbita .burndown-point:hover,.orbita .burndown-point:focus-visible{opacity:1;outline:none;stroke:var(--card);stroke-width:2}
-/* File tiles expose the preview only; actions sit on the tile, without a white footer. */
+/* Keep preview surfaces and filenames readable in both themes. */
 .orbita .file-library-view .workspace-files-grid:not(.assets-list) .asset-preview{width:100%;aspect-ratio:1!important;display:grid;place-items:center;border-radius:12px!important;overflow:hidden;position:relative}
 .orbita .file-library-view .asset-preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.orbita .file-library-view .asset-preview .asset-format{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;background:transparent;padding:0;font-size:14px;pointer-events:none}
-.orbita .file-library-view .asset-preview .asset-name{position:absolute;left:9px;right:40px;bottom:11px;font-size:10px;line-height:1.4;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;background:light-dark(#ffffffd9,#202029e6);border-radius:5px;padding:4px 6px;color:var(--text);opacity:0;transition:opacity .15s;pointer-events:none}
-.orbita .file-library-view .asset-card:hover .asset-name,.orbita .file-library-view .asset-card:focus-within .asset-name{opacity:1}
+.orbita .file-library-view .asset-preview .asset-format {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid hsl(var(--file-hue,270) 26% 73%);
+  border-radius: 7px 16px 7px 7px;
+  background: hsl(var(--file-hue,270) 55% 97%);
+  color: hsl(var(--file-hue,270) 42% 30%);
+  padding: 10px;
+  font-size: 12px;
+  pointer-events: none;
+}
+.orbita .file-library-view .asset-preview .asset-name {
+  position: absolute;
+  left: 8px;
+  right: 42px;
+  bottom: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: #fff;
+  border-radius: 5px;
+  padding: 5px 6px;
+  color: #252230;
+  pointer-events: none;
+}
 .orbita .file-library-view .asset-corner-action{position:absolute;right:8px;bottom:8px;width:29px;height:29px;min-width:29px;min-height:29px;border:0!important;border-radius:50%!important;background:light-dark(#ffffffcc,#272730e6)!important;color:var(--muted);padding:6px!important;z-index:3}
 .orbita .file-library-view .assets-list .asset-card{grid-template-columns:30px 70px minmax(0,1fr);min-height:80px;padding:10px;overflow:visible}.orbita .file-library-view .assets-list .asset-preview{position:static;display:flex;align-items:center;gap:16px;grid-column:2/-1;width:auto;height:60px;aspect-ratio:auto;background:transparent!important;overflow:visible;padding-right:40px!important}
-.orbita .file-library-view .assets-list .asset-preview img{position:static;width:60px;height:60px;object-fit:contain;border-radius:6px}.orbita .file-library-view .assets-list .asset-format{min-width:60px;flex-direction:row;gap:4px;font-size:10px}.orbita .file-library-view .assets-list .asset-name{position:static;opacity:1;background:transparent;font-size:12px;min-width:0}.orbita .file-library-view .assets-list .asset-corner-action{bottom:25px;right:12px}
+.orbita .file-library-view .assets-list .asset-preview img:not(.ready){display:none}.orbita .file-library-view .assets-list .asset-preview img{position:static;width:60px;height:60px;object-fit:contain;border-radius:6px}.orbita .file-library-view .assets-list .asset-preview .asset-format{min-width:60px;flex-direction:row;gap:4px;padding:5px;font-size:10px}.orbita .file-library-view .assets-list .asset-name{position:static;opacity:1;background:transparent;font-size:12px;min-width:0}.orbita .file-library-view .assets-list .asset-corner-action{bottom:25px;right:12px}
 .orbita .asset-lifted{visibility:hidden!important;opacity:0!important}
 .orbita .asset-physics-ghost{visibility:visible!important;opacity:.95!important;aspect-ratio:1;display:block!important;pointer-events:none!important}
 .orbita .asset-physics-ghost .asset-preview{width:100%;height:100%;aspect-ratio:1!important}.orbita .asset-physics-ghost .asset-format{display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;position:absolute;inset:0}.orbita .asset-physics-ghost .asset-name,.orbita .asset-physics-ghost .asset-corner-action{display:none}
@@ -5604,4 +5650,23 @@ html.theme-dark .orbita .today-panel .priority-row[data-day-status] {
   margin: 0;
   padding: 28px 24px;
   color: var(--muted);
+}
+
+/* Sidebar groups retain the navigation permissions of their children. */
+.orbita .sidebar .navigation-parent { width: 100%; }
+.orbita .sidebar .navigation-parent > svg:last-child { margin-left: auto; transition: transform .18s ease; }
+.orbita .sidebar .navigation-parent[aria-expanded="true"] > svg:last-child { transform: rotate(180deg); }
+.orbita .sidebar .navigation-submenu { display: flex; flex-direction: column; gap: 3px; }
+.orbita .sidebar .navigation-submenu > .nav-item { width: 100%; gap: 10px; }
+.orbita .sidebar .navigation-submenu > .team-navigation { min-width: 0; }
+.orbita .sidebar :is(#creative-navigation, #company-navigation, .navigation-submenu)[hidden] { display: none !important; }
+.orbita .sidebar :is(button,a) :is(svg,.sidebar-section-icon) { transition: color .15s ease, filter .15s ease; }
+.orbita .sidebar :is(button,a):is(:hover,:focus-visible) :is(svg,.sidebar-section-icon),
+.orbita .sidebar #private-navigation :is(button,a):is(:hover,:focus-visible) .sidebar-section-icon {
+  color: var(--primary, var(--accent, #6e00fe)) !important;
+}
+html.theme-dark .orbita .sidebar :is(button,a):is(:hover,:focus-visible) :is(svg,.sidebar-section-icon),
+html.theme-dark .orbita .sidebar #private-navigation :is(button,a):is(:hover,:focus-visible) .sidebar-section-icon {
+  color: #fff !important;
+  filter: drop-shadow(0 0 4px #ffffff80) drop-shadow(0 0 8px #b780ff55);
 }

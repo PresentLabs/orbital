@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-18",
+  "frontendTests": 77,
+  "backendTests": 86,
+  "frontendTypes": "passed",
+  "backendTypes": "passed",
+  "astroBuild": "passed; existing chunk warnings",
+  "newMigration": false,
+  "productionChanged": false,
+  "realStoreValidation": "deferred by user; fixtures only",
+  "protectedSpace": "PASS protected Space geometry, colors and controls unchanged",
+  "functionalParityComplete": false,
+  "latest": {
+    "layout": {
+      "today": 393.5,
+      "upcoming": 393.5,
+      "top": [
+        233.28125,
+        233.28125
+      ],
+      "height": [
+        359.53125,
+        359.53125
+      ],
+      "chart": 807,
+      "chartParent": 807
+    },
+    "order": [
+      "Inicio",
+      "Tienda",
+      "Empresa",
+      "Proyecto",
+      "Agendamiento",
+      "Contabilidad"
+    ],
+    "customerTable": true,
+    "detail": true,
+    "moduleLandingReset": true,
+    "canonicalChildRoutes": true,
+    "legacyRoutesSupported": true,
+    "logoTextIsPaths": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "paletteSearchHierarchy": {
+    "search": {
+      "inputX": 24,
+      "inputY": 96,
+      "originalX": 24,
+      "originalY": 96,
+      "resultsX": 240,
+      "inputRight": 224
+    },
+    "drawer": {
+      "width": 480,
+      "radius": "0px"
+    },
+    "categoryHierarchy": true,
+    "sevenPaletteColors": true,
+    "secondarySaved": true,
+    "outlineButton": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "details": {
+    "saasColor": "rgb(255, 255, 255)",
+    "saasBg": "rgb(110, 0, 254)",
+    "parentSize": "16px",
+    "tabPadding": [
+      "8px",
+      "16px"
+    ],
+    "noticeBorder": "0px",
+    "noticeBg": "rgb(229, 237, 255)",
+    "noticeTitle": "16px",
+    "noticeButton": "rgb(255, 255, 255)",
+    "lineHeight": "16.8px",
+    "outline": "0px"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "archiveSha256": "8f517955b99555e688ae52ff4483076c9490dcda08a919d6ae88c2bdb609cf3b",
+  "archiveMatchesInventory": true,
+  "packages": 9,
+  "features": 103,
+  "inventoriedFiles": 2963,
+  "verifiedFiles": 2963,
+  "errors": [],
+  "unresolvedFeatureReferences": [],
+  "filesWithFeatureReferences": 259,
+  "functionalParityVerified": false,
+  "note": "Integridad documental y binaria; la paridad funcional requiere implementación y pruebas por bloque."
+}

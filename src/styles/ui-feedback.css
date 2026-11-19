@@ -1,0 +1,27 @@
+:is(#toast,#platform-status).ui-toast { position:fixed;z-index:10000;left:50%;bottom:1.5rem;transform:translateX(-50%);width:min(31rem,calc(100vw - 2rem));display:flex;align-items:center;gap:.875rem;padding:1rem 1.125rem;border:0;border-radius:1rem;color:#234039;background:#e5f5ee;box-shadow:0 .5rem 2rem #11131814;text-align:left; }
+:is(#toast,#platform-status).ui-toast[hidden] { display:none; }
+:is(#toast,#platform-status).ui-toast[data-kind=info] { background:#edf0ff;color:#293d70; }
+:is(#toast,#platform-status).ui-toast[data-kind=warning] { background:#fff3e4;color:#704615; }
+:is(#toast,#platform-status).ui-toast[data-kind=error] { background:#fcebec;color:#8f2935; }
+.ui-toast-icon { width:2.5rem;height:2.5rem;display:grid;place-items:center;background:#ffffff8f;border-radius:.75rem;flex:none; }
+.ui-toast-copy { display:grid;gap:.25rem;min-width:0;flex:1; }
+.ui-toast-copy strong { font-size:.9375rem;line-height:1.3; }
+.ui-toast-copy > span { font-size:.875rem;line-height:1.45;overflow-wrap:anywhere; }
+.ui-toast-close { display:grid;place-items:center;width:2rem;height:2rem;flex:none;min-height:0;border:0;border-radius:.5rem;background:transparent;color:inherit;cursor:pointer; }
+.ui-toast-close:hover { background:#ffffff8f; }
+:is(#toast,#platform-status).ui-toast.visible { animation:ui-toast-in .22s ease both; }
+@keyframes ui-toast-in { from { opacity:0;translate:0 .75rem; } to {opacity:1;translate:0 0;} }
+dialog.ui-drawer[open] { animation:ui-drawer-in .46s cubic-bezier(.22,1,.36,1) both; }
+dialog.ui-drawer[data-drawer-state=closing] { animation:ui-drawer-out .36s cubic-bezier(.4,0,.2,1) both; }
+dialog.ui-drawer::backdrop { background:rgb(8 12 21 / .5);backdrop-filter:none;animation:ui-veil-in .46s ease both; }
+dialog.ui-drawer[data-drawer-state=closing]::backdrop { animation:ui-veil-out .36s ease both; }
+@keyframes ui-drawer-in {from {transform:translateX(100%);opacity:.6;}to {transform:translateX(0);opacity:1;} }
+@keyframes ui-drawer-out {from {transform:translateX(0);opacity:1;}to {transform:translateX(100%);opacity:0;} }
+@keyframes ui-veil-in {from{opacity:0;}to{opacity:1;} }
+@keyframes ui-veil-out {from{opacity:1;}to{opacity:0;} }
+@media(prefers-reduced-motion:reduce) { :is(#toast,#platform-status).ui-toast.visible,dialog.ui-drawer[open],dialog.ui-drawer::backdrop {animation:none;} }
+html.theme-dark :is(#toast,#platform-status).ui-toast {background:#203b30;color:#d6f2e2;}
+html.theme-dark :is(#toast,#platform-status).ui-toast[data-kind=info] {background:#25324a;color:#dce7ff;}
+html.theme-dark :is(#toast,#platform-status).ui-toast[data-kind=warning] {background:#453720;color:#ffebc2;}
+html.theme-dark :is(#toast,#platform-status).ui-toast[data-kind=error] {background:#472930;color:#ffdbe1;}
+html.theme-dark .ui-toast-icon {background:#ffffff12;}

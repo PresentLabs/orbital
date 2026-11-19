@@ -173,7 +173,7 @@ export function installWorkspaceFiles(ctx: Ctx) {
         while (index < list.length && version === epoch) {
           const row = list[index++],
             key =
-              "pastel-v3:" +
+              "white-v4:" +
               String(ctx.actor().id) +
               ":" +
               scope() +
@@ -255,7 +255,7 @@ export function installWorkspaceFiles(ctx: Ctx) {
       list
         .map(
           (r) =>
-            `<article class="asset-card" data-asset-card="${esc(r.id)}" style="--file-hue:${fileFormat(r.filename,r.mime).hue}"><label class="document-selection asset-selection"><input type="checkbox" data-asset-select="${esc(r.id)}" aria-label="Seleccionar ${esc(r.title)}" ${selected.has(r.id)?'checked':''} ${busy?'disabled':''}/><span>Seleccionar</span></label>${!trash&&writable()?`<button class="icon-btn asset-grip" data-asset-grip="${esc(r.id)}" aria-label="Mover ${esc(r.title)}">${uiIcon('grip',16)}</button>`:''}<button class="asset-preview" data-asset-open="${esc(r.id)}" aria-label="Ver ${esc(r.title)}" title="${esc(r.filename)}"><span class="asset-format">${uiIcon(workspaceFileCategory(r.mime)==='image'?'image':'note',32)}<strong>${esc(fileFormat(r.filename,r.mime).extension)}</strong></span>${['image','pdf'].includes(workspaceFileCategory(r.mime))?`<img draggable="false" data-asset-thumbnail="${esc(r.id)}" alt="${esc(r.title)}" width="480" height="480" loading="lazy" decoding="async"/>`:''}<span class="asset-name">${esc(r.title)}</span></button>${trash?`<button class="asset-corner-action icon-btn" data-asset-restore="${esc(r.id)}" aria-label="Restaurar ${esc(r.title)}" ${!writable()?'disabled':''}>${uiIcon('undo',16)}</button>`:`<button class="asset-corner-action icon-btn" data-asset-download="${esc(r.id)}" aria-label="Descargar ${esc(r.title)}">${uiIcon('export',16)}</button>`}</article>`,
+            `<article class="asset-card" data-asset-card="${esc(r.id)}" style="--file-hue:${fileFormat(r.filename,r.mime).hue}"><label class="document-selection asset-selection"><input type="checkbox" data-asset-select="${esc(r.id)}" aria-label="Seleccionar ${esc(r.title)}" ${selected.has(r.id)?'checked':''} ${busy?'disabled':''}/><span>Seleccionar</span></label>${!trash&&writable()?`<button class="icon-btn asset-grip" data-asset-grip="${esc(r.id)}" aria-label="Mover ${esc(r.title)}">${uiIcon('grip',16)}</button>`:''}<button class="asset-preview" data-asset-open="${esc(r.id)}" aria-label="Ver ${esc(r.title)}" title="${esc(r.title)}"><span class="asset-format">${uiIcon(workspaceFileCategory(r.mime)==='image'?'image':'note',32)}<strong>${esc(fileFormat(r.filename,r.mime).extension)}</strong></span>${['image','pdf'].includes(workspaceFileCategory(r.mime))?`<img draggable="false" data-asset-thumbnail="${esc(r.id)}" alt="${esc(r.title)}" width="480" height="480" loading="lazy" decoding="async"/>`:''}<span class="asset-name">${esc(r.title)}</span></button>${trash?`<button class="asset-corner-action icon-btn" data-asset-restore="${esc(r.id)}" aria-label="Restaurar ${esc(r.title)}" ${!writable()?'disabled':''}>${uiIcon('undo',16)}</button>`:`<button class="asset-corner-action icon-btn" data-asset-download="${esc(r.id)}" aria-label="Descargar ${esc(r.title)}">${uiIcon('export',16)}</button>`}</article>`,
         )
         .join("") ||
       '<div class="empty-state">' +
@@ -437,8 +437,21 @@ export function installWorkspaceFiles(ctx: Ctx) {
     try {
       const data = await blob(row);
       if (!host.isConnected) return;
-      const kind = workspaceFileCategory(row.mime),
-        url = URL.createObjectURL(data);
+      const kind = workspaceFileCategory(row.mime);
+      // Keep SVG documents out of navigable same-origin object URLs.
+      if (row.mime === "image/svg+xml") {
+        const source = new FileReader();
+        source.onload = () => {
+          if (host.isConnected)
+            host.innerHTML = `<img src="${esc(String(source.result))}" alt="${esc(row.title)}"/>`;
+        };
+        source.onerror = () => {
+          host.textContent = "No pudimos mostrar la vista previa.";
+        };
+        source.readAsDataURL(data);
+        return;
+      }
+      const url = URL.createObjectURL(data);
       setTimeout(() => URL.revokeObjectURL(url), 300000);
       if (kind === "image")
         host.innerHTML = `<img src="${url}" alt="${esc(row.title)}"/>`;
@@ -523,7 +536,7 @@ export function installWorkspaceFiles(ctx: Ctx) {
           let optimized: Blob = file,
             mime = file.type,
             filename = file.name;
-          if (file.type.startsWith("image/")) {
+          if (file.type.startsWith("image/") && file.type !== "image/svg+xml") {
             const body = new FormData();
             body.set("file", file);
             const response = await fetch("/api/saas/optimize-image?demo=1", {

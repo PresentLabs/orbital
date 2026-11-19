@@ -20,7 +20,7 @@ export function installPreferences(ctx: Ctx) {
     theme?: "light" | "dark";
     showTaskComments?: boolean;
     showMoney?: boolean;
-    taskMode?: "board" | "list";
+    taskMode?: "board" | "list" | "timeline";
     privateSections?: ("spaces" | "tasks" | "pages")[];
   }) {
     ctx.mutate(() => {
@@ -50,9 +50,9 @@ export function installPreferences(ctx: Ctx) {
     for(const [selector,mode,icon,label,tooltip] of controls){
       const button=document.querySelector<HTMLButtonElement>(selector);
       if(!button)continue;
-      if(button.dataset.mode!==mode){button.innerHTML=uiIcon(icon,17);button.dataset.mode=mode;}
+      if(button.dataset.mode!==mode){button.innerHTML=uiIcon(icon,17)+(button.classList.contains("profile-preference")?`<span class="preference-label"></span>`:"");button.dataset.mode=mode;}
       button.setAttribute('aria-label',label);
-      button.dataset.tooltip=tooltip;
+      if(button.classList.contains("profile-preference")){button.removeAttribute("data-tooltip");button.querySelector(".preference-label")!.textContent=label;}else button.dataset.tooltip=tooltip;
     }
     for (const el of document.querySelectorAll("#workspace-main")) {
       const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -85,9 +85,10 @@ export function installPreferences(ctx: Ctx) {
           ".metric-card:first-child,#chart-total,#analytics-content .analytics-stat:first-child,.node-metric",
         );
       const change = dashboard ? ctx.change() : null;
+      const operational = !!parent.closest('[data-panel="reservations"]');
       const hidden = parent.closest("svg")
         ? "—"
-        : change === null
+        : operational ? "••••" : change === null
           ? "Sin comparación"
           : `${change > 0 ? "+" : ""}${new Intl.NumberFormat("es-CL", { maximumFractionDigits: 1 }).format(change)} %`;
       expression.lastIndex = 0;
@@ -101,8 +102,8 @@ export function installPreferences(ctx: Ctx) {
       parent.classList.toggle("money-masked", !show);
       if (!show)
         parent.title =
-          change === null
-            ? "Este importe no tiene una comparación con el periodo anterior. Usa el botón de montos del encabezado para verlo."
+          operational ? "Monto oculto. Usa el botón de montos del encabezado para verlo." : change === null
+            ? "Este monto no tiene una comparación con el periodo anterior. Usa el botón de montos del encabezado para verlo."
             : "Variación frente al periodo anterior";
     }
   }

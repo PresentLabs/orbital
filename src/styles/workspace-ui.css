@@ -1,0 +1,261 @@
+/* Shared visual language for the workspace. Spatial/canvas content keeps its own geometry.
+   The layout ID gives these shared primitives precedence over the accumulated legacy selectors,
+   regardless of the stylesheet order chosen by the bundler. */
+.orbita#orbita-workspace {
+  --primary: #6e00fe;
+  --background: light-dark(#f7f8fa, #15161b);
+  --card: light-dark(#fff, #1d1f26);
+  --surface: light-dark(#f2f4f7, #262933);
+  --text: light-dark(#242833, #eceef5);
+  --muted: light-dark(#657083, #a7afbf);
+  --line: light-dark(#e5e8ef, #333744);
+  --ui-radius: 12px;
+  --ui-control-radius: 999px;
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -.015em;
+  background: var(--background);
+}
+.orbita#orbita-workspace :is(button, a, input, select, textarea):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.orbita#orbita-workspace button:disabled { cursor: not-allowed; }
+.orbita#orbita-workspace .sidebar { background: var(--card); border-color: var(--line); }
+.orbita#orbita-workspace .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+.orbita#orbita-workspace .sidebar .nav-item { display:flex;align-items:center;justify-content:flex-start;gap:12px;text-align:left;text-decoration:none; font-size: 13px; min-height: 40px; border-radius: var(--ui-control-radius); color: var(--muted); }
+.orbita#orbita-workspace .sidebar .nav-item > span:not(.nav-count):not(.sidebar-section-icon) { min-width: 0; }
+.orbita#orbita-workspace .sidebar :is(.nav-item.active,.navigation-parent[aria-expanded=true]) { color: var(--text); }
+.orbita#orbita-workspace .sidebar .store-submenu { margin: 2px 0 8px 20px; padding: 0 0 0 14px; border-color: var(--line); }
+.orbita#orbita-workspace .sidebar :is(.store-submenu,.team-submenu) button { min-height: 36px; font-size: 13px; font-weight: 400; border-radius: 6px; color: var(--muted); gap: 8px; }
+.orbita#orbita-workspace .sidebar :is(.store-submenu,.team-submenu) button.active { color: light-dark(#6e00fe,#c7a7ff); font-weight: 600; background: light-dark(#f0e8ff,#32234a); }
+.orbita#orbita-workspace .sidebar :is(.store-submenu,.team-submenu) button:hover { color: var(--text); background: var(--surface); }
+.orbita#orbita-workspace .sidebar .store-submenu .navigation-parent > svg { width: 13px; height: 13px; }
+.orbita#orbita-workspace .sidebar .nav-count { background: var(--surface); color: var(--muted); border-radius: 5px; min-width: 21px; height: 21px; font-size: 11px; }
+.orbita#orbita-workspace .sidebar .private-direct { padding-left: 12px; }
+.orbita#orbita-workspace .sidebar .private-direct > .sidebar-section-icon { display: none; }
+.orbita#orbita-workspace .topbar { border-color: var(--line); background: var(--card); min-height: 64px; }
+.orbita#orbita-workspace .topbar .breadcrumbs { font-size: 13px; color: var(--muted); }
+.orbita#orbita-workspace .topbar .breadcrumbs strong { font-weight: 500; color: var(--text); }
+.orbita#orbita-workspace .topbar-right :is(.save-state, small) { font-size: 1rem; }
+.orbita#orbita-workspace .view > .page-heading { align-items: center; gap: 20px; margin-bottom: 28px; }
+.orbita#orbita-workspace #workspace-main .page-heading h1 { font: 600 28px/1.2 var(--primary-family); letter-spacing: -.035em; color: var(--text); }
+.orbita#orbita-workspace #workspace-main .page-heading p { font-size: 14px; line-height: 1.6; color: var(--muted); margin-top: 8px; }
+.orbita#orbita-workspace .panel { background: var(--card); border: 0; border-radius: var(--ui-radius); box-shadow: none; }
+.orbita#orbita-workspace #workspace-main :is(.panel-heading,.scheduling-panel-heading) h2 { font-size: 16px; font-weight: 600; line-height: 1.4; letter-spacing: -.02em; }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button { min-height: 40px; padding: 9px 15px !important; font-size: 13px; font-weight: 500; border-radius: var(--ui-control-radius) !important; box-shadow: none; line-height: 1.4; }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.primary { background: var(--primary); color: white; border: 1px solid var(--primary); }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.secondary { border: 1px solid var(--line); background: var(--card); color: var(--text); }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.secondary:hover { background: var(--surface); }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]) { border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font-size: 14px; line-height: 1.5; }
+.orbita#orbita-workspace :is(.form-grid,.settings-panel,.module-form,#reservation-entry-form,#reservation-create-form,#reservation-state-form) label { font-size: 13px; color: var(--text); font-weight: 500; }
+.orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) { border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0; padding: 0; gap: 20px; }
+.orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 12px 2px; min-height: 44px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; }
+.orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) button[aria-selected=true] { color: light-dark(#6e00fe,#c7a7ff); background: transparent; border-bottom-color: var(--primary); box-shadow: none; }
+.orbita#orbita-workspace .table-panel { overflow-x: auto; }
+.orbita#orbita-workspace .table-panel table { width: 100%; border-collapse: collapse; }
+.orbita#orbita-workspace .table-panel :is(th,td) { border-bottom: 1px solid var(--line); padding: 16px; font-size: 13px; text-align: left; vertical-align: middle; }
+.orbita#orbita-workspace .table-panel th { font-weight: 500; background: light-dark(#fafbfc,#232630); color: var(--muted); }
+.orbita#orbita-workspace .table-panel tbody tr:last-child td { border-bottom: 0; }
+.orbita#orbita-workspace .table-panel tbody tr:hover { background: light-dark(#fafbff,#222530); }
+.orbita#orbita-workspace .editor-dialog { border-radius: 16px; border: 1px solid var(--line); background: var(--card); color: var(--text); box-shadow: 0 24px 80px #0003; }
+.orbita#orbita-workspace .editor-dialog h2 { font-size: 22px; font-weight: 600; line-height: 1.3; margin-bottom: 20px; }
+.orbita#orbita-workspace .editor-dialog form { display: grid; gap: 18px; }
+.orbita#orbita-workspace .editor-dialog label { display: grid; gap: 7px; font-size: 13px; }
+.orbita#orbita-workspace .editor-dialog .inline-check { display: flex; align-items: center; }
+.orbita#orbita-workspace .section-note:empty { display: none; }
+.orbita#orbita-workspace .empty-state { color: var(--muted); line-height: 1.7; font-size: 14px; padding: 28px; }
+.orbita#orbita-workspace .subtle-button { color: var(--muted); font-size: 13px; font-weight: 500; }
+.orbita#orbita-workspace .subtle-button:hover { color: light-dark(#6e00fe,#c7a7ff); }
+
+/* Agendamiento uses the same surfaces, controls and type scale as the rest of the panel. */
+.orbita#orbita-workspace [data-panel=reservations] { max-width: 1600px; }
+.orbita#orbita-workspace #reservations-content { display: grid; gap: 24px; }
+.orbita#orbita-workspace .scheduling-period { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.orbita#orbita-workspace .scheduling-period p { color: var(--muted); font-size: 13px; }
+.orbita#orbita-workspace .scheduling-period label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.orbita#orbita-workspace .scheduling-period select { min-width: 155px; }
+.orbita#orbita-workspace .scheduling-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }
+.orbita#orbita-workspace .scheduling-metric { padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.orbita#orbita-workspace .scheduling-metric > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.orbita#orbita-workspace .scheduling-metric-icon { display: grid; place-items: center; width: 32px; height: 32px; background: var(--surface); border-radius: 8px; flex-shrink: 0; color: var(--muted); }
+.orbita#orbita-workspace .scheduling-metric > strong { font-size: 30px; line-height: 1.2; font-weight: 600; letter-spacing: -.04em; overflow-wrap: anywhere; }
+.orbita#orbita-workspace .scheduling-metric small { font-size: 12px; line-height: 1.5; color: var(--muted); }
+.orbita#orbita-workspace .scheduling-main-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; align-items: stretch; }
+.orbita#orbita-workspace .scheduling-panel-heading { padding: 22px 24px 0; display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.orbita#orbita-workspace .scheduling-panel-heading p { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.orbita#orbita-workspace .scheduling-panel-heading .subtle-button { white-space: nowrap; }
+.orbita#orbita-workspace .scheduling-chart figure { margin: 24px 20px 20px; }
+.orbita#orbita-workspace .scheduling-chart svg { display: block; width: 100%; height: auto; min-height: 190px; }
+.orbita#orbita-workspace .scheduling-chart text { font: 11px var(--primary-family); fill: var(--muted); }
+.orbita#orbita-workspace .scheduling-gridline { stroke: var(--line); stroke-dasharray: 4 4; }
+.orbita#orbita-workspace .scheduling-chart figcaption { margin-top: 12px; color: var(--muted); font-size: 12px; }
+.orbita#orbita-workspace .scheduling-legend { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.orbita#orbita-workspace .scheduling-legend i { width: 7px; height: 7px; background: var(--primary); border-radius: 2px; }
+.orbita#orbita-workspace :is(.scheduling-upcoming,.scheduling-today) ul { padding: 8px 24px 16px; margin: 0; list-style: none; }
+.orbita#orbita-workspace .scheduling-appointment { display: flex; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.orbita#orbita-workspace .scheduling-appointment:last-child { border-bottom: 0; }
+.orbita#orbita-workspace .scheduling-time { display: flex; flex-direction: column; gap: 3px; min-width: 50px; flex-shrink: 0; }
+.orbita#orbita-workspace .scheduling-time strong { font-size: 15px; font-weight: 600; }
+.orbita#orbita-workspace .scheduling-time small { color: var(--muted); font-size: 11px; }
+.orbita#orbita-workspace .scheduling-appointment-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.orbita#orbita-workspace .scheduling-appointment-copy strong { font-weight: 500; font-size: 13px; overflow-wrap: anywhere; }
+.orbita#orbita-workspace .scheduling-appointment-copy span { font-size: 12px; color: var(--muted); }
+.orbita#orbita-workspace .scheduling-appointment-copy small { color: var(--muted); font-size: 11px; }
+.orbita#orbita-workspace .scheduling-appointment-end { display: flex; align-items: flex-end; flex-direction: column; gap: 8px; }
+.orbita#orbita-workspace .scheduling-appointment-end .subtle-button { font-size: 11px; }
+.orbita#orbita-workspace .reservation-state { display: inline-flex; padding: 4px 8px; font-size: 11px; line-height: 1.4; border: 0; border-radius: 5px; background: var(--surface); color: var(--muted); }
+.orbita#orbita-workspace .reservation-state[data-status=confirmed] { background: light-dark(#e8f5ef,#213c33); color: light-dark(#23714e,#9cd6b6); }
+.orbita#orbita-workspace .reservation-state[data-status=pending] { background: light-dark(#fff3dc,#423621); color: light-dark(#8a6016,#efd090); }
+.orbita#orbita-workspace .reservation-state[data-status=completed] { background: light-dark(#edf0fe,#2b3251); color: light-dark(#4d5fb0,#b4c0ff); }
+.orbita#orbita-workspace .scheduling-bottom-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.orbita#orbita-workspace .scheduling-ranking { list-style: none; margin: 0; padding: 22px 24px 26px; display: grid; gap: 22px; }
+.orbita#orbita-workspace .scheduling-ranking li > div:first-child { display: flex; align-items: start; justify-content: space-between; gap: 12px; font-size: 13px; }
+.orbita#orbita-workspace .scheduling-ranking strong { font-weight: 500; }
+.orbita#orbita-workspace .scheduling-ranking li > div > span { font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.orbita#orbita-workspace .scheduling-track { margin-top: 9px; height: 5px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.orbita#orbita-workspace .scheduling-track span { display: block; height: 100%; background: light-dark(#a577ef,#9871d0); border-radius: inherit; }
+.orbita#orbita-workspace .scheduling-empty { padding: 32px 24px; color: var(--muted); line-height: 1.6; font-size: 13px; }
+.orbita#orbita-workspace .scheduling-loading { padding: 36px; display: grid; justify-items: start; gap: 16px; color: var(--muted); }
+.orbita#orbita-workspace #reservations-content .reservations-toolbar { margin-bottom: 0; }
+.orbita#orbita-workspace #reservations-content .reservation-grid { gap: 20px; }
+.orbita#orbita-workspace #reservations-content .reservation-card { padding: 24px; border-radius: var(--ui-radius); }
+.orbita#orbita-workspace #reservations-content .reservation-card h2 { font-size: 17px; font-weight: 600; }
+.orbita#orbita-workspace #reservations-content .reservation-card p { font-size: 13px; }
+.orbita#orbita-workspace #reservations-content .reservation-settings { padding: 28px; max-width: 100%; }
+.orbita#orbita-workspace #reservations-content .reservation-settings h2 { font-size: 18px; font-weight: 600; margin-bottom: 22px; }
+.orbita#orbita-workspace #reservations-content .reservation-table :is(th,td) { font-size: 13px; padding: 17px 18px; }
+.orbita#orbita-workspace #reservations-content .reservation-table small { font-size: 12px; }
+.orbita#orbita-workspace .reservation-hours { border-color: var(--line); }
+@media(max-width:900px) {
+  .orbita#orbita-workspace .scheduling-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+
+}
+@media(max-width:680px) {
+  .orbita#orbita-workspace #workspace-main .page-heading h1 { font-size: 24px; }
+  .orbita#orbita-workspace .view > .page-heading { align-items: flex-start; margin-bottom: 24px; }
+  .orbita#orbita-workspace .scheduling-period { align-items: flex-start; flex-direction: column; }
+  .orbita#orbita-workspace .scheduling-period label { width: 100%; justify-content: space-between; }
+  .orbita#orbita-workspace .scheduling-metrics { gap: 12px; }
+  .orbita#orbita-workspace .scheduling-metric { padding: 16px; }
+  .orbita#orbita-workspace .scheduling-metric > strong { font-size: 26px; }
+  .orbita#orbita-workspace .scheduling-metric-icon { display: none; }
+  .orbita#orbita-workspace .scheduling-bottom-grid { grid-template-columns: 1fr; }
+  .orbita#orbita-workspace .scheduling-panel-heading { padding: 20px 18px 0; flex-wrap: wrap; }
+  .orbita#orbita-workspace :is(.scheduling-upcoming,.scheduling-today) ul { padding-inline: 18px; }
+  .orbita#orbita-workspace .scheduling-appointment { gap: 12px; flex-wrap: wrap; }
+  .orbita#orbita-workspace .scheduling-appointment-end { flex-direction: row; width: 100%; justify-content: space-between; padding-left: 62px; }
+  .orbita#orbita-workspace .scheduling-chart figure { margin-inline: 12px; }
+  .orbita#orbita-workspace #reservations-content .reservation-settings { padding: 20px; }
+  .orbita#orbita-workspace #workspace-main [data-panel=reservations] .page-heading > .heading-actions > .button { width: auto; min-width: 40px; height: 40px; font-size: 13px !important; padding: 9px 12px !important; }
+  .orbita#orbita-workspace [data-panel=reservations] .page-heading { flex-wrap: wrap; }
+}
+@media(prefers-reduced-motion:reduce) { .orbita#orbita-workspace *, .orbita#orbita-workspace *::before, .orbita#orbita-workspace *::after { scroll-behavior: auto; } }
+
+.orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) button:not(.active):not([aria-selected=true]) { background:transparent; border:0; border-bottom:2px solid transparent; }
+.orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) button[aria-selected=true] { border:0; border-bottom:2px solid var(--primary); background:transparent; color:light-dark(#6e00fe,#c7a7ff); }
+.orbita#orbita-workspace #reservations-content .scheduling-metric small { font-size:12px; }
+.orbita#orbita-workspace #reservations-content .scheduling-appointment-end .reservation-state { border:0; }
+
+.orbita#orbita-workspace .scheduling-upcoming .scheduling-appointment { display:grid;grid-template-columns:50px minmax(0,1fr);gap:10px 12px; }
+.orbita#orbita-workspace .scheduling-upcoming .scheduling-appointment-end { grid-column:2;flex-direction:row;align-items:center;justify-content:space-between;gap:8px; }
+.orbita#orbita-workspace .scheduling-directory-empty { grid-column:1/-1;text-align:center;padding:64px 24px; }
+.orbita#orbita-workspace .scheduling-directory-empty h2 { font-size:18px;font-weight:600;margin-bottom:8px; }
+.orbita#orbita-workspace .scheduling-directory-empty p,.orbita#orbita-workspace .directory-count { font-size:13px;color:var(--muted); }
+.orbita#orbita-workspace #reservations-content .reservations-toolbar { padding-block:4px;gap:16px; }
+.orbita#orbita-workspace #reservations-content .reservations-toolbar form { margin:0; }
+@media(max-width:960px) { .orbita#orbita-workspace .scheduling-main-grid { grid-template-columns:1fr; } }
+
+.orbita#orbita-workspace #workspace-main .panel-heading h2 { font-size:16px !important;font-weight:600; }
+.orbita#orbita-workspace #workspace-main :is(.settings-panel,.module-panel) > h2 { font-size:18px;line-height:1.4;font-weight:600; }
+.orbita#orbita-workspace #workspace-main .page-heading .eyebrow { font-size:11px;letter-spacing:.06em; }
+
+/* Author-level flex/grid rules must never override the HTML hidden state. */
+.orbita#orbita-workspace [hidden] { display:none !important; }
+.orbita#orbita-workspace .sidebar :is(.store-submenu,.team-submenu) button.active:hover { color:light-dark(#6e00fe,#c7a7ff);background:light-dark(#f0e8ff,#32234a); }
+.orbita#orbita-workspace #reservations-content .reservation-card p:empty { display:none; }
+
+/* Incumbent reference: Vista general. Soft surfaces and rounded actions, no card outlines. */
+.orbita#orbita-workspace .sidebar #team-submenu {
+  margin:4px 0 8px 0 !important; padding:5px 0 !important; border:0;
+  border-radius:12px; background:light-dark(#eff1f4,#292c35);
+}
+.orbita#orbita-workspace .sidebar #team-submenu button { padding-left:12px !important; }
+.orbita#orbita-workspace .sidebar #team-submenu button.active { background:light-dark(#e4ddf2,#3a2e50); }
+.orbita#orbita-workspace .scheduling-today { overflow:hidden; }
+.orbita#orbita-workspace .scheduling-today .scheduling-panel-heading h2 { font-size:20px; }
+.orbita#orbita-workspace .scheduling-today ul { max-height:280px;overflow-y:auto;scrollbar-width:thin; }
+.orbita#orbita-workspace .scheduling-main-grid > .panel { min-width:0;display:flex;flex-direction:column;height:100%; }
+.orbita#orbita-workspace .scheduling-chart figure { flex:1;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:24px; }
+.orbita#orbita-workspace .scheduling-chart .sales-chart { aspect-ratio:610 / 210;min-height:190px; }
+.orbita#orbita-workspace .scheduling-upcoming ul { height:290px;overflow-y:auto;scrollbar-width:thin; }
+.orbita#orbita-workspace .scheduling-metric { border:0; }
+.orbita#orbita-workspace .scheduling-metric > strong { font-variant-numeric:tabular-nums; }
+.orbita#orbita-workspace .scheduling-bottom-grid > .panel { height:100%; }
+.orbita#orbita-workspace .booking-detail-facts { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:0; }
+.orbita#orbita-workspace .booking-detail-facts dt { font-size:12px;color:var(--muted); }
+.orbita#orbita-workspace .booking-detail-facts dd { margin:4px 0 0;font-size:14px;overflow-wrap:anywhere; }
+.orbita#orbita-workspace .button.compact-table-action { min-height:29px;padding:5px 12px !important;font-size:11px;border-radius:999px !important;white-space:nowrap; }
+.orbita#orbita-workspace .reservation-table .commerce-pill { font-size:11px;border:0; }
+.orbita#orbita-workspace :is(.scheduling-chart,.scheduling-today,.scheduling-upcoming,.reservation-grid) ::selection { background:#d8c5ff;color:#261344; }
+@media(max-width:680px) {
+  .orbita#orbita-workspace .scheduling-today .scheduling-panel-heading { align-items:center; }
+  .orbita#orbita-workspace .scheduling-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .orbita#orbita-workspace .scheduling-appointment-copy { min-width:130px; }
+  .orbita#orbita-workspace .scheduling-upcoming ul { height:auto;max-height:350px; }
+}
+
+.orbita#orbita-workspace .sidebar #team-submenu { list-style:none; }
+.orbita#orbita-workspace .sidebar #team-submenu li { margin:0;padding:0; }
+
+.orbita#orbita-workspace .scheduling-line-chart { --chart-color:light-dark(#6e00fe,#b88bff); }
+.orbita#orbita-workspace .scheduling-chart text { font-size:12px; }
+.orbita#orbita-workspace .scheduling-data { margin-top:16px;color:var(--muted);font-size:12px; }
+.orbita#orbita-workspace .scheduling-data summary { cursor:pointer; }
+.orbita#orbita-workspace .scheduling-data[open] { max-height:280px;overflow:auto; }
+.orbita#orbita-workspace .scheduling-data table { width:100%;margin-top:12px;border-collapse:collapse;font-variant-numeric:tabular-nums; }
+.orbita#orbita-workspace .scheduling-data :is(th,td) { text-align:left;padding:8px;border-bottom:1px solid var(--line);font-size:12px; }
+@media(max-width:680px) { .orbita#orbita-workspace .scheduling-chart text { font-size:20px; } }
+
+.orbita#orbita-workspace .booking-history { margin-top:24px;font-size:13px; }
+.orbita#orbita-workspace .booking-history summary { cursor:pointer; }
+.orbita#orbita-workspace .booking-history ol { list-style:none;padding:0;display:grid;gap:16px;margin-top:18px; }
+.orbita#orbita-workspace .booking-history time { display:block;color:var(--muted);font-size:12px;margin-top:4px; }
+
+.orbita#orbita-workspace .service-duration-options { border:0;border-radius:12px;padding:20px;background:var(--surface);margin:8px 0;min-width:0; }
+.orbita#orbita-workspace .service-duration-options legend { font-size:14px;font-weight:600;padding:0 4px; }
+.orbita#orbita-workspace .service-duration-row { display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-bottom:16px; }
+.orbita#orbita-workspace .catalog-category-label { font-size:12px;color:var(--muted); }
+.orbita#orbita-workspace #catalog-search { flex-wrap:wrap; }
+@media(max-width:600px) { .orbita#orbita-workspace .service-duration-row { grid-template-columns:1fr 1fr; } .orbita#orbita-workspace .service-duration-row button { grid-column:1/-1;justify-self:end; } }
+
+/* Scheduling complements share the service editor's surface and spacing. */
+.orbita#orbita-workspace .editor-dialog .booking-extra-row { display: grid; grid-template-columns: minmax(0, 1fr) 5rem; align-items: center; gap: 1rem; padding-block: .75rem; }
+.orbita#orbita-workspace .editor-dialog .booking-extra-row > span { display: grid; gap: .35rem; }
+.orbita#orbita-workspace .editor-dialog .booking-extra-row small { color: var(--muted); }
+.orbita#orbita-workspace .editor-dialog .booking-extra-row input { width: 100%; }
+.orbita#orbita-workspace .booking-extras-summary { padding-block: .5rem; }
+.orbita#orbita-workspace .booking-extras-summary h3 { margin-bottom: .5rem; }
+
+/* Service and extra imagery uses the existing borderless catalog surface. */
+.orbita#orbita-workspace .catalog-image-frame { position:relative;display:grid;place-content:center;gap:8px;aspect-ratio:3/2;background:var(--surface);border-radius:10px;overflow:hidden;color:var(--muted);text-align:center;font-size:12px;margin-bottom:8px; }
+.orbita#orbita-workspace .catalog-image-frame svg { margin-inline:auto; }
+.orbita#orbita-workspace .catalog-image-frame img { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--surface); }
+.orbita#orbita-workspace .reservation-card > .heading-actions:last-child { margin-top:auto; }
+.orbita#orbita-workspace .catalog-image-editor { border:0;padding:0;margin:0;min-width:0;display:grid;gap:12px; }
+.orbita#orbita-workspace .catalog-image-editor legend { font-size:14px;font-weight:600;margin-bottom:12px; }
+.orbita#orbita-workspace .catalog-image-preview { display:grid;place-items:center;position:relative;width:100%;height:180px;border-radius:12px;overflow:hidden;background:var(--surface);color:var(--muted); }
+.orbita#orbita-workspace .catalog-image-preview img { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--surface); }
+.orbita#orbita-workspace .catalog-image-preview img[hidden] { display:none; }
+.orbita#orbita-workspace .catalog-image-editor button { justify-self:start; }
+.orbita#orbita-workspace .catalog-image-editor input[type=file] { width:100%;min-width:0; }
+.orbita#orbita-workspace .catalog-image-editor input::file-selector-button { border:0;border-radius:999px;padding:8px 12px;background:var(--surface);color:var(--text);font:inherit;cursor:pointer;margin-right:10px; }
+
+.orbita#orbita-workspace .package-includes { list-style:none;padding:0;margin:0;display:grid;gap:12px;font-size:13px; }
+.orbita#orbita-workspace .package-includes li { display:grid;gap:3px;overflow-wrap:anywhere; }
+.orbita#orbita-workspace .package-includes small { color:var(--muted);font-size:12px; }
+.orbita#orbita-workspace .package-sessions-editor,.orbita#orbita-workspace .package-session-row { border:0;padding:0;margin:0;min-width:0;display:grid;gap:14px; }
+.orbita#orbita-workspace .package-sessions-editor > legend { font-size:15px;font-weight:600;margin-bottom:12px; }
+.orbita#orbita-workspace .package-session-row { padding-block:16px;border-bottom:1px solid var(--line); }
+.orbita#orbita-workspace .package-session-row legend { font-size:13px;color:var(--muted); }
+.orbita#orbita-workspace .package-session-row button,.orbita#orbita-workspace .package-sessions-editor > button { justify-self:start; }
+
+.orbita#orbita-workspace .payment-hold-note { padding:16px;border-radius:12px;background:var(--surface);display:grid;gap:8px; }
+.orbita#orbita-workspace .payment-hold-note p { margin:0;font-size:13px;line-height:1.6; }

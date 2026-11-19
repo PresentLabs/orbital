@@ -27,8 +27,8 @@ export function json(data: unknown, status = 200) {
 export function sameOrigin(ctx: APIContext) {
   return ctx.request.headers.get("origin") === publicOrigin(ctx);
 }
-function publicOrigin(ctx: APIContext) {
-  return setting(ctx, "ORBITAL_PUBLIC_ORIGIN").trim() || ctx.url.origin;
+export function publicOrigin(ctx: APIContext) {
+  return (setting(ctx, "ORBITA_PUBLIC_ORIGIN").trim() || setting(ctx, "ORBITAL_PUBLIC_ORIGIN").trim()) || ctx.url.origin;
 }
 export async function payload(
   ctx: APIContext,

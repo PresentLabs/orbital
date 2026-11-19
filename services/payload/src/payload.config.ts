@@ -1,3 +1,6 @@
+import { reservationEndpoints } from "./reservations/api.ts";
+import { ModuleGrants } from "./modules/grants.ts";
+import { isPlatformAccount, isPlatformAdmin, platformAdminEndpoints } from "./platform-admin.ts";
 import {ModuleInstallations, modulesEndpoints} from './modules/index.ts';
 import { isSealedCanvas, privateCanvasKey, sealCanvas, unsealCanvas } from "./private-canvas.ts";
 import {WorkspaceFolders} from './workspace-folders.ts';
@@ -5,6 +8,7 @@ import { Polls, PollVotes, pollsEndpoint, createPollEndpoint, votePollEndpoint }
 import {inviteMemberEndpoint,acceptInvitationEndpoint} from "./invitations.ts";
 import {validTaskWork,validLinks,boardTransitionError,sameWorkData} from "./work-management.ts";
 import {validPlanningPreferences,validSprints} from "./planning.ts";
+import {validBusinessPalette,validColumnNames} from "./ui-settings.ts";
 import {validDirectoryPreferences} from "./directory-preferences.ts";
 import {isStoreProvider, storeProviders, blockedStore, storeConflictMessage} from "./store-integrations.ts";
 import { normalizeDeletion } from "./retention.ts";
@@ -125,7 +129,7 @@ const Users: CollectionConfig = {
       type: "select",
       defaultValue: "member",
       options: [
-        { label: "Administrador", value: "owner" },
+        { label: "Propietario", value: "owner" },
         { label: "Administrador", value: "admin" },
         { label: "Editor", value: "editor" },
         { label: "Colaborador", value: "member" },
@@ -157,6 +161,12 @@ const Users: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeDelete: [
+      ({ id }) => {
+        if (isPlatformAccount({ id }))
+          throw new APIError("Retira el permiso global desde el servidor antes de eliminar esta cuenta.", 403);
+      },
+    ],
     beforeLogin: [
       ({ user }) => {
         if (user.disabled)
@@ -170,6 +180,10 @@ const Users: CollectionConfig = {
     beforeValidate: [
       ({ data, req, operation, originalDoc }) => {
         normalizeDeletion(data, originalDoc);
+        if (req.context?.platformManagement && isPlatformAdmin(req.user)) return data;
+        if (operation === "update" && isPlatformAccount(originalDoc) &&
+            String(originalDoc?.id) !== String(req.user?.id))
+          throw new APIError("Esta cuenta se gestiona desde la administración del SaaS.", 403);
         if (operation === "create" && req.user) {
           data!.workspace = workspaceId(req.user);
           data!.role = ["admin", "editor", "member", "viewer"].includes(
@@ -205,6 +219,15 @@ const Workspaces: CollectionConfig = {
   },
   fields: [
     { name: "name", type: "text", required: true },
+    {
+      name: "nextPaymentAt", type: "date",
+      access: { create: () => false, update: () => false, read: ({ req }) => isPlatformAdmin(req.user) },
+    },
+    {
+      name: "billingStatus", type: "text", defaultValue: "trial",
+      validate: (value: any) => !value || ["trial", "active", "past_due", "canceled"].includes(value) || "Estado no válido.",
+      access: { create: () => false, update: () => false, read: ({ req }) => isPlatformAdmin(req.user) },
+    },
     {
       name: "plan",
       type: "select",
@@ -328,6 +351,7 @@ const Documents: CollectionConfig = {
           throw new APIError("No puedes modificar esta sección.", 403);
         if (key.startsWith("boards:") && !validSprints(data?.value?.sprints)) throw new APIError("Sprint no válido.",400);
         if(key.startsWith("boards:")) {
+          if(!validColumnNames(data?.value?.columnNames))throw new APIError("Revisa los nombres de las columnas.",400);
           const error=boardTransitionError(previousValue?.work,data?.value?.work);
           if(error)throw new APIError(error,400);
           if(previousValue?.sprints && !sameWorkData(previousValue.sprints,data?.value?.sprints))throw new APIError("Conserva el historial anterior de ciclos.",400);
@@ -373,7 +397,7 @@ const Documents: CollectionConfig = {
             (data.value.showMoney !== undefined &&
               typeof data.value.showMoney !== "boolean") ||
             (data.value.taskMode !== undefined &&
-              !["board", "list"].includes(data.value.taskMode))
+              !["board", "list", "timeline"].includes(data.value.taskMode))
           )
             throw new APIError("Preferencias no válidas.", 400);
           if (
@@ -407,6 +431,7 @@ const Documents: CollectionConfig = {
             previousValue?.createdBy || String(req.user!.id);
         }
         if (key === "settings" && data?.value) {
+          if(!validBusinessPalette(data.value.palette))throw new APIError("Revisa los colores y el contraste del texto en ambos temas.",400);
           if (
             (data.value.phone && !validPhone(data.value.phone)) ||
             (data.value.socialLinks &&
@@ -637,10 +662,11 @@ export default buildConfig({
     pool: { connectionString: process.env.DATABASE_URL },
     push: process.env.NODE_ENV !== "production",
     // The fiscal ledger is managed by explicit, non-destructive SQL migrations.
-    tablesFilter: ["!billing_*"],
+    tablesFilter: ["!billing_*", "!reservation_*", "!module_grant_events"],
   }),
   collections: [
     ModuleInstallations,
+    ModuleGrants,
     Users,
     Workspaces,
     Documents,
@@ -657,19 +683,35 @@ export default buildConfig({
   typescript: { outputFile: "src/payload-types.ts" },
   endpoints: [
     ...modulesEndpoints,
+    ...reservationEndpoints,
+    ...platformAdminEndpoints,
     inviteMemberEndpoint,acceptInvitationEndpoint,
     {
       path: "/branding",
       method: "get",
       handler: async (req) => {
-        if (!req.user || req.user.disabled)
-          return Response.json({ error: "Inicia sesión." }, { status: 401 });
+        const authenticated = !!req.user && !req.user.disabled;
+        const url = new URL(req.url!);
+        const business = url.searchParams.get("workspace");
+        let workspace = authenticated ? workspaceId(req.user) : undefined;
+        let workspaceName: string | undefined;
+        if (!authenticated && business && /^\d+$/.test(business)) {
+          const result = await req.payload.find({
+            collection: "workspaces",
+            where: { id: { equals: Number(business) } },
+            limit: 1, depth: 0, overrideAccess: true, req,
+          });
+          workspace = result.docs[0]?.id;
+          workspaceName = result.docs[0]?.name;
+        }
+        if (!workspace) return Response.json({});
         const result = await req.payload.find({
           collection: "documents",
           where: {
             and: [
-              { workspace: { equals: workspaceId(req.user) } },
+              { workspace: { equals: workspace } },
               { key: { equals: "settings" } },
+              { deletedAt: { exists: false } },
             ],
           },
           limit: 1,
@@ -679,10 +721,9 @@ export default buildConfig({
         });
         const value = jsonRecord(result.docs[0]?.value);
         return Response.json({
-          name: value.name,
-          logoData: value.logoData,
-          currency: value.currency,
-          timezone: value.timezone,
+          name: value.name || workspaceName,
+          logoData: validLogo(value.logoData) ? value.logoData : undefined,
+          ...(authenticated ? { currency: value.currency, timezone: value.timezone, palette: validBusinessPalette(value.palette) ? value.palette : undefined } : {}),
         });
       },
     },

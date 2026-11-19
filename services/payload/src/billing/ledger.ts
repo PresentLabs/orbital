@@ -82,7 +82,7 @@ export async function transaction<T>(
 }
 export async function settings(tenant: number): Promise<Settings> {
   const r = await pool.query(
-    "SELECT credentials FROM module_installations WHERE workspace_id=$1 AND module_id='billing-cl' AND enabled=true",
+    "SELECT i.credentials FROM module_installations i JOIN module_grants g ON g.workspace_id=i.workspace_id AND g.module_id=i.module_id AND g.enabled=true WHERE i.workspace_id=$1 AND i.module_id='billing-cl' AND i.enabled=true",
     [tenant],
   );
   if (!r.rows[0])

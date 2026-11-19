@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-18",
+  "scope": "Tres tandas recientes de anotaciones UI y dos elipsis del perfil",
+  "annotations": [
+    {
+      "id": "A01",
+      "request": "Inicio sin padding superior en escritorio",
+      "status": "verificado"
+    },
+    {
+      "id": "A02",
+      "request": "Aviso de guardado oculto en encabezado",
+      "status": "verificado"
+    },
+    {
+      "id": "A03",
+      "request": "Texto e iconos del perfil alineados a la izquierda",
+      "status": "verificado"
+    },
+    {
+      "id": "A04",
+      "request": "Buscador de Accesos con superficie uniforme en sus esquinas",
+      "status": "verificado"
+    },
+    {
+      "id": "A05",
+      "request": "Clientes preparados para WooCommerce, Shopify y Payload; conexiones reales aplazadas por el usuario",
+      "status": "verificado"
+    },
+    {
+      "id": "A06",
+      "request": "Separación idéntica entre buscador, navegación y bloque inferior",
+      "status": "verificado"
+    },
+    {
+      "id": "B01",
+      "request": "Texto del área privada alineado exactamente y con line-height 1.4",
+      "status": "verificado"
+    },
+    {
+      "id": "B02",
+      "request": "Acceso SaaS con color principal y texto/icono blancos; contraste legible en oscuro",
+      "status": "verificado"
+    },
+    {
+      "id": "B03",
+      "request": "Paneles de edición sin esquinas redondeadas",
+      "status": "verificado"
+    },
+    {
+      "id": "B04",
+      "request": "Título de módulo lateral más grande",
+      "status": "verificado"
+    },
+    {
+      "id": "B05",
+      "request": "Módulo actual principal y sin outline/halo de foco en botones/campos",
+      "status": "verificado"
+    },
+    {
+      "id": "B06",
+      "request": "Equipo, como padre anidado, sin negrita",
+      "status": "verificado"
+    },
+    {
+      "id": "B07",
+      "request": "Botones superiores con menos padding vertical y más lateral",
+      "status": "verificado"
+    },
+    {
+      "id": "B08",
+      "request": "Categorías agrupadas en jerarquía real de listas",
+      "status": "verificado"
+    },
+    {
+      "id": "B09",
+      "request": "Buscador in situ con velo y resultados a la derecha; debajo en móvil",
+      "status": "verificado"
+    },
+    {
+      "id": "B10",
+      "request": "Aviso de tienda pastel y sin borde",
+      "status": "verificado"
+    },
+    {
+      "id": "B11",
+      "request": "Título del aviso más grande y menor separación",
+      "status": "verificado"
+    },
+    {
+      "id": "B12",
+      "request": "Acción del aviso diferenciada del resto de botones secundarios",
+      "status": "verificado"
+    },
+    {
+      "id": "B13",
+      "request": "Agenda de hoy con fondo propio y contraste",
+      "status": "verificado"
+    },
+    {
+      "id": "B14",
+      "request": "Selector de creación más estrecho (máximo 30rem)",
+      "status": "verificado"
+    },
+    {
+      "id": "B15",
+      "request": "Tres estilos de botón configurables: principal, secundario y contorno",
+      "status": "verificado"
+    },
+    {
+      "id": "B16",
+      "request": "Apariencia reorganizada con muestras, campos de color y vista previa",
+      "status": "verificado"
+    },
+    {
+      "id": "C01",
+      "request": "Próximas atenciones destacada sobre las tarjetas secundarias",
+      "status": "verificado"
+    },
+    {
+      "id": "C02",
+      "request": "Detalle de hora con resumen, estado, fecha, importe, extras, datos e historial agrupados",
+      "status": "verificado"
+    },
+    {
+      "id": "C03",
+      "request": "Estado de personas en píldora",
+      "status": "verificado"
+    },
+    {
+      "id": "C04",
+      "request": "Orden Inicio/Tienda/Empresa/Proyecto/Agendamiento/Contabilidad",
+      "status": "verificado"
+    },
+    {
+      "id": "C05",
+      "request": "Leyenda de vista previa del gráfico con tamaño reducido",
+      "status": "verificado"
+    },
+    {
+      "id": "C06",
+      "request": "Agregar objetivo sin fondo y con contorno",
+      "status": "verificado"
+    },
+    {
+      "id": "C07",
+      "request": "Submenús más compactos, con línea vertical e indentación",
+      "status": "verificado"
+    },
+    {
+      "id": "C08",
+      "request": "Cabeceras de tablas con fondo pastel",
+      "status": "verificado"
+    },
+    {
+      "id": "C09",
+      "request": "Agenda de hoy y próximas atenciones con 50% cada una y altura igual",
+      "status": "verificado"
+    },
+    {
+      "id": "C10",
+      "request": "Rankings con posición, cifras y barras legibles basadas en datos reales",
+      "status": "verificado"
+    },
+    {
+      "id": "C11",
+      "request": "Logo SVG entregado con letras convertidas a trazados",
+      "status": "verificado"
+    },
+    {
+      "id": "C12",
+      "request": "Movimiento de agenda ocupa todo el ancho",
+      "status": "verificado"
+    },
+    {
+      "id": "C13",
+      "request": "Mi cuenta tiene icono",
+      "status": "verificado"
+    },
+    {
+      "id": "C14",
+      "request": "Clientes de Agendamiento en tabla con sus acciones existentes",
+      "status": "verificado"
+    },
+    {
+      "id": "C15",
+      "request": "Módulos abren la primera página autorizada; rutas jerárquicas y enlaces antiguos compatibles",
+      "status": "verificado"
+    },
+    {
+      "id": "C16",
+      "request": "Navegación lateral con mayor padding horizontal",
+      "status": "verificado"
+    },
+    {
+      "id": "D01",
+      "request": "Nombre del perfil en una sola línea, con elipsis si no cabe",
+      "status": "verificado"
+    },
+    {
+      "id": "D02",
+      "request": "Rol del perfil en una sola línea, con elipsis si no cabe",
+      "status": "verificado"
+    }
+  ],
+  "profile": {
+    "profile": [
+      {
+        "selector": "#profile-name",
+        "text": "Hola, Administrador",
+        "whiteSpace": "nowrap",
+        "overflow": "hidden",
+        "ellipsis": "ellipsis",
+        "height": 16.796875,
+        "lineHeight": 16.8,
+        "width": 112,
+        "scrollWidth": 117,
+        "title": "Hola, Administrador"
+      },
+      {
+        "selector": "#profile-role",
+        "text": "Administrador · demo",
+        "whiteSpace": "nowrap",
+        "overflow": "hidden",
+        "ellipsis": "ellipsis",
+        "height": 16.796875,
+        "lineHeight": 16.8,
+        "width": 112,
+        "scrollWidth": 116,
+        "title": "Administrador · demo"
+      }
+    ],
+    "longNamesTruncate": true,
+    "mobileOverflow": 0,
+    "facts": {
+      "privateLeft": 50,
+      "labelLeft": 50,
+      "lineHeight": 1.4000000000000001,
+      "outline": "0px",
+      "shadow": "none",
+      "topPadding": "8px",
+      "parentSize": "16px"
+    },
+    "darkSaaSContrast": 5.132275375178374,
+    "profileIcon": true,
+    "noPreferenceTooltips": true,
+    "consoleErrors": []
+  },
+  "dashboardAndRoutes": {
+    "layout": {
+      "today": 393.5,
+      "upcoming": 393.5,
+      "top": [
+        233.28125,
+        233.28125
+      ],
+      "height": [
+        359.53125,
+        359.53125
+      ],
+      "chart": 807,
+      "chartParent": 807
+    },
+    "order": [
+      "Inicio",
+      "Tienda",
+      "Empresa",
+      "Proyecto",
+      "Agendamiento",
+      "Contabilidad"
+    ],
+    "customerTable": true,
+    "detail": true,
+    "moduleLandingReset": true,
+    "canonicalChildRoutes": true,
+    "legacyRoutesSupported": true,
+    "logoTextIsPaths": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "searchPaletteHierarchy": {
+    "search": {
+      "inputX": 24,
+      "inputY": 96,
+      "originalX": 24,
+      "originalY": 96,
+      "resultsX": 240,
+      "inputRight": 224
+    },
+    "drawer": {
+      "width": 480,
+      "radius": "0px"
+    },
+    "categoryHierarchy": true,
+    "sevenPaletteColors": true,
+    "secondarySaved": true,
+    "outlineButton": true,
+    "mobileOverflow": 0,
+    "consoleErrors": []
+  },
+  "frontendTests": 77,
+  "backendTests": 86,
+  "typescript": "passed",
+  "build": "passed",
+  "realStoreConnections": "deferred by user",
+  "protectedSpace": "unchanged, geometry comparison passed",
+  "productionChanged": false
+}

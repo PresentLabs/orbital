@@ -1,0 +1,47 @@
+{
+  "company": [
+    "Documentos",
+    "Accesos",
+    "Equipo",
+    "Votaciones"
+  ],
+  "schedulingDemoVisible": true,
+  "demoReservationRequests": 0,
+  "realApiStillRequiresLogin": 401,
+  "transitions": [
+    {
+      "duration": 260,
+      "frames": [
+        {
+          "opacity": "0.65",
+          "translate": "0px 0.625rem"
+        },
+        {
+          "opacity": "1",
+          "translate": "none"
+        }
+      ]
+    }
+  ],
+  "reducedMotion": true,
+  "privateOnlyDividerHidden": true,
+  "accountingDesigned": true,
+  "mobileOverflow": 0,
+  "consoleErrors": [],
+  "date": "2026-11-18",
+  "timezone": "America/Santiago",
+  "requestedReview": "Solicitudes de interfaz de hoy desde las 15:00; revisión ampliada a las tandas anteriores disponibles en el chat",
+  "frontendTests": 78,
+  "backendTestsPreviouslyPassing": 86,
+  "typescript": "passed",
+  "build": "passed",
+  "previousChecks": {
+    "dashboardRoutes": "PASS dashboard proportions, module order and landings, child routes, customer table, detail and flat SVG",
+    "styling": "PASS SaaS colors, parent hierarchy, tab padding, notice, focus, nested team",
+    "paletteSearch": "PASS hierarchy, in-place search, compact square drawers, persisted button colors and dark/mobile",
+    "protectedSpace": "PASS protected Space geometry, colors and controls unchanged",
+    "profile": "PASS profile single lines and ellipsis, private alignment, focus removal, menu icon and dark contrast"
+  },
+  "externalStores": "aplazadas expresamente por el usuario",
+  "productionChanged": false
+}

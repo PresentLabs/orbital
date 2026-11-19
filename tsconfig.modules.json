@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/scripts/platform-admin.ts", "src/scripts/workspace-project-calendar.ts", "src/scripts/date-pointer.ts", "src/scripts/workspace-billing.ts", "src/scripts/workspace-reservations.ts"],
+  "exclude": ["node_modules"]
+}

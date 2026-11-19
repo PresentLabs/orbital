@@ -1,0 +1,56 @@
+{
+  "desktop": {
+    "first": "panel scheduling-today",
+    "eyebrows": 0,
+    "radius": "999px",
+    "border": "0px",
+    "save": "16px",
+    "rem": "16px",
+    "main": [
+      371,
+      371
+    ],
+    "ranking": [
+      206,
+      206
+    ],
+    "overflow": 0,
+    "line": true,
+    "bars": 0
+  },
+  "table": {
+    "badges": 38,
+    "actions": 38,
+    "rows": 38
+  },
+  "team": {
+    "tag": "UL",
+    "radius": "12px",
+    "background": "rgb(41, 44, 53)",
+    "offset": 0
+  },
+  "overview": {
+    "radius": "999px",
+    "border": "0px",
+    "overflow": 0
+  },
+  "consoleErrors": [],
+  "mobileOverflow": 0,
+  "date": "2026-11-18",
+  "environment": "Navegador headless aislado, perfil temporal, PostgreSQL local y datos ficticios. Sin cambios en producción.",
+  "checks": {
+    "desktopAndMobileLightDark": true,
+    "chartPointInspectionAnd30DayFilter": true,
+    "orderTableStatusAndActionClasses": true,
+    "closedBookingDetail": true,
+    "cancellationReasonStoredAndHistoryDisplayed": true,
+    "professionalDailyLimitFormSaved": true,
+    "customerFutureLimitControlPresent": true,
+    "saasPanelBorderlessAndRounded": true
+  },
+  "tests": {
+    "frontend": 73,
+    "backend": 75,
+    "postgresIntegration": "passed, including concurrent customer quota and past-to-future rescheduling limit"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "agenda": {
+    "titleBottom": "0px",
+    "subtitleTop": "0px",
+    "pill": "10px",
+    "copyGap": "2px",
+    "buttonRight": 0,
+    "buttonBg": "rgba(255, 255, 255, 0.157)",
+    "rightInset": "12px",
+    "bottomInset": "14px"
+  },
+  "profile": {
+    "border": "1px",
+    "borderColor": "rgb(255, 255, 255)",
+    "topRadius": "0px",
+    "avatar": "rgb(255, 255, 255)"
+  },
+  "billing": {
+    "bottom": 28,
+    "topPadding": 28,
+    "summary": "none"
+  },
+  "admin": {
+    "sidebarWidth": 224,
+    "mainLeft": 224,
+    "columns": 2,
+    "border": "0px",
+    "renewal": "Próximo vencimientoSin fecha asignada",
+    "renewals": 25,
+    "cards": 25
+  },
+  "overflowRegions": [
+    "today",
+    "upcoming",
+    "my-day"
+  ],
+  "pagination": true,
+  "mobileOverflow": 0,
+  "consoleErrors": []
+}
