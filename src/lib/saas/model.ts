@@ -53,6 +53,7 @@ export interface CanvasNode {
   attachedTo?: string;
   metric?: "sales" | "orders" | "seo" | "carts";
   cloudAuthor?: string;
+  calculation?: boolean;
   id: string;
   space: string;
   kind: "note" | "page" | "tasks" | "sales" | "image";
@@ -88,6 +89,7 @@ export interface Page {
   updated: string;
 }
 export interface CalendarEvent {
+  allDay?: boolean;
   endDate?: string;
   endTime?: string;
   meetUrl?: string;
@@ -537,6 +539,7 @@ export function validateState(value: unknown): value is WorkspaceState {
           (n.metric === undefined || (n.kind === "sales" && ["sales", "orders", "seo", "carts"].includes(n.metric))) &&
           (n.attachedTo === undefined || (n.kind === "note" && id(n.attachedTo) && n.attachedTo !== n.id)) &&
           (n.cloudAuthor === undefined || text(n.cloudAuthor,80)) &&
+          (n.calculation === undefined || (typeof n.calculation === "boolean" && n.kind === "page" && !n.pageId && !n.spatial)) &&
           (n.noteColor === undefined || (n.kind === "note" && isNoteColor(n.noteColor))) &&
           id(n.space) &&
           (n.borderStyle === undefined ||

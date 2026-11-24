@@ -36,7 +36,7 @@ const { title = "Vista general" } = Astro.props;
     /><meta name="robots" content="noindex,nofollow" /><meta
       name="theme-color"
       content="#ffffff"
-    /><title>{title} · Órbita</title><meta
+    /><title>{title} · Orbital</title><meta
       name="description"
       content="Tu negocio, tus ideas y tu equipo. Un solo espacio para hacerlo crecer."
     /></head
@@ -44,10 +44,12 @@ const { title = "Vista general" } = Astro.props;
   <body id="orbita-workspace" class="orbita" data-enabled-modules={JSON.stringify(enabledModules)} data-workspace-user={session ? JSON.stringify(session) : undefined}
     data-branding={branding ? JSON.stringify({ currency: branding.currency, timezone: branding.timezone, palette: branding.palette }) : undefined}
     ><a class="skip-workspace" href="#workspace-main">Ir al contenido</a>
-    <aside class="sidebar" id="sidebar">
-      <a href="/app" class="brand" aria-label={logo ? business : "Órbita"}>
+    <button class="sidebar-veil" aria-label="Cerrar navegación" tabindex="-1"></button>
+    <aside class="sidebar" id="sidebar" aria-label="Navegación del negocio">
+      <div class="mobile-nav-heading"><a class="mobile-nav-brand" href={demo ? "/app?demo=1" : "/app"} aria-label={logo ? business : "Orbital"}>{logo ? <img src={logo} alt={business}/> : <><span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>orbital</strong></>}</a><button class="icon-btn" data-action="menu" aria-label="Cerrar navegación">×</button></div>
+      <a href="/app" class="brand" aria-label={logo ? business : "Orbital"}>
         {logo ? <img src={logo} alt={business} class="business-logo" /> :
-          (!user || branding) && <><span class="brand-symbol">✳</span> órbita<span class="brand-period">®</span></>}
+          (!user || branding) && <><span class="brand-symbol">✳</span> orbital<span class="brand-period">®</span></>}
       </a>
       <button class="sidebar-search" data-action="search" aria-label="Buscar en el negocio" title="Buscar (⌘ K)"
         ><Icon name="search" size={17} /><span>Buscar</span><kbd
@@ -58,19 +60,21 @@ const { title = "Vista general" } = Astro.props;
 <nav aria-label="Navegación principal">
         <button class="nav-item" data-view="overview"><Icon name="home" size={19}/><span>Vista general</span></button>
         <div id="store-navigation">
-          <div class="nav-item navigation-parent module-heading">Tienda</div>
+          <button type="button" class="nav-item navigation-parent module-heading" data-action="toggle-store" aria-controls="store-submenu" aria-expanded="false">Tienda<span class="nav-chevron" aria-hidden="true">⌄</span></button>
           <div id="store-submenu" class="store-submenu" hidden>
             <button data-view="analytics">Métricas</button><button data-view="orders">Pedidos</button><button data-view="invoices">Facturas y boletas</button><button data-view="customers">Clientes</button>
           </div>
         </div>
-        {enabledModules.includes("reservations") && (demo || canView(user, "calendar")) && <div id="scheduling-navigation">
-          <div class="nav-item navigation-parent module-heading">Agendamiento</div>
-          <div id="scheduling-submenu" class="store-submenu navigation-submenu" hidden>
-            {schedulingSections.filter((section) => !("admin" in section) || demo || isAdmin(user)).map((section) => <button data-scheduling-section={section.id}>{section.label}</button>)}
+        <div id="company-navigation">
+          <button type="button" class="nav-item navigation-parent module-heading" data-action="toggle-company" aria-controls="company-submenu" aria-expanded="false">Empresa<span class="nav-chevron" aria-hidden="true">⌄</span></button>
+          <div id="company-submenu" class="store-submenu navigation-submenu" hidden>
+            <button class="nav-item" data-view="documents"><span>Documentos</span></button>
+            <button class="nav-item" data-view="vault"><span>Accesos</span></button>
+            <button class="nav-item" data-view="team"><span>Equipo</span></button><button class="nav-item" data-view="polls"><span>Votaciones</span></button>
           </div>
-        </div>}
+        </div>
         <div id="creative-navigation">
-          <div class="nav-item navigation-parent module-heading">Proyecto</div>
+          <button type="button" class="nav-item navigation-parent module-heading" data-action="toggle-creative" aria-controls="creative-submenu" aria-expanded="false">Proyecto<span class="nav-chevron" aria-hidden="true">⌄</span></button>
           <div id="creative-submenu" class="store-submenu navigation-submenu" hidden>
             <button class="nav-item" title="Conecta ideas en un lienzo" data-view="canvas"><span>Espacios</span></button>
             <button class="nav-item" title="Organiza acciones y pendientes" data-view="tasks"><span>Tareas</span><span id="task-count" class="nav-count">5</span></button>
@@ -79,15 +83,13 @@ const { title = "Vista general" } = Astro.props;
             <button class="nav-item" data-view="files"><span>Archivos</span></button>
           </div>
         </div>
-        <div id="company-navigation">
-          <div class="nav-item navigation-parent module-heading">Empresa</div>
-          <div id="company-submenu" class="store-submenu navigation-submenu" hidden>
-            <button class="nav-item" data-view="documents"><span>Documentos</span></button>
-            <button class="nav-item" data-view="vault"><span>Accesos</span></button>
-            <button class="nav-item" data-view="team"><span>Equipo</span></button><button class="nav-item" data-view="polls"><span>Votaciones</span></button>
+        {enabledModules.includes("reservations") && (demo || canView(user, "calendar")) && <div id="scheduling-navigation">
+          <button type="button" class="nav-item navigation-parent module-heading" data-action="toggle-scheduling" aria-controls="scheduling-submenu" aria-expanded="false">Agendamiento<span class="nav-chevron" aria-hidden="true">⌄</span></button>
+          <div id="scheduling-submenu" class="store-submenu navigation-submenu" hidden>
+            {schedulingSections.filter((section) => !("admin" in section) || demo || isAdmin(user)).map((section) => <button data-scheduling-section={section.id}>{section.label}</button>)}
           </div>
-        </div>
-      </nav>
+        </div>}
+      <button class="nav-item mobile-accounting" data-view="accounting">Contabilidad</button></nav>
       <div class="sidebar-divider"></div><div class="nav-label space-label">
         <button class="private-index-link" data-action="private-home">MI ÁREA PRIVADA</button><button aria-label="Agregar a mi área privada" data-action="private-create"
           ><Icon name="plus" size={14} /></button>
@@ -101,7 +103,7 @@ const { title = "Vista general" } = Astro.props;
           >
             Grandes ideas. Posibilidades infinitas.
           </p><button data-action="plan"
-            >Conoce Órbita Pro <span>↗</span></button>
+            >Conoce Orbital Pro <span>↗</span></button>
         </div><button class="profile" data-action="profile"
           ><span class="avatar my-avatar" id="profile-avatar">CD</span><span
             ><strong id="profile-name">Hola</strong><small
@@ -112,7 +114,7 @@ const { title = "Vista general" } = Astro.props;
     </aside>
     <div class="app-shell">
       <header class="topbar">
-        <a class="header-identity" href="/app" aria-label={business}>{logo ? <img src={logo} alt={business}/> : <><span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>órbita</strong></>}</a>
+        <a class="header-identity" href="/app" aria-label={logo ? business : "Orbital"}>{logo ? <img src={logo} alt={business}/> : <><span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>orbital</strong></>}</a>
         <nav class="topbar-context" aria-label="Módulos"><button data-shell-module="general">Inicio</button><button data-shell-module="store">Tienda</button><button data-shell-module="company">Empresa</button><button data-shell-module="creative">Proyecto</button><button data-shell-module="scheduling">Agendamiento</button><button data-shell-module="accounting">Contabilidad</button></nav>
         <div class="breadcrumbs">
           <button
@@ -132,7 +134,7 @@ const { title = "Vista general" } = Astro.props;
           ><span class="top-divider"></span><button class="avatar my-avatar small" popovertarget="profile-menu" aria-label="Mi cuenta"
             >CD</button>
         </div>
-      <div id="profile-menu" class="profile-menu" popover="auto"><button data-view="profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg><span>Mi cuenta</span></button><button class="profile-preference" type="button" data-theme-toggle aria-label="Cambiar a modo oscuro"><Icon name="sun" size={17}/><span class="preference-label"></span></button><button class="profile-preference" id="money-visibility" type="button" data-money-toggle aria-label="Mostrar montos"><Icon name="percent" size={17}/><span class="preference-label"></span></button></div>
+      <div id="profile-menu" class="profile-menu" popover="auto"><button data-view="profile"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-2a8 8 0 0 1 16 0v2"/></svg><span>Mi cuenta</span></button><button class="profile-preference" type="button" data-theme-toggle aria-label="Cambiar a modo oscuro"><Icon name="sun" size={17}/><span class="preference-label"></span></button><button class="profile-preference" id="money-visibility" type="button" data-money-toggle aria-label="Mostrar montos"><Icon name="percent" size={17}/><span class="preference-label"></span></button><button type="button" class="profile-logout" data-action="logout-person"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M10 4H4v16h6M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button></div>
       </header>
       {user && <p id="workspace-loading" role="status">Cargando tu espacio de trabajo…</p>}
       <main id="workspace-main" tabindex="-1" hidden={!!user}><slot /></main>
@@ -140,7 +142,7 @@ const { title = "Vista general" } = Astro.props;
         <span
           ><span class="status-dot"></span>Tu negocio, organizado a tu manera.</span
         ><span
-          >Órbita · Tu espacio de trabajo <span class="footer-star">✳</span></span>
+          >Orbital · Tu espacio de trabajo <span class="footer-star">✳</span></span>
       </footer>
     </div>
     <dialog id="editor-dialog" class="editor-dialog">

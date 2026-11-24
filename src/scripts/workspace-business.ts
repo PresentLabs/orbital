@@ -10,7 +10,7 @@ import { matchesSearch, type SearchEntry } from "@/lib/saas/search";
 import { validSocialLinks } from "../../services/payload/src/ecommerce";
 import { demoPath, settingRoutes } from "@/lib/saas/routes";
 import { orderDetails } from "@/lib/saas/order-details";
-import { mountPdf } from "@/lib/saas/pdf-viewer";
+import { firstPageThumbnail, mountPdf } from "@/lib/saas/pdf-viewer";
 import {
   uid,
   type WorkspaceState,
@@ -189,17 +189,23 @@ export function installBusiness(ctx: Ctx) {
     customer_note: "",
   }));
   function brand() {
-    const identity=document.querySelector<HTMLElement>(".header-identity");
-    if(identity){const image=pendingLogo ?? ctx.state().settings.logoData;identity.innerHTML=image && validLogo(image)?`<img src="${esc(image)}" alt="${esc(ctx.state().settings.name)}"/>`:`<span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>órbita</strong>`;}
     const logo = pendingLogo ?? ctx.state().settings.logoData;
+    const businessName = ctx.state().settings.name;
+    for (const identity of document.querySelectorAll(".header-identity,.mobile-nav-brand")) {
+      const customLogo = logo && validLogo(logo);
+      identity.setAttribute("aria-label", customLogo ? businessName : "Orbital");
+      identity.innerHTML = customLogo
+        ? `<img src="${esc(logo)}" alt="${esc(businessName)}"/>`
+        : '<span class="header-orbit-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"><path d="M12 2v20M2 12h20M5 5l14 14M5 19 19 5"/></svg></span><strong>orbital</strong>';
+    }
     const element = $<HTMLAnchorElement>(".brand");
     if (logo && validLogo(logo)) {
       element.innerHTML = `<img src="${esc(logo)}" alt="${esc(ctx.state().settings.name)}" class="business-logo"/>`;
       element.setAttribute("aria-label", ctx.state().settings.name);
     } else {
       element.innerHTML =
-        '<span class="brand-symbol">✳</span> órbita<span class="brand-period">®</span>';
-      element.setAttribute("aria-label", "Órbita");
+        '<span class="brand-symbol">✳</span> orbital<span class="brand-period">®</span>';
+      element.setAttribute("aria-label", "Orbital");
     }
     $("#profile-name").textContent =
       "Hola, " + (ctx.actor().firstName || ctx.actor().name.split(" ")[0]);
@@ -590,6 +596,32 @@ export function installBusiness(ctx: Ctx) {
     catch { return "grid"; }
   }
   let temporaryDocumentView: "grid" | "list" | undefined;
+  const documentThumbnails = new WeakMap<FileDoc, Promise<string | null>>();
+  const previewFiles = new WeakMap<Element, FileDoc>();
+  const thumbnailObserver = new IntersectionObserver((entries) => {
+    for (const { target, isIntersecting } of entries) {
+      if (!isIntersecting) continue;
+      thumbnailObserver.unobserve(target);
+      const file = previewFiles.get(target);
+      if (!file || !target.isConnected) continue;
+      let thumbnail = documentThumbnails.get(file);
+      if (!thumbnail) {
+        thumbnail = fileBlob(file.id).then(({ blob }) => firstPageThumbnail(blob)).catch(() => {
+          documentThumbnails.delete(file);
+          return null;
+        });
+        documentThumbnails.set(file, thumbnail);
+      }
+      void thumbnail.then((src) => {
+        if (!src || !target.isConnected) return;
+        const image = document.createElement("img");
+        image.alt = "";
+        image.src = src;
+        target.replaceChildren(image);
+        target.classList.add("has-thumbnail");
+      });
+    }
+  });
   function drawDocuments() {
     const total = filteredDocuments().length, size = documentPageSize(), pages = Math.max(1, Math.ceil(total / size));
     documentPage = Math.max(1, Math.min(documentPage, pages));
@@ -602,14 +634,22 @@ export function installBusiness(ctx: Ctx) {
       button.classList.toggle("active", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
+    const files = visibleDocuments();
+    thumbnailObserver.disconnect();
     $("#document-grid").innerHTML =
-      visibleDocuments()
+      files
         .map(
           (f) =>
-            `<article class="file-card"><label class="document-selection"><input type="checkbox" data-select-document="${esc(f.id)}" aria-label="Seleccionar ${esc(f.title)}" ${selectedDocuments.has(f.id) ? "checked" : ""} ${zipBusy ? "disabled" : ""}/><span>Seleccionar</span></label><button class="file-preview" data-open-document="${esc(f.id)}"><span class="file-type ${f.mime.startsWith("image/") ? "image" : ""}">${f.mime === "application/pdf" ? "PDF" : f.mime.startsWith("image/") ? "IMG" : "TXT"}</span><span class="file-lines"></span></button><div class="file-card-info"><h2>${esc(f.title)}</h2><p>${esc(f.filename)} · ${Math.max(1, Math.round(f.size / 1024))} KB</p><div><button class="button primary directory-action-button" data-open-document="${esc(f.id)}">Ver documento</button><button class="icon-btn" data-download-document="${esc(f.id)}" aria-label="Descargar ${esc(f.title)}">↓</button></div></div></article>`,
+            `<article class="file-card"><label class="document-selection"><input type="checkbox" data-select-document="${esc(f.id)}" aria-label="Seleccionar ${esc(f.title)}" ${selectedDocuments.has(f.id) ? "checked" : ""} ${zipBusy ? "disabled" : ""}/><span>Seleccionar</span></label><button class="file-preview" data-open-document="${esc(f.id)}" aria-label="Ver vista previa de ${esc(f.title)}"><span class="file-type ${f.mime.startsWith("image/") ? "image" : ""}">${f.mime === "application/pdf" ? "PDF" : f.mime.startsWith("image/") ? "IMG" : "TXT"}</span><span class="file-lines"></span></button><div class="file-card-info"><h2>${esc(f.title)}</h2><p>${esc(f.filename)} · ${Math.max(1, Math.round(f.size / 1024))} KB</p><div><button class="button primary directory-action-button" data-open-document="${esc(f.id)}">Ver documento</button><button class="icon-btn" data-download-document="${esc(f.id)}" aria-label="Descargar ${esc(f.title)}">↓</button></div></div></article>`,
         )
         .join("") ||
       '<div class="empty-state">No encontramos documentos con ese nombre.</div>';
+    $("#document-grid").querySelectorAll(".file-preview").forEach((preview, index) => {
+      const file = files[index];
+      if (file.mime !== "application/pdf") return;
+      previewFiles.set(preview, file);
+      thumbnailObserver.observe(preview);
+    });
     updateDocumentSelection();
   }
   document.querySelectorAll<HTMLButtonElement>("[data-document-view]").forEach(button => {
@@ -782,7 +822,7 @@ export function installBusiness(ctx: Ctx) {
       return;
     }
     ctx.modal(
-      `<h2>${receiptUpload ? "Subir comprobante" : "Subir documento"}</h2><p>${esc(file.name)} · ${Math.max(1, Math.round(file.size / 1024))} KB</p><form id="upload-file-form"><label>Título<input name="title" required maxlength="160" value="${esc(file.name.replace(/\.[^.]+$/, ""))}"/></label><label>Tipo<select name="kind" id="upload-file-kind"><option value="documento" ${!receiptUpload ? "selected" : ""}>Documento</option><option value="factura">Factura</option><option value="boleta" ${receiptUpload ? "selected" : ""}>Boleta</option></select></label><div id="receipt-fields"><label>Pedido asociado<input name="orderId" type="number" min="1" placeholder="Número de pedido"/></label><label>Folio<input name="folio" maxlength="80" placeholder="Folio del comprobante emitido"/></label></div><p class="field-hint">Sube un comprobante emitido por tu facturador. Órbita lo guarda, no lo emite.</p><p id="upload-error" class="form-error" role="alert"></p><button class="button primary">Guardar archivo</button></form>`,
+      `<h2>${receiptUpload ? "Subir comprobante" : "Subir documento"}</h2><p>${esc(file.name)} · ${Math.max(1, Math.round(file.size / 1024))} KB</p><form id="upload-file-form"><label>Título<input name="title" required maxlength="160" value="${esc(file.name.replace(/\.[^.]+$/, ""))}"/></label><label>Tipo<select name="kind" id="upload-file-kind"><option value="documento" ${!receiptUpload ? "selected" : ""}>Documento</option><option value="factura">Factura</option><option value="boleta" ${receiptUpload ? "selected" : ""}>Boleta</option></select></label><div id="receipt-fields"><label>Pedido asociado<input name="orderId" type="number" min="1" placeholder="Número de pedido"/></label><label>Folio<input name="folio" maxlength="80" placeholder="Folio del comprobante emitido"/></label></div><p class="field-hint">Sube un comprobante emitido por tu facturador. Orbital lo guarda, no lo emite.</p><p id="upload-error" class="form-error" role="alert"></p><button class="button primary">Guardar archivo</button></form>`,
     );
     const kind = $<HTMLSelectElement>("#upload-file-kind");
     const syncKind = () => {
@@ -926,7 +966,7 @@ export function installBusiness(ctx: Ctx) {
           (!order || String(f.orderId || "").includes(order)),
       );
       $("#receipts-table").innerHTML =
-        `<table class="business-table"><thead><tr><th>Tipo</th><th>Documento / folio</th><th>Pedido</th><th>Archivo</th><th>Descargar</th><th>Ver pedido</th></tr></thead><tbody>${receipts.map((f) => `<tr><td><span class="commerce-pill receipt-${f.kind === "factura" ? "factura" : "boleta"}">${f.kind === "factura" ? "Factura" : "Boleta"}</span></td><td>${esc(f.title)}<small>${esc(f.folio || "Sin folio indicado")}</small></td><td>#${esc(f.orderId)}</td><td><button class="button primary compact-table-action" data-open-document="${esc(f.id)}">Ver documento</button></td><td><button class="button secondary small-button" data-download-document="${esc(f.id)}">Descargar</button></td><td><a class="button primary compact-table-action" href="${orderHref(f.orderId!, "invoices")}">Ver pedido ↗</a></td></tr>`).join("") || `<tr><td colspan="6">${kind !== "all" || order ? "No hay comprobantes que coincidan con estos filtros." : "Todavía no hay comprobantes asociados."}</td></tr>`}</tbody></table>`;
+        `<table class="business-table"><thead><tr><th>Tipo</th><th>Documento / folio</th><th>Pedido</th><th>Archivo</th><th>Descargar</th><th>Ver pedido</th></tr></thead><tbody>${receipts.map((f) => `<tr><td><span class="commerce-pill receipt-${f.kind === "factura" ? "factura" : "boleta"}">${f.kind === "factura" ? "Factura" : "Boleta"}</span></td><td>${esc(f.title)}<small>${esc(f.folio || "Sin folio indicado")}</small></td><td>#${esc(f.orderId)}</td><td><button class="button outline compact-table-action" data-open-document="${esc(f.id)}">Ver documento</button></td><td><button class="button secondary compact-table-action" data-download-document="${esc(f.id)}">Descargar</button></td><td><a class="button primary compact-table-action" href="${orderHref(f.orderId!, "invoices")}">Ver pedido ↗</a></td></tr>`).join("") || `<tr><td colspan="6">${kind !== "all" || order ? "No hay comprobantes que coincidan con estos filtros." : "Todavía no hay comprobantes asociados."}</td></tr>`}</tbody></table>`;
     } catch (e) {
       $("#receipts-table").innerHTML =
         `<p class="empty-state">${esc(e instanceof Error ? e.message : "No pudimos cargar los comprobantes.")}</p>`;
@@ -956,7 +996,7 @@ export function installBusiness(ctx: Ctx) {
       const billing = order.billing || {},
         shipping = order.shipping || {};
       $("#order-detail").innerHTML =
-        `<a class="back-link" href="${demoPath(`/app/tienda/${fromOrder === "invoices" ? "facturas-y-boletas" : "pedidos"}?pagina=${fromPage}`)}">← Volver a ${fromOrder === "invoices" ? "facturas y boletas" : "pedidos"}</a><div class="page-heading compact"><div><h1>Pedido #${esc(order.number)}</h1><p>${esc(new Date(order.date_created).toLocaleString("es-CL"))}${ctx.cloud() ? "" : " · Pedido de ejemplo"}</p></div><span class="commerce-pill order-status-${["pending","processing","on-hold","completed","cancelled","refunded","failed","checkout-draft"].includes(order.status) ? order.status : "other"}">${esc(status(order.status))}</span></div><div class="order-detail-grid"><article class="panel order-lines"><h2>Productos</h2><table class="business-table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Total</th></tr></thead><tbody>${(order.line_items || []).map((line: any) => `<tr><td>${esc(line.name)}<small>SKU: ${esc(line.sku || "—")}</small></td><td>${esc(line.quantity)}</td><td>${esc(money(line.total, order.currency))}</td></tr>`).join("")}</tbody></table><div class="order-totals"><p>Descuento <strong>${esc(money(order.discount_total, order.currency))}</strong></p><p>Envío <strong>${esc(money(order.shipping_total, order.currency))}</strong></p><p>Impuestos <strong>${esc(money(order.total_tax, order.currency))}</strong></p><p>Total <strong>${esc(money(order.total, order.currency))}</strong></p></div></article><div><article class="panel order-info"><h2>Cliente y facturación</h2><p>${esc(billing.first_name)} ${esc(billing.last_name)}</p><p>${esc(billing.email || "")}</p><p>${esc(billing.phone || "")}</p><p>${esc([billing.address_1, billing.address_2, billing.city, billing.state, billing.postcode, billing.country].filter(Boolean).join(", "))}</p></article><article class="panel order-info"><h2>Entrega y pago</h2><p>${esc([shipping.address_1, shipping.address_2, shipping.city, shipping.state, shipping.postcode, shipping.country].filter(Boolean).join(", ") || "Sin dirección de entrega")}</p><p>${esc(order.payment_method_title || "Sin método indicado")}</p>${(order.shipping_lines || []).map((line: any) => `<p>${esc(line.method_title)} · ${esc(money(line.total, order.currency))}</p>`).join("")}${order.customer_note ? `<h3>Nota del cliente</h3><p>${esc(order.customer_note)}</p>` : ""}</article>${orderDetails(order)}</div></div>`;
+        `<a class="back-link" href="${demoPath(`/app/tienda/${fromOrder === "invoices" ? "facturas-y-boletas" : "pedidos"}?pagina=${fromPage}`)}">← Volver a ${fromOrder === "invoices" ? "facturas y boletas" : "pedidos"}</a><div class="page-heading compact"><div><h1>Pedido #${esc(order.number)}</h1><p>${esc(new Date(order.date_created).toLocaleString("es-CL"))}${ctx.cloud() ? "" : " · Pedido de ejemplo"}</p></div><span class="commerce-pill order-status-${["pending","processing","on-hold","completed","cancelled","refunded","failed","checkout-draft"].includes(order.status) ? order.status : "other"}">${esc(status(order.status))}</span></div><div class="order-summary-grid"><article class="panel order-info"><h2>Cliente y facturación</h2><p>${esc(billing.first_name)} ${esc(billing.last_name)}</p><p>${esc(billing.email || "")}</p><p>${esc(billing.phone || "")}</p><p>${esc([billing.address_1, billing.address_2, billing.city, billing.state, billing.postcode, billing.country].filter(Boolean).join(", "))}</p></article><article class="panel order-info"><h2>Entrega y pago</h2><p>${esc([shipping.address_1, shipping.address_2, shipping.city, shipping.state, shipping.postcode, shipping.country].filter(Boolean).join(", ") || "Sin dirección de entrega")}</p><p>${esc(order.payment_method_title || "Sin método indicado")}</p>${(order.shipping_lines || []).map((line: any) => `<p>${esc(line.method_title)} · ${esc(money(line.total, order.currency))}</p>`).join("")}${order.customer_note ? `<h3>Nota del cliente</h3><p>${esc(order.customer_note)}</p>` : ""}</article></div><div class="order-detail-grid"><article class="panel order-lines"><h2>Productos</h2><table class="business-table"><thead><tr><th>Producto</th><th>Cantidad</th><th>Total</th></tr></thead><tbody>${(order.line_items || []).map((line: any) => `<tr><td>${esc(line.name)}<small>SKU: ${esc(line.sku || "—")}</small></td><td>${esc(line.quantity)}</td><td>${esc(money(line.total, order.currency))}</td></tr>`).join("")}</tbody></table><div class="order-totals"><p>Descuento <strong>${esc(money(order.discount_total, order.currency))}</strong></p><p>Envío <strong>${esc(money(order.shipping_total, order.currency))}</strong></p><p>Impuestos <strong>${esc(money(order.total_tax, order.currency))}</strong></p><p>Total <strong>${esc(money(order.total, order.currency))}</strong></p></div></article><div><div>${orderDetails(order)}</div></div>`;
     } catch (e) {
       $("#order-detail").innerHTML =
         `<a class="back-link" href="${demoPath(`/app/tienda/${fromOrder === "invoices" ? "facturas-y-boletas" : "pedidos"}?pagina=${fromPage}`)}">← Volver</a><p class="empty-state">${esc(e instanceof Error ? e.message : "No pudimos abrir el pedido.")}</p>`;
@@ -1148,7 +1188,7 @@ export function installBusiness(ctx: Ctx) {
     const host = $("#customers-content");
     if (!host.querySelector("#customer-search"))
       host.innerHTML =
-        '<div class="page-heading compact"><div><h1>Clientes de la tienda</h1><p>Clientes de la tienda conectada: WooCommerce, Shopify o Payload.</p></div></div><label>Tienda<select id="customer-provider" aria-label="Tienda de clientes"></select></label><label class="customer-search">Buscar cliente<input id="customer-search" type="search" placeholder="Nombre o correo"/></label><div class="panel" id="customer-table" tabindex="0" role="region" aria-label="Listado de clientes"></div><div class="pagination" id="customer-pagination"></div>';
+        `<div class="page-heading compact"><div><h1>Clientes de la tienda</h1><p>Clientes de la tienda conectada: WooCommerce, Shopify o Payload.</p></div></div><label>Tienda<select id="customer-provider" aria-label="Tienda de clientes"></select></label><label class="customer-search">Buscar cliente<span class="filter-search">${uiIcon("search", 16)}<input id="customer-search" type="search" placeholder="Nombre o correo"/></span></label><div class="panel" id="customer-table" tabindex="0" role="region" aria-label="Listado de clientes"></div><div class="pagination" id="customer-pagination"></div>`;
     $("#customer-search").oninput = (e) => {
       customerQuery = (e.target as HTMLInputElement).value;
       customerPage = 1;

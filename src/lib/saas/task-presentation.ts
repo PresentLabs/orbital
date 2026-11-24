@@ -6,7 +6,7 @@ export function taskProgress(task:Pick<Task,'status'|'description'>){
   const total=marks.length||1,done=task.status==='done'?total:marks.length?marks.filter(m=>/[xX☑✓]/.test(m![1]||m![2])).length:0;
   return {total,done,percent:Math.round(done/total*100),hasChecklist:marks.length>0};
 }
-export function memberAvatar(member:WorkspaceMember|undefined){
+export function memberAvatar(member:Pick<WorkspaceMember,"name"|"avatarData">|undefined){
   if(!member)return '<span class="task-person-avatar unassigned" title="Sin asignar" aria-label="Sin asignar">—</span>';
   const initials=member.name.trim().split(/\s+/).slice(0,2).map(word=>word[0]).join('');
   return `<span class="task-person-avatar" title="${esc(member.name)}" aria-label="${esc(member.name)}">${member.avatarData && validAvatar(member.avatarData)?`<img src="${esc(member.avatarData)}" alt=""/>`:esc(initials)}</span>`;

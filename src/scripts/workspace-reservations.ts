@@ -152,7 +152,28 @@ export function installReservations(ctx: { demo?:boolean; modal: (html: string) 
     const host = $("#reservations-content");
     if (tab === "dashboard") {
       if (dashboard) {
+        const selectedTab = host.querySelector('[role="tab"][aria-selected="true"]')?.id;
         host.innerHTML = dashboardHTML(dashboard);
+        const tabs = [...host.querySelectorAll<HTMLButtonElement>('.scheduling-chart [role="tab"]')];
+        const selectTab = (selected: HTMLButtonElement) => {
+          for (const tab of tabs) {
+            const active = tab === selected;
+            tab.setAttribute("aria-selected", String(active));
+            tab.tabIndex = active ? 0 : -1;
+            document.getElementById(tab.getAttribute("aria-controls")!)!.hidden = !active;
+          }
+        };
+        for (const [index, tab] of tabs.entries()) {
+          tab.onclick = () => selectTab(tab);
+          tab.onkeydown = (event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            event.preventDefault();
+            const next = tabs[event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (index + 1) % tabs.length];
+            selectTab(next);
+            next.focus();
+          };
+        }
+        selectTab(tabs.find(tab => tab.id === selectedTab) || tabs[0]);
         $<HTMLSelectElement>("#scheduling-period").onchange = (event) => {
           dashboardDays = Number((event.target as HTMLSelectElement).value); void loadDashboard();
         };
@@ -161,7 +182,7 @@ export function installReservations(ctx: { demo?:boolean; modal: (html: string) 
     }
     if (tab === "agenda") {
       host.innerHTML = `<div class="reservations-toolbar"><p>${data.total} ${data.total === 1 ? "hora agendada" : "horas agendadas"}</p>
-        <form id="reservation-search" class="heading-actions"><label>Buscar hora<input name="search" type="search" maxlength="160" placeholder="Cliente, correo o servicio" value="${esc(search)}"/></label><button class="button secondary" type="submit">Buscar</button></form>
+        <form id="reservation-search" class="heading-actions"><label>Buscar hora<span class="filter-search">${uiIcon("search", 16)}<input name="search" type="search" maxlength="160" placeholder="Cliente, correo o servicio" value="${esc(search)}"/></span></label><button class="button secondary" type="submit">Buscar</button></form>
         <div class="heading-actions"><label>Filtrar por fecha<input id="reservations-day" type="date" value="${esc(day)}"/></label>${day ? '<button class="button secondary" data-clear-day>Todas las fechas</button>' : ""}</div></div>
         <div class="panel table-panel"><table class="business-table reservation-table"><thead><tr><th>Cliente</th><th>Servicio</th><th>Fecha y hora</th><th>Estado</th><th>Monto</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody>
         ${data.bookings.map((booking) => `<tr><td><strong>${esc(booking.customer_name)}</strong><small>${esc(booking.customer_email)}</small></td>
@@ -185,7 +206,7 @@ export function installReservations(ctx: { demo?:boolean; modal: (html: string) 
     if (tab === "settings") { settingsForm(); return; }
     const entries = data.catalog.filter((entry) => entry.kind === tab && (tab !== "service" || withinCategory(entry.value.categoryId, categoryFilter)) &&
       [entry.name, entry.value.email, entry.value.description].join(" ").toLocaleLowerCase().includes(catalogSearch.toLocaleLowerCase())).sort((a,b)=>tab === "category" ? categoryCompare(a,b) : (tab === "package" ? (a.value.sortOrder || 0)-(b.value.sortOrder || 0) : 0) || a.name.localeCompare(b.name,"es-CL"));
-    host.innerHTML = `<div class="reservations-toolbar"><form id="catalog-search" class="heading-actions"><label><span class="sr-only">Buscar en ${names[tab].toLocaleLowerCase()}</span><input name="search" type="search" placeholder="Buscar en ${names[tab].toLocaleLowerCase()}" maxlength="160" value="${esc(catalogSearch)}"/></label>${tab === "service" ? `<label><span class="sr-only">Filtrar por categoría</span><select name="category"><option value="">Todas las categorías</option>${categoryOptions(Number(categoryFilter) || null)}</select></label>` : ""}<button class="button secondary" type="submit">Buscar</button></form><div class="heading-actions"><span class="directory-count">${entries.length} ${entries.length === 1 ? "registro" : "registros"}</span>${data.canConfigure ? `<button class="button primary" data-entry-new>${uiIcon("plus", 16)}Agregar ${singular[tab]}</button>` : ""}</div></div>
+    host.innerHTML = `<div class="reservations-toolbar"><form id="catalog-search" class="heading-actions"><label class="filter-search">${uiIcon("search", 16)}<span class="sr-only">Buscar en ${names[tab].toLocaleLowerCase()}</span><input name="search" type="search" placeholder="Buscar en ${names[tab].toLocaleLowerCase()}" maxlength="160" value="${esc(catalogSearch)}"/></label>${tab === "service" ? `<label><span class="sr-only">Filtrar por categoría</span><select name="category"><option value="">Todas las categorías</option>${categoryOptions(Number(categoryFilter) || null)}</select></label>` : ""}<button class="button secondary" type="submit">Buscar</button></form><div class="heading-actions"><span class="directory-count">${entries.length} ${entries.length === 1 ? "registro" : "registros"}</span>${data.canConfigure ? `<button class="button primary" data-entry-new>${uiIcon("plus", 16)}Agregar ${singular[tab]}</button>` : ""}</div></div>
       <div class="${tab === 'category' ? 'category-directory' : tab==='customer'?'customer-directory':'reservation-grid catalog-grid'}" data-catalog-kind="${tab}">${(tab==='category'?categoryTree(entries):tab==='customer'?customerTable(entries):entries.map(catalogCard).join('')) || '<div class="panel scheduling-directory-empty"><h2>Todo listo para comenzar</h2><p>No hay registros para esta búsqueda. Agrega uno nuevo o cambia los filtros.</p></div>'}</div>`;
     host.querySelectorAll<HTMLImageElement>(".catalog-image-frame img").forEach(image => { image.onerror = () => image.remove(); });
     $<HTMLFormElement>("#catalog-search").onsubmit = (event) => {
@@ -216,12 +237,12 @@ export function installReservations(ctx: { demo?:boolean; modal: (html: string) 
     const schedule = value.schedule || [];
     const row = (period: any) => `<div class="reservation-period" data-week-period><label>Día<select data-weekday>${week.map((name, day) => `<option value="${day}" ${period.weekday === day ? "selected" : ""}>${name}</option>`).join("")}</select></label><label>Inicio<input type="time" data-start required value="${esc(period.start)}"/></label><label>Término<input type="time" data-end required value="${esc(period.end)}"/></label><button class="button secondary" type="button" data-remove-period aria-label="Eliminar tramo">${uiIcon("trash", 16)}</button></div>`;
     const exceptionRow = (day: string, period?: any) => `<div class="reservation-period" data-date-period><label>Fecha<input type="date" data-date required value="${esc(day)}"/></label><label class="inline-check"><input type="checkbox" data-closed ${period ? "" : "checked"}/>Cerrado</label><label>Inicio<input type="time" data-start ${period ? "required" : "disabled"} value="${esc(period?.start || "09:00")}"/></label><label>Término<input type="time" data-end ${period ? "required" : "disabled"} value="${esc(period?.end || "18:00")}"/></label><button class="button secondary" type="button" data-remove-period aria-label="Eliminar fecha especial">${uiIcon("trash", 16)}</button></div>`;
-    const html = `<fieldset class="reservation-hours" data-schedule-editor><legend>Horarios y fechas especiales</legend>
+    const html = `<section class="reservation-hours" data-schedule-editor aria-label="Horarios y fechas especiales"><h2>Horarios y fechas especiales</h2>
       ${inherit ? `<label class="inline-check"><input type="checkbox" data-custom-schedule ${value.schedule ? "checked" : ""}/>Usar un horario semanal propio</label><p class="section-note">El horario propio se cruza con los horarios del negocio y de las demás asignaciones.</p>` : ""}
       <div data-week-editor ${inherit && !value.schedule ? "hidden" : ""}><div data-week-periods>${schedule.map(row).join("")}</div><button class="button secondary" type="button" data-add-period>Agregar tramo semanal</button></div>
       <p class="section-note">Agrega varios tramos para separar mañana y tarde. Las fechas especiales reemplazan el horario semanal de ese día; marca cerrado para vacaciones o festivos.</p>
       <div data-date-periods>${(value.exceptions || []).flatMap((item: any) => item.periods.length ? item.periods.map((period: any) => exceptionRow(item.day, period)) : [exceptionRow(item.day)]).join("")}</div>
-      <button class="button secondary" type="button" data-add-exception>Agregar fecha especial</button></fieldset>`;
+      <button class="button secondary" type="button" data-add-exception>Agregar fecha especial</button></section>`;
     function mount(form: HTMLFormElement) {
       const editor = form.querySelector<HTMLElement>("[data-schedule-editor]")!;
       const toggle = () => {

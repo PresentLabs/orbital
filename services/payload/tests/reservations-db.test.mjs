@@ -162,6 +162,9 @@ test("database activation, isolation, idempotency and capacity survive concurren
     assert.equal(stats.totals.paidMinor, 15000);
     assert.equal(stats.daily.length, 7);
     assert.equal(stats.daily.reduce((sum, day) => sum + day.count, 0), 1);
+    assert.equal(stats.daily.reduce((sum, day) => sum + day.paidMinor, 0), 15000);
+    assert.equal(stats.daily.reduce((sum, day) => sum + day.customers, 0), 1);
+    assert.equal(stats.daily.reduce((sum, day) => sum + day.pending, 0), 0);
     assert.equal(stats.upcoming.length, 3);
     const colleague = await payload.create({ collection: "users", data: { name: "Profesional sin agenda", email: `colleague-${suffix}@example.test`, password: "local-test-password-1234", role: "member", workspace: workspace.id } });
     const ownStats = await reservationsGET(await req(colleague, null, "/api/orbital-reservations?action=dashboard&days=30"));

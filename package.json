@@ -10,13 +10,12 @@
     "dev": "astro dev",
     "build": "astro build",
     "start": "node dist/server/entry.mjs",
-    "test": "node --experimental-strip-types --test tests/saas-model.test.mjs tests/saas-shopify.test.mjs tests/saas-home.test.mjs tests/saas-canvas-image.test.mjs tests/saas-planning.test.mjs tests/saas-work.test.mjs tests/scheduling-navigation.test.mjs tests/scheduling-chart.test.mjs tests/task-presentation.test.mjs tests/date-ranges.test.mjs",
+    "test": "node --experimental-strip-types --test tests/saas-model.test.mjs tests/saas-shopify.test.mjs tests/saas-home.test.mjs tests/saas-canvas-image.test.mjs tests/saas-planning.test.mjs tests/saas-work.test.mjs tests/scheduling-navigation.test.mjs tests/scheduling-chart.test.mjs tests/task-presentation.test.mjs tests/date-ranges.test.mjs tests/calculations.test.mjs",
     "check:modules": "tsc --project tsconfig.modules.json --noEmit"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@astrojs/node": "^11.1.6",
-    "@huggingface/transformers": "^3.8.1",
     "astro": "^7.3.7",
     "lenis": "^1.3.26",
     "nanostores": "^1.5.4",

@@ -264,6 +264,24 @@ export function installRichToolbar() {
     );
   document.addEventListener("keydown", (e) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>(selector);
+    if (target && e.key === "-" && !e.isComposing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      const selection = getSelection();
+      if (selection?.isCollapsed && selection.rangeCount) {
+        const caret = selection.getRangeAt(0);
+        const anchor = caret.startContainer instanceof Element ? caret.startContainer : caret.startContainer.parentElement;
+        const block = anchor?.closest("p,div,h1,h2,h3") || target;
+        if (target.contains(block) && !anchor?.closest("ul,ol,pre,code")) {
+          const prefix = caret.cloneRange();
+          prefix.selectNodeContents(block); prefix.setEnd(caret.startContainer,caret.startOffset);
+          if (!prefix.toString().trim()) {
+            e.preventDefault();
+            document.execCommand("insertUnorderedList");
+            target.dispatchEvent(new Event("input",{bubbles:true}));
+            return;
+          }
+        }
+      }
+    }
     if (!target || e.key !== "Enter" || e.shiftKey || e.isComposing) return;
     const selection = getSelection();
     if (!selection?.rangeCount) return;

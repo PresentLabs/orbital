@@ -28,12 +28,12 @@ import Icon from "@/components/saas/Icon.astro";
   <section id="dte-workspace" class="panel module-panel" hidden>
     <div class="panel-heading"><h2>Facturación propia · Chile</h2><button class="button secondary" id="dte-status">Consultar conexión</button></div>
     <p id="dte-environment">Consulta la conexión para conocer el ambiente activo.</p>
-    <p>Órbita consulta pagos y devoluciones de la tienda conectada. El motor tributario conserva los documentos originales y su tienda de origen.</p>
+    <p>Orbital consulta pagos y devoluciones de la tienda conectada. El motor tributario conserva los documentos originales y su tienda de origen.</p>
     <button class="button secondary" id="dte-load-orders">Buscar pedidos en la tienda</button><div id="dte-source-orders"></div>
     <form id="dte-order" class="module-form"><label>ID del pedido en la tienda conectada<input name="orderId" type="text" maxlength="100" required /><small>En Shopify usa el ID del pedido, no su número visible #1001.</small></label><button class="button secondary">Consultar documentos</button></form>
     <button class="button secondary" id="dte-history">Historial de todas las tiendas</button><div id="dte-documents"></div>
     <details><summary>CAF y folios autorizados</summary><p id="dte-cafs">Consulta el estado para ver los folios.</p><form id="dte-caf" class="module-form"><label>CAF del ambiente activo (.xml)<input name="caf" type="file" accept=".xml" required /></label><button class="button secondary">Importar CAF</button></form></details>
-    <details><summary>Emitir documento del pedido</summary><form id="dte-issue" class="module-form"><p>El pedido debe tener el pago confirmado y sus datos tributarios guardados en Órbita.</p><label>Tipo<select name="type"><option value="39">39 · Boleta electrónica</option><option value="33">33 · Factura electrónica</option></select></label><button class="button primary">Solicitar emisión del pedido consultado</button></form></details>
+    <details><summary>Emitir documento del pedido</summary><form id="dte-issue" class="module-form"><p>El pedido debe tener el pago confirmado y sus datos tributarios guardados en Orbital.</p><label>Tipo<select name="type"><option value="39">39 · Boleta electrónica</option><option value="33">33 · Factura electrónica</option></select></label><button class="button primary">Solicitar emisión del pedido consultado</button></form></details>
     <details><summary>Guardar receptor antes de emitir</summary><form id="dte-fiscal" class="module-form">
       <label>Tipo<select name="type"><option value="39">39 · Boleta</option><option value="33">33 · Factura</option></select></label>
       <label>RUT<input name="rut" required maxlength="20" /></label><label>Razón social / nombre<input name="name" required maxlength="100" /></label><label>Giro<input name="giro" maxlength="80" /></label><label>Dirección<input name="address" maxlength="70" /></label><label>Comuna<input name="commune" maxlength="20" /></label><button class="button secondary">Guardar receptor</button>
@@ -49,7 +49,7 @@ import Icon from "@/components/saas/Icon.astro";
       <label><input name="no_vat_reduction" type="checkbox" /> Sin rebaja de IVA (IndNoRebaja)</label>
       <p>Si el ajuste combina productos afectos y exentos, agrega su detalle. Los montos deben sumar el total del ajuste.</p><div id="dte-lines"></div><button class="button secondary" id="dte-add-line" type="button">Agregar producto al ajuste</button>
       <label>Clave de operación<input name="operationKey" required readonly /></label>
-      <p>Ante un error, conserva esta clave y reintenta la misma operación. Órbita controla el saldo disponible y la aceptación del original.</p>
+      <p>Ante un error, conserva esta clave y reintenta la misma operación. Orbital controla el saldo disponible y la aceptación del original.</p>
       <button class="button primary">Solicitar ajuste</button><button class="button secondary" id="dte-new-operation" type="button">Preparar otra operación</button>
     </form></details>
   </section>

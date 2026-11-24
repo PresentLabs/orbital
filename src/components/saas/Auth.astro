@@ -13,7 +13,7 @@ const businessQuery = /^\d+$/.test(workspace) ? "?negocio=" + workspace : "";
 const brandingPath = "branding" + (businessQuery ? "?workspace=" + workspace : "");
 const branding = await payload(Astro, brandingPath).catch(() => null);
 const logo = branding?.logoData && validLogo(branding.logoData) ? branding.logoData : "";
-const business = branding?.name || "Órbita";
+const business = branding?.name || "Orbital";
 const error = Astro.url.searchParams.get("error");
 const messages: Record<string, string> = {
   business: "Esta cuenta pertenece a otro negocio. Usa el enlace de acceso de tu equipo.",
@@ -42,7 +42,7 @@ const messages: Record<string, string> = {
     ><aside class="auth-story">
       <a class="brand" href="/app" aria-label={business}>
         {logo ? <img class="business-logo auth-logo" src={logo} alt={business} /> : <>
-          <span class="brand-symbol">✳</span>órbita<span class="brand-period">®</span>
+          <span class="brand-symbol">✳</span>orbital<span class="brand-period">®</span>
         </>}
       </a><div class="auth-story-copy">
         <div class="eyebrow">UN ESPACIO. TODO CONECTADO.</div><h1>

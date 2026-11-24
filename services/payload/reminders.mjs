@@ -125,7 +125,7 @@ try {
                 from: c.from,
                 to: [c.to],
                 subject: "Tu próximo paso: " + task.title,
-                text: `Tienes una tarea pendiente en Órbita.\n\n${task.title}\nDeadline: ${task.due}\nProyecto: ${task.project || "Mi negocio"}\n\nUn paso a la vez también es avanzar.`,
+                text: `Tienes una tarea pendiente en Orbital.\n\n${task.title}\nDeadline: ${task.due}\nProyecto: ${task.project || "Mi negocio"}\n\nUn paso a la vez también es avanzar.`,
               }),
               signal: AbortSignal.timeout(15000),
             });

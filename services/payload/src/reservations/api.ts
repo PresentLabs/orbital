@@ -51,7 +51,7 @@ async function catalog(client: any, workspace: number): Promise<CatalogEntry[]> 
 async function guard(req: PayloadRequest, write = false) {
   if (!req.user || req.user.disabled) throw new ModuleError("Inicia sesión.", 401);
   if (!(write ? canWrite : canView)(req.user, "calendar")) throw new ModuleError("No tienes permiso para gestionar reservas.", 403);
-  if (!req.headers.get("authorization")?.startsWith("JWT ")) throw new ModuleError("Se requiere la sesión de Órbita.", 401);
+  if (!req.headers.get("authorization")?.startsWith("JWT ")) throw new ModuleError("Se requiere la sesión de Orbital.", 401);
   if (!(await moduleGranted(req, "reservations"))) throw new ModuleError("El dueño del SaaS debe activar Agendamiento para este negocio.", 403);
 }
 function ownProfessional(req: PayloadRequest, entries: CatalogEntry[], id: number | null) {

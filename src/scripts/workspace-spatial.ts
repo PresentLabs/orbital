@@ -878,7 +878,8 @@ export function installSpatial(ctx: Ctx) {
         const size = resizeDimensions(resize.w, resize.h, dx, dy, resize.mode);
         el.classList.add("spatial-resized");
         el.style.width = size.width + "px";
-        el.style.height = size.height + "px";
+        if (el.classList.contains("note")) el.style.setProperty("--sticky-height", size.height + "px");
+        else el.style.height = size.height + "px";
       }
     }
     if (
@@ -915,7 +916,7 @@ export function installSpatial(ctx: Ctx) {
           const n = current().find((n) => n.id === drag.id);
           if (n) {
             n.width = Math.round(el.offsetWidth);
-            n.height = Math.round(el.offsetHeight);
+            n.height = n.kind === "note" ? parseFloat(el.style.getPropertyValue("--sticky-height")) || el.offsetHeight : Math.round(el.offsetHeight);
           }
         });
       else ctx.render();

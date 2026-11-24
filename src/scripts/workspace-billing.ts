@@ -224,7 +224,7 @@ export function installBilling(options: {
         )
           void run(async () => {
             await api({ action: "email", documentId: doc.id });
-            message("Solicitud de correo registrada en Órbita.");
+            message("Solicitud de correo registrada en Orbital.");
           });
       });
       button("Ajustar", () => prepare(doc, false));
@@ -236,7 +236,7 @@ export function installBilling(options: {
           void run(async () => {
             await api({ action: "retry", documentId: doc.id });
             await queryDocuments();
-            message("Revisión encolada en Órbita.");
+            message("Revisión encolada en Orbital.");
           }),
       );
     }
@@ -337,7 +337,7 @@ export function installBilling(options: {
       type: Number(input("dte-issue", "type").value),
     });
     await queryDocuments();
-    message("Solicitud de emisión registrada en Órbita.");
+    message("Solicitud de emisión registrada en Orbital.");
   });
   onSubmit("dte-fiscal", async () => {
     const receiver = Object.fromEntries(
@@ -352,7 +352,7 @@ export function installBilling(options: {
       type: Number(input("dte-fiscal", "type").value),
       receiver,
     });
-    message("Receptor guardado en Órbita.");
+    message("Receptor guardado en Orbital.");
   });
   onSubmit("dte-adjust", async () => {
     const documentId = Number(input("dte-adjust", "documentId").value);

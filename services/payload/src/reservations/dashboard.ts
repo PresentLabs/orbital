@@ -14,7 +14,10 @@ export async function schedulingDashboard(db: Pick<Pool, "query">, workspace: nu
       SELECT * FROM scoped,bounds WHERE day BETWEEN bounds.first AND bounds.today
     ), daily AS (
       SELECT d::date AS day, count(p.id)::integer AS count,
-        count(p.id) FILTER(WHERE p.status='canceled')::integer AS canceled
+        count(p.id) FILTER(WHERE p.status='canceled')::integer AS canceled,
+        count(DISTINCT p.customer_email) FILTER(WHERE p.status<>'canceled')::integer AS customers,
+        count(p.id) FILTER(WHERE p.status='pending')::integer AS pending,
+        coalesce(sum(p.amount_minor) FILTER(WHERE p.payment_status='paid' AND p.status<>'canceled'),0) AS "paidMinor"
       FROM bounds, generate_series(bounds.first::timestamp,bounds.today::timestamp,interval '1 day') d
       LEFT JOIN period p ON p.day=d::date GROUP BY d ORDER BY d
     ), upcoming AS (

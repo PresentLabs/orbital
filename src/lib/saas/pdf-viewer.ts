@@ -1,11 +1,32 @@
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-export async function mountPdf(host: HTMLElement, blob: Blob) {
+async function loadPdf(blob: Blob) {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
-  const loading = pdfjs.getDocument({
+  return pdfjs.getDocument({
     data: new Uint8Array(await blob.arrayBuffer()),
     disableWorkerRendering: true,
   });
+}
+
+export async function firstPageThumbnail(blob: Blob) {
+  const loading = await loadPdf(blob);
+  try {
+    const pdf = await loading.promise;
+    const page = await pdf.getPage(1);
+    const base = page.getViewport({ scale: 1 });
+    const viewport = page.getViewport({ scale: 320 / Math.max(base.width, base.height) });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.ceil(viewport.width);
+    canvas.height = Math.ceil(viewport.height);
+    await page.render({ canvas, viewport }).promise;
+    return canvas.toDataURL("image/png");
+  } finally {
+    await loading.destroy();
+  }
+}
+
+export async function mountPdf(host: HTMLElement, blob: Blob) {
+  const loading = await loadPdf(blob);
   const pdf = await loading.promise;
   if (!host.isConnected) {
     await loading.destroy();

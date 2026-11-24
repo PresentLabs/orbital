@@ -39,8 +39,8 @@ export const POST: APIRoute = async (ctx) => {
       id: googleId,
       summary: event.title,
       description: event.description,
-      start: { dateTime: `${event.date}T${event.time}:00`, timeZone: timezone },
-      end: { dateTime: `${endDate}T${endTime}:00`, timeZone: timezone },
+      start: event.allDay ? { date: event.date } : { dateTime: `${event.date}T${event.time}:00`, timeZone: timezone },
+      end: event.allDay ? { date: endDate } : { dateTime: `${endDate}T${endTime}:00`, timeZone: timezone },
     });
     const base =
       "https://www.googleapis.com/calendar/v3/calendars/primary/events";

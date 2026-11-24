@@ -26,7 +26,7 @@ export async function handleModules(req: PayloadRequest, requestWoo = wooRequest
     if (!isAdmin(req.user) || !workspace(req.user)) throw new ModuleError('Solo administradores del negocio.', 403);
     const tenant = workspace(req.user);
     // Custom route accepts JWT header only; no cross-origin ambient-cookie mutations.
-    if (!req.headers.get('authorization')?.startsWith('JWT ')) throw new ModuleError('Se requiere la sesión de Órbita.', 401);
+    if (!req.headers.get('authorization')?.startsWith('JWT ')) throw new ModuleError('Se requiere la sesión de Orbital.', 401);
     const db = req.payload;
     const installations = await db.find({ collection: 'module-installations', where: { workspace: { equals: tenant } }, limit: 100, depth: 0, overrideAccess: true, req });
     if (req.method === 'GET') return reply({ modules: [await billingCatalog(req)], legacyInstalled:installations.docs.some((x:any)=>x.moduleId==='woo-dte-chile') });

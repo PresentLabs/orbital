@@ -3453,7 +3453,10 @@ html.theme-dark .orbita #workspace-main :is(input[type=search],input[placeholder
 .orbita .team-row>[data-edit-member]{justify-self:start}
 .orbita .team-row>.team-protected{font-size:10px;white-space:normal}
 /* Consistent modal controls, including destructive actions. */
-.orbita #editor-dialog :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select){border-radius:999px!important}
+.orbita #editor-dialog :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select){border-radius:var(--dialog-input-radius,999px)!important}
+.orbita {--settings-input-radius:9px}
+.orbita [data-panel=settings] input:not([type=checkbox],[type=radio],[type=file],[type=color],[type=range]){border-radius:var(--settings-input-radius)!important}
+.orbita #editor-dialog.compact-drawer input:not([type=checkbox],[type=radio],[type=file],[type=color],[type=range]){--dialog-input-radius:var(--settings-input-radius)}
 .orbita #editor-dialog :is(textarea,.work-rich-editor){border-radius:12px!important}
 .orbita #editor-dialog :is(.danger-button,[id^=delete-],[id^=remove-]){border-radius:999px!important}
 /* Space metadata stays directly below its title. */
@@ -5670,3 +5673,24 @@ html.theme-dark .orbita .sidebar #private-navigation :is(button,a):is(:hover,:fo
   color: #fff !important;
   filter: drop-shadow(0 0 4px #ffffff80) drop-shadow(0 0 8px #b780ff55);
 }
+
+/* Calculation notes use the same canvas geometry and persistence as text notes. */
+.orbita .canvas-calculation .canvas-card-content {overflow:auto;}
+.orbita .calculation-lines {font-family:ui-monospace,monospace;font-size:12px;line-height:1.9;}
+.orbita .calculation-line {display:flex;gap:1rem;justify-content:space-between;min-height:1.9em;}
+.orbita .calculation-line > span {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--muted);}
+.orbita .calculation-line output {color:var(--primary);font-weight:600;white-space:nowrap;}
+.orbita .calculation-line.has-error output {color:light-dark(#ad3e38,#ffaca5);font-size:.6875rem;}
+.orbita .calculation-empty {font-size:.75rem;line-height:1.8;color:var(--muted);}
+.orbita .calculation-form {display:grid;gap:1rem;}
+.orbita .calculation-title {font-size:1.5rem;font-weight:600;border:0;background:transparent;padding:0;color:inherit;width:100%;}
+.orbita .calculation-help {margin:0;color:var(--muted);font-size:.8125rem;line-height:1.5;}
+.orbita .calculation-editor {display:grid;grid-template-columns:minmax(0,1fr) minmax(6rem,auto);border-top:1px solid var(--line);padding-top:1rem;}
+.orbita .calculation-editor textarea {width:100%;min-height:20rem;resize:vertical;border:0;padding:.5rem;background:transparent;color:inherit;outline-offset:-2px;box-sizing:border-box;font-family:ui-monospace,monospace;font-size:14px;line-height:1.9;}
+.orbita .calculation-results {overflow:hidden;padding:.5rem;max-height:20rem;text-align:right;pointer-events:none;}
+.orbita .calculation-results .calculation-lines {font-size:14px;}
+.orbita .calculation-results .calculation-line {justify-content:flex-end;}
+.orbita#orbita-workspace #workspace-main #canvas-detail .calculation-title {font-size:1.5rem;line-height:1.3;height:auto;padding:0;border:0;border-radius:0;}
+.orbita#orbita-workspace #workspace-main #canvas-detail .calculation-editor textarea,
+.orbita#orbita-workspace #workspace-main #canvas-detail .calculation-results .calculation-lines {font:14px/24px ui-monospace,monospace;}
+.orbita#orbita-workspace #workspace-main #canvas-detail .calculation-line {min-height:24px;line-height:24px;}

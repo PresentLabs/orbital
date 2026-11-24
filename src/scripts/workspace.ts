@@ -1,6 +1,7 @@
+import {calculateLines,formatCalculation} from "@/lib/saas/calculations";
 import {installProjectCalendar} from "./workspace-project-calendar";
 import {installDatePointer} from "./date-pointer";
-import {adjustTaskRange,eventRange,eventDates,validEventDates} from "@/lib/saas/date-ranges";
+import {addDays,adjustTaskRange,calendarInstant,eventRange,eventDates,validEventDates} from "@/lib/saas/date-ranges";
 import {taskProgress,memberAvatar,timelineWindow,timelineRows} from "@/lib/saas/task-presentation";
 import {showNotice,installDrawer} from "@/lib/saas/ui-feedback";
 import {applyBusinessPalette} from "@/lib/saas/business-palette";
@@ -233,8 +234,8 @@ dialog.addEventListener("close", () => {
     dialog.classList.remove("task-dialog");
   }
 });
-function notify(message: string) {
-  if(!document.body.classList.contains("canvas-fullscreen")){showNotice($("#toast"),message);return;}
+function notify(message: string, action?: {label:string; run:()=>void}) {
+  if(!document.body.classList.contains("canvas-fullscreen")){showNotice($("#toast"),message,undefined,action);return;}
   $("#toast").classList.remove("ui-toast");$("#toast").hidden=false;
   $("#toast").textContent = message;
   $("#toast").classList.add("visible");
@@ -331,6 +332,7 @@ function mutate(fn: () => void) {
   render();
 }
 function modal(html: string) {
+  drawer.setBeforeClose();
   dialog.classList.remove("task-dialog");
   $("#dialog-content").innerHTML = html;
   const form = dialog.querySelector<HTMLFormElement>("form");
@@ -379,7 +381,7 @@ function modal(html: string) {
     const r=document.querySelector('.sidebar-search')!.getBoundingClientRect();
     dialog.style.setProperty('--search-left',`${r.left}px`);dialog.style.setProperty('--search-top',`${r.top}px`);dialog.style.setProperty('--search-width',`${r.width}px`);
   }
-  dialog.classList.toggle('compact-drawer',!!dialog.querySelector('.create-grid,#focus-options'));
+  dialog.classList.toggle('compact-drawer',!!dialog.querySelector('.create-grid,#focus-options,form'));
   dialog.classList.toggle('focus-drawer',!!dialog.querySelector('#focus-options'));
   drawer.open();
   setTimeout(
@@ -390,23 +392,46 @@ function modal(html: string) {
     30,
   );
 }
-function close() {
-  drawer.close();
+function close(force = false) {
+  drawer.close(force);
 }
 function syncSidebarFocus() {
   const sidebar = $("#sidebar");
-  sidebar.inert =
-    window.matchMedia("(max-width: 1024px)").matches &&
-    !sidebar.classList.contains("open");
-  const toggle = document.querySelector('[data-action="menu"]');
-  toggle?.setAttribute(
-    "aria-expanded",
-    String(sidebar.classList.contains("open")),
-  );
+  const mobile = matchMedia("(max-width:1024px)").matches;
+  const open = mobile && sidebar.classList.contains("open");
+  sidebar.inert = mobile && !open;
+  sidebar.querySelectorAll<HTMLElement>(".module-heading").forEach(button => button.tabIndex = mobile ? 0 : -1);
+  document.body.classList.toggle("navigation-open", open);
+  document.querySelector<HTMLElement>(".app-shell")!.inert = open;
+  sidebar.setAttribute("role", open ? "dialog" : "complementary");
+  if (open) sidebar.setAttribute("aria-modal", "true");
+  else sidebar.removeAttribute("aria-modal");
+  document.querySelectorAll('[data-action="menu"]').forEach(toggle => {
+    toggle.setAttribute("aria-controls", "sidebar");
+    toggle.setAttribute("aria-expanded", String(open));
+  });
 }
-window
-  .matchMedia("(max-width: 1024px)")
-  .addEventListener("change", syncSidebarFocus);
+window.matchMedia("(max-width:1024px)").addEventListener("change", () => {
+  const group = document.body.dataset.uiModule || "";
+  expandNavigation(["store", "company", "creative", "scheduling"].includes(group) ? group : null);
+  $("#sidebar").classList.remove("open");
+  syncSidebarFocus();
+});
+function closeNavigation() {
+  $("#sidebar").classList.remove("open");
+  syncSidebarFocus();
+  document.querySelector<HTMLElement>('.topbar [data-action="menu"]')?.focus({preventScroll:true});
+}
+document.addEventListener("keydown", event => {
+  if (!document.body.classList.contains("navigation-open")) return;
+  if (event.key === "Escape") { event.preventDefault(); closeNavigation(); return; }
+  if (event.key !== "Tab") return;
+  const controls = Array.from($("#sidebar").querySelectorAll<HTMLElement>('button:not([disabled]),a[href],input,select,[tabindex="0"]')).filter(el => !el.hidden && el.getClientRects().length && !el.closest('[hidden]'));
+  const first = controls[0], last = controls.at(-1);
+  if (!$("#sidebar").contains(document.activeElement)) { event.preventDefault(); first?.focus(); }
+  else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+});
 function expandNavigation(group: string | null) {
   for (const name of ["store", "scheduling", "creative", "company"]) {
     const submenu = document.querySelector<HTMLElement>("#" + name + "-submenu");
@@ -463,9 +488,11 @@ function show(view: string, keepSpace = false) {
   });
   $$("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== view));
   if (view !== "reservations") document.querySelectorAll("[data-scheduling-section]").forEach((button) => { button.classList.remove("active"); button.removeAttribute("aria-current"); });
-  $$("[data-view]").forEach((b) =>
-    b.classList.toggle("active", b.dataset.view === view),
-  );
+  $$("[data-view]").forEach((b) => {
+    b.classList.toggle("active", b.dataset.view === view);
+    if (b.dataset.view === view) b.setAttribute("aria-current", "page");
+    else b.removeAttribute("aria-current");
+  });
   $("#breadcrumb").textContent = (
     {
       overview: "Vista general",
@@ -501,7 +528,7 @@ function show(view: string, keepSpace = false) {
   )[view];
   $("#sidebar").classList.remove("open");
   syncSidebarFocus();
-  document.title = $("#breadcrumb").textContent + " · Órbita";
+  document.title = $("#breadcrumb").textContent + " · Orbital";
   let path = view === "reservations" ? schedulingPath(reservationsView?.section() || "dashboard") : "/app/" + (routeNames[view] || "vista-general");
   if (view === "canvas" && canvasOpen) {
     const space = state.spaces.find((s) => s.id === activeSpace)!;
@@ -1432,6 +1459,7 @@ function canvasCardClasses(n: CanvasNode) {
   return [
     "canvas-node",
     n.kind === "sales" && "canvas-sales-card",
+    n.calculation && "canvas-calculation",
     n.kind === "page" && isCanvasTextCard(n) && n.borderStyle !== "dashed" && "canvas-letter",
     n.spatial?.type === "media" && n.spatial.fileId && "canvas-file-card",
     n.spatial && (["stack", "group"].includes(n.spatial.type) ? "spatial-stack" : "spatial-" + n.spatial.type),
@@ -1460,7 +1488,7 @@ function canvasCardFace(n: CanvasNode, writable: boolean, preview = false) {
           : `<div class="node-body ${textCard?"canvas-card-content":""}" ${textCard && edit ? `data-card-editable="${esc(n.id)}" title="Doble clic para ver en detalle"` : ""}>${
               textCard && integratedTitle ? `<strong class="canvas-card-title">${titleMarkup}</strong>` : ""
             }${
-              n.kind === "tasks" ? inline.renderList(n, preview)
+              n.calculation ? calculationMarkup(n.body) : n.kind === "tasks" ? inline.renderList(n, preview)
                 : n.kind === "sales" ? canvasSalesContent(n.metric)
                 : `<div class="canvas-card-copy" data-placeholder="Escribe aquí…">${page?.bodyHtml || n.bodyHtml ? sanitizeRichText(page?.bodyHtml || n.bodyHtml || "") : esc(body)}</div>`
             }${textCard && n.pageId && page ? `<button class="linked-page-label" ${preview ? "" : `data-canvas-note="${esc(n.pageId)}"`}>Abrir nota vinculada →</button>` : ""}</div>`
@@ -1528,7 +1556,7 @@ function renderCanvas(groupTransition = false) {
       const noteColor = n.kind === "note" ? noteColors[visibleNoteColor(n.noteColor)] : "";
       const palette = writable && noteColor ? `<div class="canvas-note-palette" role="group" aria-label="Color de la nota">${Object.entries(noteColors).map(([key, color]) => `<button type="button" style="--swatch:${color}" data-note-color="${key}" aria-pressed="${color === noteColor}" aria-label="Color ${key === "verdeLima" ? "verde lima" : key}"></button>`).join("")}</div>` : "";
       const deletion=writable?`<button class="icon-btn node-delete-button" data-delete-node="${n.id}" aria-label="Eliminar ${esc(title)}">${uiIcon("trash",15)}</button>`:"";
-      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`height:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Órbita · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
+      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`${n.kind === "note" ? "--sticky-height" : "height"}:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.calculation && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Orbital · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
     })
     .join("") + canvasFolders().filter(folder => !folder.folder.groupId || org?.activeGroup() === folder.folder.groupId).map(folder => {
       const groupId = org?.activeGroup();
@@ -1625,7 +1653,7 @@ function toggleCanvasToolsMenu(kind: "folders" | "metrics" | "shortcuts") {
   menu.classList.toggle("canvas-shortcuts-menu", kind === "shortcuts");
   if (kind === "shortcuts") {
     menu.setAttribute("aria-label", "Atajos del lienzo");
-    menu.innerHTML = `<div class="shortcut-dialog"><p>Usa ⌘ en Mac o Ctrl en Windows.</p><dl class="canvas-shortcuts"><div><dt>Buscar en Órbita</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt>Agrupar la selección</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>G</kbd></dd></div><div><dt>Deshacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Z</kbd></dd></div><div><dt>Rehacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Mayús</kbd> <kbd>Z</kbd></dd></div><div><dt>Captura rápida</dt><dd><kbd>Alt</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover el lienzo</dt><dd><kbd>⌘ / Ctrl</kbd> + arrastrar</dd></div><div><dt>Acercar o alejar</dt><dd><kbd>⌘ / Ctrl</kbd> + rueda</dd></div><div><dt>Abrir el elemento enfocado</dt><dd><kbd>Enter</kbd> o doble clic</dd></div><div><dt>Seleccionar la tarjeta enfocada</dt><dd><kbd>Mayús</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover tarjeta enfocada</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>Agrupar al soltar</dt><dd>Arrastra una tarjeta sobre otra</dd></div><div><dt>Reordenar en un grupo abierto</dt><dd><kbd>Alt</kbd> + flechas</dd></div><div><dt>Eliminar tarjeta enfocada</dt><dd><kbd>Delete</kbd></dd></div><div><dt>Salir del detalle o del grupo</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Pegar una imagen</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>V</kbd></dd></div></dl></div>`;
+    menu.innerHTML = `<div class="shortcut-dialog"><p>Usa ⌘ en Mac o Ctrl en Windows.</p><dl class="canvas-shortcuts"><div><dt>Buscar en Orbital</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>K</kbd></dd></div><div><dt>Agrupar la selección</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>G</kbd></dd></div><div><dt>Deshacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Z</kbd></dd></div><div><dt>Rehacer</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>Mayús</kbd> <kbd>Z</kbd></dd></div><div><dt>Captura rápida</dt><dd><kbd>Alt</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover el lienzo</dt><dd><kbd>⌘ / Ctrl</kbd> + arrastrar</dd></div><div><dt>Acercar o alejar</dt><dd><kbd>⌘ / Ctrl</kbd> + rueda</dd></div><div><dt>Abrir el elemento enfocado</dt><dd><kbd>Enter</kbd> o doble clic</dd></div><div><dt>Seleccionar la tarjeta enfocada</dt><dd><kbd>Mayús</kbd> <kbd>Espacio</kbd></dd></div><div><dt>Mover tarjeta enfocada</dt><dd><kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd></dd></div><div><dt>Agrupar al soltar</dt><dd>Arrastra una tarjeta sobre otra</dd></div><div><dt>Reordenar en un grupo abierto</dt><dd><kbd>Alt</kbd> + flechas</dd></div><div><dt>Eliminar tarjeta enfocada</dt><dd><kbd>Delete</kbd></dd></div><div><dt>Salir del detalle o del grupo</dt><dd><kbd>Esc</kbd></dd></div><div><dt>Pegar una imagen</dt><dd><kbd>⌘ / Ctrl</kbd> <kbd>V</kbd></dd></div></dl></div>`;
     const panel = menu.querySelector<HTMLElement>(".shortcut-dialog")!;
     const list = panel.querySelector("dl")!;
     const rows = [...list.children] as HTMLElement[];
@@ -1879,7 +1907,7 @@ function revealCanvasRects(rects: Rect[], animate = false) {
     layer.animate([{transform:from},{transform:layer.style.transform}], {duration:230,easing:"cubic-bezier(.2,.75,.25,1)"});
 }
 function addBlock(
-  kind: CanvasNode["kind"] | "frame",
+  kind: CanvasNode["kind"] | "frame" | "calculation",
   position?: { x: number; y: number },
   metric?: CanvasMetric,
 ) {
@@ -1889,6 +1917,8 @@ function addBlock(
     $<HTMLInputElement>("#image-input").click();
     return;
   }
+  const calculation = kind === "calculation";
+  if (kind === "calculation") kind = "page";
   const dashed = kind === "frame";
   if (kind === "frame") kind = "page";
   const id = uid(),
@@ -1914,14 +1944,16 @@ function addBlock(
       id,
       space: activeSpace,
       kind,
+      calculation: calculation || undefined,
       borderStyle: dashed ? "dashed" : undefined,
       cloudAuthor: dashed ? ([actor().firstName, actor().lastName].filter(Boolean).join(" ") || actor().name).slice(0, 80) : undefined,
-      title: dashed ? "Nueva idea" : metric ? canvasMetrics[metric] : labels[kind],
+      title: calculation ? "Cálculos" : dashed ? "Nueva idea" : metric ? canvasMetrics[metric] : labels[kind],
       metric,
       body: "",
       ...pos,
     }])) return;
   centerOnNode(id);
+  if (calculation) requestAnimationFrame(() => openCanvasDetail(id));
 }
 function fitCanvasPreviews() {
   for (const tile of document.querySelectorAll<HTMLElement>("#canvas-nodes .canvas-preview-tile")) {
@@ -2097,6 +2129,20 @@ function connectPage(pageId: string) {
     notify("Conexiones guardadas.");
   };
 }
+function calculationMarkup(source: string, resultsOnly = false) {
+  const rows=calculateLines(source);
+  if (!source.trim() && !resultsOnly) return '<p class="calculation-empty">Escribe operaciones y obtén el resultado al instante.<br>precio = 12000<br>precio + 19%</p>';
+  return `<div class="calculation-lines">${rows.map(row=>`<div class="calculation-line ${row.error ? "has-error" : ""}">${resultsOnly ? "" : `<span>${esc(row.expression)}</span>`}<output ${row.error ? `title="${esc(row.error)}"` : ""}>${esc(formatCalculation(row)) || "&nbsp;"}</output></div>`).join("")}</div>`;
+}
+function calculationEditor(node: CanvasNode, host: HTMLElement) {
+  host.innerHTML=`<div class="calculation-form"><input class="calculation-title" aria-label="Título" maxlength="120" value="${esc(node.title)}"/><p class="calculation-help">Una operación por línea. Puedes usar variables, %, total y conversiones como 2 h en min.</p><div class="calculation-editor"><textarea aria-label="Operaciones" maxlength="30000" rows="12" wrap="off" spellcheck="false" placeholder="precio = 12000&#10;iva = precio * 19%&#10;precio + iva">${esc(node.body)}</textarea><div class="calculation-results" aria-live="polite" aria-label="Resultados">${calculationMarkup(node.body,true)}</div></div></div>`;
+  const input=host.querySelector<HTMLTextAreaElement>('textarea')!,title=host.querySelector<HTMLInputElement>('input')!,results=host.querySelector<HTMLElement>('.calculation-results')!;
+  let changed=false;
+  const persist=()=>{if(!changed){history();changed=true;}node.title=title.value.slice(0,120)||'Cálculos';node.body=input.value.slice(0,30000);delete node.bodyHtml;save();};
+  input.addEventListener('input',()=>{results.innerHTML=calculationMarkup(input.value,true);persist();});
+  title.addEventListener('input',persist);
+  input.addEventListener('scroll',()=>{results.scrollTop=input.scrollTop;});
+}
 function isCanvasTextCard(node: CanvasNode) {
   return !node.spatial && ["note", "page", "tasks"].includes(node.kind);
 }
@@ -2104,6 +2150,11 @@ function editCanvasCard(id: string, detailHost?: HTMLElement) {
   if (!canvasOpen || activeView!=="canvas" || !canWrite(actor(),"canvas")) return;
   const n=state.nodes.find(node=>node.id===id&&node.space===activeSpace);
   if (!n || (!isCanvasTextCard(n) && !(detailHost && n.spatial?.type === "media"))) return;
+  if (n.calculation) {
+    if (!detailHost) { openCanvasDetail(id); return; }
+    calculationEditor(n, detailHost);
+    return;
+  }
   const page=n.pageId ? state.pages.find(page=>page.id===n.pageId&&isMine(page.privateOwner)) : undefined;
   if (n.pageId && (!page || !canWrite(actor(),"pages"))) return;
   const host=detailHost || document.querySelector<HTMLElement>(`[data-card-editable="${CSS.escape(id)}"]`);
@@ -2368,7 +2419,7 @@ function openCanvasDetail(id: string) {
   const detailEditor = editable && (isCanvasTextCard(n) || n.spatial?.type === "media");
   const content = n.spatial ? spatial.render(n, false)
     : n.kind === "image" ? `<figure>${n.image?.startsWith("data:image/gif") ? canvasMedia.gifMarkup(n.id, n.image, title, esc) : `<img src="${esc(n.image)}" alt="${esc(title)}"/>`}${n.body ? `<figcaption>${esc(n.body)}</figcaption>` : ""}</figure>`
-    : n.kind === "tasks" ? `<ul class="canvas-detail-checklist">${(n.checklist || []).map(row=>`<li>${uiIcon(row.done?"check":"frame",18)} <span>${esc(row.text)}</span><small>${row.done?"Lista":"Pendiente"}</small></li>`).join("")}</ul>`
+    : n.calculation ? calculationMarkup(n.body) : n.kind === "tasks" ? `<ul class="canvas-detail-checklist">${(n.checklist || []).map(row=>`<li>${uiIcon(row.done?"check":"frame",18)} <span>${esc(row.text)}</span><small>${row.done?"Lista":"Pendiente"}</small></li>`).join("")}</ul>`
     : n.kind === "sales" ? canvasSalesContent(n.metric)
     : `<div class="canvas-detail-copy">${n.pageId && !page ? "No tienes acceso a esta nota." : description.bodyHtml ? sanitizeRichText(description.bodyHtml) : esc(description.body)}</div>`;
   canvasDetailId = id;
@@ -2532,90 +2583,205 @@ document.addEventListener("keydown", (e) => {
   }
 });
 function renderCalendar() {projectCalendar?.render();}
-function eventEditor(id?: string, date?: string, time?:string) {
-  if (!canView(actor(), "calendar") || (!id && !canWrite(actor(), "calendar")))
-    return;
-  const event = state.events.find((e) => e.id === id);
-  const initialEnd=eventDates(eventRange(event||{date:date||companyDay(state.settings.timezone),time:time||"10:00"}).start,eventRange(event||{date:date||companyDay(state.settings.timezone),time:time||"10:00"}).end);
-  modal(
-    `<div class="event-dialog-heading"><h2>${event ? "Editar evento" : "Nuevo evento"}</h2><button type="button" class="button secondary small-button" id="export-event">↓ Descargar .ics</button></div><p>Añade la fecha, la hora y los detalles que necesitas recordar.</p><form id="event-form"><label>Nombre del evento<input required name="title" maxlength="120" value="${esc(event?.title || "")}"/></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><label>Fecha<input required type="date" name="date" value="${esc(event?.date || date || companyDay(state.settings.timezone))}"/></label><label>Hora<input required type="time" name="time" value="${esc(event?.time || time || "10:00")}"/></label><label>Fecha de término<input required type="date" name="endDate" value="${initialEnd.endDate}"/></label><label>Hora de término<input required type="time" name="endTime" value="${initialEnd.endTime}"/></label></div><label>Notas<textarea name="description" maxlength="5000">${esc(event?.description || "")}</textarea></label><div class="dialog-actions">${event ? '<button type="button" class="danger-button" id="delete-event">Eliminar</button>' : ""}${event && connectedProviders.includes("google") ? '<button type="button" class="button secondary" id="google-event">Enviar a Google</button>' : ""}<button class="button primary">Guardar evento</button></div></form>`,
-  );
-  if (!canWrite(actor(), "calendar")) {
-    $$("#event-form input,#event-form textarea").forEach(
-      (el) => ((el as HTMLInputElement).readOnly = true),
-    );
-    $$(
-      "#delete-event,#google-event,#event-form .dialog-actions>button:last-child",
-    ).forEach((el) => (el.hidden = true));
+function eventEditor(id?: string, date?: string, time?: string, through?: string, focusEnd = false) {
+  const writable = canWrite(actor(), "calendar");
+  if (!canView(actor(), "calendar") || (!id && !writable)) return;
+  const event = state.events.find(item => item.id === id);
+  if (id && !event) return;
+  const zone = state.settings.timezone || "America/Santiago";
+  const start = event || { date: date || companyDay(zone), time: time || "10:00" };
+  const range = eventRange(start);
+  const end = eventDates(range.start, range.end);
+  const google = event && writable && connectedProviders.includes("google");
+  modal(`
+    <div class="event-dialog-heading">
+      <h2>${event ? writable ? "Editar evento" : "Detalles del evento" : "Nuevo evento"}</h2>
+      <details class="selection-menu event-actions">
+        <summary>Acciones <span aria-hidden="true">⌄</span></summary>
+        <div class="selection-menu-panel">
+          <button type="button" class="button secondary" id="export-event">Descargar .ics</button>
+          ${google ? '<button type="button" class="button secondary" id="google-event">Enviar a Google</button>' : ""}
+          ${event && writable ? '<button type="button" class="danger-button" id="delete-event">Eliminar evento</button>' : ""}
+        </div>
+      </details>
+    </div>
+    <form id="event-form" class="settings-fields">
+      <label>Nombre del evento<input required name="title" maxlength="120" value="${esc(event?.title || "")}"/></label>
+      <label class="inline-check"><input type="checkbox" name="allDay" ${event?.allDay ? "checked" : ""}/>Todo el día</label>
+      ${zone !== Intl.DateTimeFormat().resolvedOptions().timeZone ? `<p class="event-time-zone">Zona horaria del calendario · ${esc(zone.replaceAll("_", " "))}</p>` : ""}
+      <fieldset class="event-date-fields"><legend>Inicio</legend>
+        <label>Fecha<input required type="date" name="date" value="${esc(start.date)}"/></label>
+        <label>Hora<input required type="time" name="time" value="${esc(event?.allDay ? "10:00" : start.time)}"/></label>
+      </fieldset>
+      <fieldset class="event-date-fields"><legend>Término</legend>
+        <label>Fecha<input required type="date" name="endDate" aria-describedby="event-date-error" value="${esc(through || (event?.allDay ? addDays(end.endDate, -1) : end.endDate))}"/></label>
+        <label>Hora<input required type="time" name="endTime" aria-describedby="event-date-error" value="${esc(event?.allDay ? "11:00" : end.endTime)}"/></label>
+      </fieldset>
+      <p id="event-date-error" role="alert" hidden></p>
+      <label><span>Notas <span class="event-optional">Opcional</span></span><textarea name="description" maxlength="5000">${esc(event?.description || "")}</textarea></label>
+      ${writable ? '<div class="dialog-actions"><button class="button primary">Guardar evento</button></div>' : ""}
+    </form>
+    <section class="event-discard" aria-labelledby="event-discard-title" hidden>
+      <h3 id="event-discard-title">¿Descartar los cambios?</h3>
+      <p>Los cambios de este formulario aún están sin guardar.</p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="discard-event-draft">Descartar</button><button type="button" class="button primary" id="keep-event-draft">Seguir editando</button></div>
+    </section>`);
+  const form = $<HTMLFormElement>("#event-form");
+  const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement;
+  const error = $("#event-date-error");
+  const allDay = field("allDay");
+  const actions = dialog.querySelector<HTMLDetailsElement>(".event-actions")!;
+  const draft = dialog.querySelector<HTMLElement>(".event-discard")!;
+  const readDraft = () => JSON.stringify([...new FormData(form)]);
+  const initialDraft = readDraft();
+  let endEdited = false;
+  const parsedStartDay = Date.parse(start.date);
+  const displayedEndDay = Date.parse(field("endDate").value);
+  const calendarDays = 1 + Math.round((displayedEndDay - parsedStartDay) / 86400000);
+  const timedDuration = Math.max(1, calendarDays) * 86400000 - 86400000
+    + (event?.allDay ? 3600000 : (range.end - range.start) - (Date.parse(end.endDate) - parsedStartDay));
+
+  const syncHourFields = () => {
+    for (const name of ["time", "endTime"]) {
+      field(name).closest("label")!.hidden = allDay.checked;
+      field(name).required = !allDay.checked;
+    }
+  };
+  syncHourFields();
+  if (!writable) {
+    form.querySelectorAll("input,textarea").forEach(input => {
+      (input as HTMLInputElement).readOnly = true;
+    });
+    allDay.disabled = true;
   }
-  function value() {
-    const f = new FormData($<HTMLFormElement>("#event-form"));
-    return {
-      ...event,
-      id: event?.id || uid(),
-      endDate:String(f.get("endDate")),endTime:String(f.get("endTime")),
-      title: String(f.get("title")),
-      date: String(f.get("date")),
-      time: String(f.get("time")),
-      description: String(f.get("description")),
-    };
-  }
-  $("#event-form").onsubmit = (e) => {
-    e.preventDefault();
-    if (!canWrite(actor(), "calendar")) return;
+  const value = () => ({
+    ...event,
+    id: event?.id || uid(),
+    title: field("title").value.trim(),
+    date: field("date").value,
+    time: allDay.checked ? "00:00" : field("time").value,
+    endDate: allDay.checked && field("endDate").value ? addDays(field("endDate").value, 1) : field("endDate").value,
+    endTime: allDay.checked ? "00:00" : field("endTime").value,
+    allDay: allDay.checked,
+    description: field("description").value,
+  });
+  const clearError = () => {
+    error.hidden = true;
+    error.textContent = "";
+    field("endDate").removeAttribute("aria-invalid");
+    field("endTime").removeAttribute("aria-invalid");
+  };
+  const validateRange = () => {
+    clearError();
+    const candidate = value();
+    if (validEventDates(candidate)) {
+      if (candidate.allDay || (
+        calendarInstant(candidate.endDate, candidate.endTime, zone) >
+        calendarInstant(candidate.date, candidate.time, zone)
+      )) return true;
+      error.textContent = "El intervalo incluye una hora inválida para esta zona horaria.";
+    }
+    const invalid = field(allDay.checked ? "endDate" : "endTime");
+    if (!error.textContent) error.textContent = allDay.checked ? "La fecha de término debe ser igual o posterior a la de inicio." : "El término debe ser posterior al inicio.";
+    error.hidden = false;
+    invalid.setAttribute("aria-invalid", "true");
+    invalid.focus();
+    return false;
+  };
+
+  form.addEventListener("input", event => {
+    clearError();
+    const name = (event.target as HTMLInputElement).name;
+    if (name === "endDate" || name === "endTime") endEdited = true;
+    if (name === "allDay") {
+      syncHourFields();
+      return;
+    }
+    if (endEdited || (name !== "date" && name !== "time")) return;
+    const date = field("date").value, time = field("time").value;
+    if (!date || !time) return;
+    if (allDay.checked) {
+      field("endDate").value = addDays(date, Math.max(0, calendarDays - 1));
+      return;
+    }
+    const start = eventRange({date,time}).start;
+    const end = eventDates(start,start + timedDuration);
+    field("endDate").value = end.endDate;
+    field("endTime").value = end.endTime;
+  });
+
+  drawer.setBeforeClose(() => {
+    if (!writable || readDraft() === initialDraft) return true;
+    form.hidden = actions.hidden = true;
+    draft.hidden = false;
+    $("#keep-event-draft").focus();
+    return false;
+  });
+  $("#keep-event-draft").onclick = () => {
+    form.hidden = actions.hidden = false;
+    draft.hidden = true;
+    field("title").focus();
+  };
+  $("#discard-event-draft").onclick = () => close(true);
+  if (focusEnd) window.setTimeout(() => {
+    if (!form.isConnected) return;
+    const input = field(allDay.checked ? "endDate" : "endTime");
+    input.focus();
+    try { input.showPicker?.(); } catch { /* The native field remains focused. */ }
+  }, 40);
+
+  form.onsubmit = submit => {
+    submit.preventDefault();
+    if (!writable || !validateRange()) return;
     const v = value();
-    if(!validEventDates(v)){notify("El término debe ser posterior al inicio del evento.");return;}
+    if (!v.title) { field("title").focus(); return; }
     mutate(() => {
-      if (event)
-        state.events = state.events.map((x) => (x.id === event.id ? v : x));
+      if (event) state.events = state.events.map(item => item.id === event.id ? v : item);
       else state.events.push(v);
     });
-    close();
+    close(true);
     notify("Evento guardado en tu calendario.");
   };
   $("#export-event").onclick = () => {
-    const f = $<HTMLFormElement>("#event-form");
-    if (!f.reportValidity()) return;
+    actions.open = false;
+    if (!form.reportValidity() || !validateRange()) return;
     const v = value();
-    if(!validEventDates(v)){notify("Revisa el inicio y el término del evento.");return;}
-    const dt = new Date(`${v.date}T${v.time}:00`);
-    const ics = (s: string) =>
-      s
-        .replaceAll("\\", "\\\\")
-        .replaceAll("\n", "\\n")
-        .replaceAll(",", "\\,")
-        .replaceAll(";", "\\;");
-    const stamp = (d: Date) =>
-      d
-        .toISOString()
-        .replace(/[-:]/g, "")
-        .replace(/\.\d{3}/, "");
-    download(
-      "evento-orbita.ics",
-      `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Orbita//Workspace//ES\r\nBEGIN:VEVENT\r\nUID:${v.id}@orbita.local\r\nDTSTAMP:${stamp(new Date())}\r\nDTSTART:${stamp(dt)}\r\nDTEND:${stamp(new Date(`${v.endDate}T${v.endTime}:00`))}\r\nSUMMARY:${ics(v.title)}\r\nDESCRIPTION:${ics(v.description)}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`,
-      "text/calendar",
-    );
-  };
-  if (event && connectedProviders.includes("google"))
-    $("#google-event").onclick = async () => {
-      try {
-        if (cloudDirty) await syncCloud();
-        await api("google/events", {
-          method: "POST",
-          body: JSON.stringify({ id: event.id }),
-        });
-        notify("Evento enviado a Google Calendar.");
-      } catch (e) {
-        notify(e instanceof Error ? e.message : "No se pudo enviar");
+    const ics = (text:string) => text.replaceAll("\\", "\\\\").replace(/\r?\n/g, "\\n").replaceAll(",", "\\,").replaceAll(";", "\\;");
+    const stamp = (instant: number) => new Date(instant).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+    const asDate = (date: string) => date.replaceAll("-", "");
+    let schedule = `DTSTART;VALUE=DATE:${asDate(v.date)}\r\nDTEND;VALUE=DATE:${asDate(v.endDate)}`;
+    if (!v.allDay) {
+      const from = calendarInstant(v.date, v.time, zone);
+      const to = calendarInstant(v.endDate, v.endTime, zone);
+      if (from === undefined || to === undefined || to <= from) {
+        error.hidden = false;
+        error.textContent = "Revisa las horas del evento. El cambio de horario en esta zona afecta el intervalo elegido.";
+        field("endTime").focus();
+        return;
       }
-    };
-  if (event)
-    $("#delete-event").onclick = () => {
-      mutate(
-        () => (state.events = state.events.filter((x) => x.id !== event.id)),
-      );
-      close();
-    };
+      schedule = `DTSTART:${stamp(from)}\r\nDTEND:${stamp(to)}`;
+    }
+    download("evento-orbital.ics", `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Orbital//Workspace//ES\r\nBEGIN:VEVENT\r\nUID:${v.id}@orbita.local\r\nDTSTAMP:${stamp(Date.now())}\r\n${schedule}\r\nSUMMARY:${ics(v.title)}\r\nDESCRIPTION:${ics(v.description)}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`, "text/calendar");
+  };
+  if (google) $("#google-event").onclick = async () => {
+    actions.open = false;
+    if (readDraft() !== initialDraft) {
+      notify("Guarda los cambios antes de enviar el evento a Google.");
+      return;
+    }
+    try {
+      if (cloudDirty) await syncCloud();
+      await api("google/events", {method: "POST", body: JSON.stringify({id:event.id})});
+      notify("Evento enviado a Google Calendar.");
+    } catch (failure) {
+      notify(failure instanceof Error ? failure.message : "No se pudo enviar");
+    }
+  };
+  if (event && writable) $("#delete-event").onclick = () => {
+    if (!confirm("¿Eliminar este evento del calendario?")) return;
+    mutate(() => (state.events = state.events.filter(item => item.id !== event.id)));
+    close(true);
+  };
 }
 function renderPages() {
   directories.render("notes", state.pages.filter(i=>!i.privateOwner), "pages", "pages-list", "notes-directory-toolbar", "notes-pagination", "pages-grid", (i,f)=>noteCard(state,i,canWrite(actor(),"canvas"),f));
@@ -2772,8 +2938,8 @@ function liveMetric(kind: string): {
         ],
         ["Ventana de medición", "30 días"],
       ],
-      source: "WooCommerce · Órbita",
-      note: "Carros con más de 30 minutos de inactividad. Datos capturados desde la instalación del plugin Órbita Business Metrics; no incluyen historial anterior.",
+      source: "WooCommerce · Orbital",
+      note: "Carros con más de 30 minutos de inactividad. Datos capturados desde la instalación del plugin Orbital Business Metrics; no incluyen historial anterior.",
       values: rows.map((r) => Number(r.count)),
       labels: rows.map((r) => r.date),
     };
@@ -3096,6 +3262,9 @@ function syncPrivateChrome(){
 function syncModuleChrome(){
   const module=activeView === "accounting"?"accounting":activeView === "reservations"?'scheduling':['analytics','orders','order','customers','customer','invoices'].includes(activeView)?'store':['canvas','tasks','task','pages','page','calendar','event','files'].includes(activeView)?'creative':['team','polls','documents','document','vault'].includes(activeView)?'company':activeView==='overview'?'general':'none';
   document.body.dataset.uiModule=module;
+  for (const key of ["store", "company", "creative", "scheduling"]) {
+    document.querySelector(`[data-action="toggle-${key}"]`)?.classList.toggle("has-current", module === key);
+  }
   document.querySelectorAll<HTMLButtonElement>('[data-shell-module]').forEach(button=>{
     const key=button.dataset.shellModule!;
     const sections:Record<string,Section[]>={accounting:['invoices'],general:['overview'],creative:['canvas','tasks','pages','calendar','files'],store:['analytics','orders','customers','invoices'],company:['team','vault','documents'],scheduling:['calendar']};
@@ -3439,7 +3608,7 @@ function boardEditor(privateArea = false) {
 let blockPointer:
   | {
       id: number;
-      kind: CanvasNode["kind"] | "frame";
+      kind: CanvasNode["kind"] | "frame" | "calculation";
       x: number;
       y: number;
       moved: boolean;
@@ -3452,7 +3621,7 @@ document.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   blockPointer = {
     id: e.pointerId,
-    kind: b.dataset.addBlock as CanvasNode["kind"] | "frame",
+    kind: b.dataset.addBlock as CanvasNode["kind"] | "frame" | "calculation",
     x: e.clientX,
     y: e.clientY,
     moved: false,
@@ -3631,8 +3800,10 @@ const actions: Record<string, () => void> = {
   },
   search: searchDialog,
   menu: () => {
-    $("#sidebar").classList.toggle("open");
+    const open = $("#sidebar").classList.toggle("open");
     syncSidebarFocus();
+    if (open) requestAnimationFrame(() => document.querySelector<HTMLElement>(".mobile-nav-heading button")?.focus());
+    else document.querySelector<HTMLElement>('.topbar [data-action="menu"]')?.focus();
   },
   business: () => show("profile"),
   profile: () => show("profile"),
@@ -3653,7 +3824,7 @@ const actions: Record<string, () => void> = {
   },
   plan: () =>
     modal(
-      '<div class="eyebrow">HECHO PARA CRECER CONTIGO</div><h2>Tu negocio tiene futuro.</h2><p>Esta es la base de Órbita. Los planes de pago y la facturación todavía no están habilitados.</p><p>La arquitectura separa los datos de cada negocio y permite extender el producto con límites de uso, membresías y suscripciones.</p><button class="button primary" data-close>Seguir explorando</button>',
+      '<div class="eyebrow">HECHO PARA CRECER CONTIGO</div><h2>Tu negocio tiene futuro.</h2><p>Esta es la base de Orbital. Los planes de pago y la facturación todavía no están habilitados.</p><p>La arquitectura separa los datos de cada negocio y permite extender el producto con límites de uso, membresías y suscripciones.</p><button class="button primary" data-close>Seguir explorando</button>',
     ),
   google: () => integrationInfo("google"),
   export: () =>
@@ -3782,7 +3953,7 @@ document.addEventListener("click", (e) => {
   }
   if (b.dataset.addBlock) {
     if (Date.now() > ignoreBlockClickUntil)
-      addBlock(b.dataset.addBlock as CanvasNode["kind"] | "frame");
+      addBlock(b.dataset.addBlock as CanvasNode["kind"] | "frame" | "calculation");
     return;
   }
   if (b.dataset.action) {
@@ -4045,7 +4216,7 @@ $<HTMLInputElement>("#import-input").onchange = async (e) => {
       notify("Tu respaldo está de vuelta.");
     };
   } catch {
-    notify("Este archivo no es un respaldo válido de Órbita.");
+    notify("Este archivo no es un respaldo válido de Orbital.");
   }
   input.value = "";
 };
@@ -5156,7 +5327,7 @@ async function ensureDemoCanvasExamples() {
   if(!visible.some(n=>n.kind==="note"))add({kind:"note",title:"Una idea rápida",body:"Escribe una idea y envíala a Notas cuando esté lista."});
   if(!visible.some(n=>n.kind==="page"&&!n.spatial&&n.borderStyle!=="dashed"))add({kind:"page",title:"Texto de ejemplo",body:"Una tarjeta para dar contexto al equipo."});
   if(!visible.some(n=>n.kind==="tasks"))add({kind:"tasks",title:"Lista de lanzamiento",body:"",checklist:[{id:uid(),text:"Preparar las fotos",done:false}]});
-  if(!visible.some(n=>n.borderStyle==="dashed"))add({kind:"page",title:"Marco de ejemplo",body:"Una hipótesis para probar antes de publicar.",borderStyle:"dashed",cloudAuthor:"Órbita · Demo"});
+  if(!visible.some(n=>n.borderStyle==="dashed"))add({kind:"page",title:"Marco de ejemplo",body:"Una hipótesis para probar antes de publicar.",borderStyle:"dashed",cloudAuthor:"Orbital · Demo"});
   if(!visible.some(n=>n.kind==="sales"))add({kind:"sales",title:"Ventas de ejemplo",body:""});
   if(!visible.some(n=>n.kind==="image"))add({kind:"image",title:"Diseño de ejemplo",body:"Una referencia visual para el lanzamiento.",image:demoCanvasImage});
   if(!visible.some(n=>n.spatial?.type==="web"))add({kind:"page",title:"Referencia · Spatial",body:"",spatial:{type:"web",url:"https://www.get-spatial.com/"}});
@@ -5459,7 +5630,7 @@ presence = installPresence({
   },
 });
 installRichToolbar();
-projectCalendar=installProjectCalendar({events:()=>state.events,writable:()=>canWrite(actor(),'calendar'),mutate,create:(day,time)=>eventEditor(undefined,day,time),notify,today:()=>companyDay(state.settings.timezone),milestones:()=>canView(actor(),'tasks')?(state.boards||[]).filter(b=>isMine(b.privateOwner)).flatMap(b=>[...(b.work?.cycles||[]).filter(c=>c.status!=="draft").map(c=>({start:c.start,end:c.end,title:c.name,board:b.id})),...(b.work?.periods||[]).map(p=>({start:p.start,end:p.end,title:b.name,board:b.id}))]):[]});
+projectCalendar=installProjectCalendar({events:()=>state.events,writable:()=>canWrite(actor(),'calendar'),mutate,create:(day,time,through)=>eventEditor(undefined,day,time,through),edit:(id,focusEnd)=>eventEditor(id,undefined,undefined,undefined,focusEnd),notify,today:()=>companyDay(state.settings.timezone),milestones:()=>canView(actor(),'tasks')?(state.boards||[]).filter(b=>isMine(b.privateOwner)).flatMap(b=>[...(b.work?.cycles||[]).filter(c=>c.status!=="draft").map(c=>({start:c.start,end:c.end,title:c.name,board:b.id})),...(b.work?.periods||[]).map(p=>({start:p.start,end:p.end,title:b.name,board:b.id}))]):[]});
 void bootstrap().then(() => {
   if (!cloud) trash.expire();
   void features.preload();
@@ -5505,9 +5676,7 @@ document.addEventListener("click", event => {
   if (!matchMedia("(max-width:1024px)").matches || !sidebar.classList.contains("open") || sidebar.contains(target) || target.closest('[data-action="menu"]')) return;
   event.preventDefault();
   event.stopImmediatePropagation();
-  sidebar.classList.remove("open");
-  syncSidebarFocus();
-  document.querySelector<HTMLElement>('[data-action="menu"]')?.focus({ preventScroll: true });
+  closeNavigation();
 }, true);
 window.matchMedia("(max-width:680px)").addEventListener("change", () => {
   if (activeView === "tasks" && boardOpen) renderTasks();

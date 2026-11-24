@@ -1,4 +1,4 @@
-:is(#toast,#platform-status).ui-toast { position:fixed;z-index:10000;left:50%;bottom:1.5rem;transform:translateX(-50%);width:min(31rem,calc(100vw - 2rem));display:flex;align-items:center;gap:.875rem;padding:1rem 1.125rem;border:0;border-radius:1rem;color:#234039;background:#e5f5ee;box-shadow:0 .5rem 2rem #11131814;text-align:left; }
+:is(#toast,#platform-status).ui-toast { position:fixed;z-index:10000;pointer-events:auto;left:50%;bottom:1.5rem;transform:translateX(-50%);width:min(31rem,calc(100vw - 2rem));display:flex;align-items:center;gap:.875rem;padding:1rem 1.125rem;border:0;border-radius:1rem;color:#234039;background:#e5f5ee;box-shadow:0 .5rem 2rem #11131814;text-align:left; }
 :is(#toast,#platform-status).ui-toast[hidden] { display:none; }
 :is(#toast,#platform-status).ui-toast[data-kind=info] { background:#edf0ff;color:#293d70; }
 :is(#toast,#platform-status).ui-toast[data-kind=warning] { background:#fff3e4;color:#704615; }

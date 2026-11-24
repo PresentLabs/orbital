@@ -1,4 +1,5 @@
 export const uiPaths: Record<string, string> = {
+  calculator: "M5 2h14v20H5ZM8 5h8v4H8Zm0 8h2m4 0h2m-8 4h2m4 0h2",
   noticeCheck: "m4 12 5 5L20 6",
   noticeClose: "m6 6 12 12M18 6 6 18",
   layers: "m12 3 10 6-10 6L2 9l10-6Zm-10 12 10 6 10-6M2 12l10 6 10-6",
