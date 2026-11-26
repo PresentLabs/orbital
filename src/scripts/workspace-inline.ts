@@ -142,10 +142,11 @@ export function installInline(ctx: Ctx) {
       ).find((i) => i.id === el.dataset.entityId);
       if (!item) return;
       const text =
-        el.innerText
+        (field === "title" ? el.innerText.replace(/\s*\r?\n\s*/g, " ") : el.innerText)
           .trim()
           .slice(0, field === "title" ? 140 : kind === "task" ? 5000 : 30000) ||
         (field === "title" ? "Sin título" : "");
+      if (field === "title" && el.textContent !== text) el.textContent = text;
       const property =
         field === "title" ? "title" : kind === "task" ? "description" : "body";
       if (
@@ -207,6 +208,12 @@ export function installInline(ctx: Ctx) {
   });
   document.addEventListener("keydown", (e) => {
     const el = e.target as HTMLElement;
+    if (e.key === "Enter" && !e.isComposing && el.matches('[data-entity-kind="page"][data-entity-field="title"][contenteditable]')) {
+      e.preventDefault();
+      el.blur();
+      document.querySelector<HTMLElement>('#page-detail [data-entity-field="body"][contenteditable]')?.focus();
+      return;
+    }
     if (el.matches("[data-task-title]") && e.key === "Enter") {
       e.preventDefault();
       saveText(el);
@@ -241,6 +248,12 @@ export function installInline(ctx: Ctx) {
   });
   document.addEventListener("change", (e) => {
     const input = e.target as HTMLInputElement;
+    const editor = input.closest<HTMLElement>('[data-entity-kind="page"][data-entity-field="body"][contenteditable]');
+    if (editor && input.matches('input[type="checkbox"]')) {
+      input.toggleAttribute("checked", input.checked);
+      saveText(editor);
+      return;
+    }
     if (input.dataset.checkNode && canWrite(ctx.actor(), "canvas")) {
       ctx.mutate(() => {
         const node = ctx

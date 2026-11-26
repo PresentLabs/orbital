@@ -76,6 +76,7 @@ const { title = "Vista general" } = Astro.props;
         <div id="creative-navigation">
           <button type="button" class="nav-item navigation-parent module-heading" data-action="toggle-creative" aria-controls="creative-submenu" aria-expanded="false">Proyecto<span class="nav-chevron" aria-hidden="true">⌄</span></button>
           <div id="creative-submenu" class="store-submenu navigation-submenu" hidden>
+            <button type="button" class="nav-item project-create" data-action="create"><Icon name="plus" size={16}/>Crear</button>
             <button class="nav-item" title="Conecta ideas en un lienzo" data-view="canvas"><span>Espacios</span></button>
             <button class="nav-item" title="Organiza acciones y pendientes" data-view="tasks"><span>Tareas</span><span id="task-count" class="nav-count">5</span></button>
             <button class="nav-item" data-view="pages"><span>Notas</span></button>

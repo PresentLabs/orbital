@@ -6,7 +6,7 @@ const colors = new Set([
   "#3c6b9c",
   "#805aa1",
 ]);
-export function sanitizeRichText(html: string) {
+export function sanitizeRichText(html: string, maxLength = 30000) {
   const source = new DOMParser().parseFromString(html, "text/html");
   const out = document.createElement("div");
   function copy(node: Node, parent: HTMLElement) {
@@ -34,12 +34,21 @@ export function sanitizeRichText(html: string) {
       ({ B: "strong", I: "em", DIV: "p" } as Record<string, string>)[
         node.tagName
       ] || node.tagName.toLowerCase();
-    if (!["p", "br", "strong", "em", "h1", "h2", "h3", "span", "ul", "ol", "li", "pre", "code"].includes(tag)) {
+    if (!["p", "br", "strong", "em", "h1", "h2", "h3", "h4", "h5", "h6", "span", "ul", "ol", "li", "pre", "code", "a", "blockquote", "hr", "del", "table", "thead", "tbody", "tr", "th", "td"].includes(tag)) {
       node.childNodes.forEach((n) => copy(n, parent));
       return;
     }
     const el = document.createElement(tag);
     if (tag === "ul" && node.hasAttribute("data-canvas-checklist")) el.setAttribute("data-canvas-checklist", "");
+    if (tag === "ol" && /^\d{1,9}$/.test(node.getAttribute("start") || "")) el.setAttribute("start", node.getAttribute("start")!);
+    if (tag === "a") {
+      const href = node.getAttribute("href")?.trim() || "";
+      if (/^(https?:\/\/|mailto:)/i.test(href)) {
+        el.setAttribute("href", href);
+        el.setAttribute("rel", "noopener noreferrer");
+        el.setAttribute("target", "_blank");
+      }
+    }
     const color = (node.getAttribute("data-color") || "").toLowerCase();
     if (tag === "span" && colors.has(color)) {
       el.setAttribute("data-color", color);
@@ -49,7 +58,11 @@ export function sanitizeRichText(html: string) {
     parent.append(el);
   }
   source.body.childNodes.forEach((n) => copy(n, out));
-  return out.innerHTML.slice(0, 30000);
+  // Preserve complete HTML when imported formatting exceeds the storage limit.
+  if (out.innerHTML.length <= maxLength) return out.innerHTML;
+  const plain = document.createElement("div");
+  plain.textContent = (out.textContent || "").slice(0, 5000);
+  return plain.innerHTML;
 }
 /** Split visual lines into independent blocks, preserving inline formatting. */
 export function normalizeEditorBlocks(
@@ -97,12 +110,12 @@ export function normalizeEditorBlocks(
       inline(child, [...path, node]);
   }
   for (const node of Array.from(editor.childNodes)) {
-    if (node instanceof HTMLElement && ["UL", "OL", "PRE"].includes(node.tagName)) {
+    if (node instanceof HTMLElement && ["UL", "OL", "PRE", "BLOCKQUOTE", "TABLE", "HR"].includes(node.tagName)) {
       out.push(node); block = undefined; continue;
     }
     if (
       node instanceof Element &&
-      ["P", "DIV", "H1", "H2", "H3"].includes(node.tagName)
+      ["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6"].includes(node.tagName)
     ) {
       next(node.tagName === "DIV" ? "p" : node.tagName.toLowerCase());
       for (const child of Array.from(node.childNodes)) inline(child);
@@ -150,7 +163,10 @@ export function installRichToolbar() {
     bar.style.left =
       Math.max(10, Math.min(innerWidth - bar.offsetWidth - 10, point.left)) +
       "px";
-    bar.style.top = Math.max(12, point.top - bar.offsetHeight - 10) + "px";
+    const pageNote = editor.matches('[data-entity-kind="page"]');
+    const above = point.top - bar.offsetHeight - 10;
+    const below = point.bottom + 8;
+    bar.style.top = Math.max(12, pageNote && below + bar.offsetHeight < innerHeight ? below : above) + "px";
   }
   document.addEventListener("selectionchange", () => {
     const selection = getSelection(),
@@ -185,7 +201,8 @@ export function installRichToolbar() {
     caret.collapse(true);
     caret.insertNode(marker);
     normalizeEditorBlocks(editor, marker);
-    const block = marker.closest("p,h1,h2,h3,li") as HTMLElement;
+    const block = marker.closest<HTMLElement>("p,h1,h2,h3,h4,h5,h6,li");
+    if (!block) { marker.remove(); return; }
     const restored = document.createRange();
     restored.setStartBefore(marker);
     marker.remove();
@@ -199,6 +216,8 @@ export function installRichToolbar() {
     const selection = getSelection();
     selection?.removeAllRanges();
     selection?.addRange(range);
+    const start = range.startContainer;
+    if ((start instanceof Element ? start : start.parentElement)?.closest("pre,blockquote,table")) return;
     if (["ul", "ol"].includes(tag)) {
       const saved = bookmark();
       if (!saved) return;
@@ -264,7 +283,59 @@ export function installRichToolbar() {
     );
   document.addEventListener("keydown", (e) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>(selector);
-    if (target && e.key === "-" && !e.isComposing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    if (!target || e.isComposing || e.defaultPrevented) return;
+    if (["Backspace", "Delete"].includes(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      const selection = getSelection();
+      const anchor = selection?.anchorNode;
+      const item = (anchor instanceof Element ? anchor : anchor?.parentElement)?.closest("li");
+      const list = item?.parentElement;
+      if (selection?.isCollapsed && item && list && target.contains(list) && list.matches("ol,ul")) {
+        const prefix = document.createRange();
+        prefix.selectNodeContents(item);
+        prefix.setEnd(anchor!, selection.anchorOffset);
+        if (!prefix.toString().trim()) {
+          e.preventDefault();
+          const paragraph = document.createElement("p");
+          const trailing = list.cloneNode(false) as HTMLOListElement;
+          const following = [...list.children].indexOf(item) + 1;
+          while (item.nextSibling) trailing.append(item.nextSibling);
+          item.querySelector(':scope > input[type="checkbox"]')?.remove();
+          paragraph.append(...item.childNodes);
+          if (!paragraph.childNodes.length) paragraph.append(document.createElement("br"));
+          item.remove();
+          list.after(paragraph);
+          if (trailing.children.length) {
+            if (list instanceof HTMLOListElement) trailing.start = list.start + following;
+            paragraph.after(trailing);
+          }
+          if (!list.children.length) list.remove();
+          selection.collapse(paragraph, 0);
+          target.dispatchEvent(new Event("input", { bubbles: true }));
+          return;
+        }
+      }
+    }
+    if (e.key === " " && target.matches('[data-entity-kind="page"]') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      const selection = getSelection();
+      const anchor = selection?.anchorNode;
+      const block = (anchor instanceof Element ? anchor : anchor?.parentElement)?.closest("p,div") || target;
+      if (selection?.isCollapsed && anchor && target.contains(block) && !block.closest("ol,ul,pre,code")) {
+        const prefix = document.createRange();
+        prefix.selectNodeContents(block);
+        prefix.setEnd(anchor, selection.anchorOffset);
+        const marker = prefix.toString();
+        if (/^(#{1,6}|[-*+]|1\.)$/.test(marker)) {
+          e.preventDefault();
+          prefix.deleteContents();
+          selection.collapse(prefix.startContainer, prefix.startOffset);
+          if (marker.startsWith("#")) document.execCommand("formatBlock", false, "h" + marker.length);
+          else document.execCommand(marker === "1." ? "insertOrderedList" : "insertUnorderedList");
+          target.dispatchEvent(new Event("input", { bubbles: true }));
+          return;
+        }
+      }
+    }
+    if (!target.matches('[data-entity-kind="page"]') && e.key === "-" && !e.isComposing && !e.metaKey && !e.ctrlKey && !e.altKey) {
       const selection = getSelection();
       if (selection?.isCollapsed && selection.rangeCount) {
         const caret = selection.getRangeAt(0);
@@ -282,7 +353,9 @@ export function installRichToolbar() {
         }
       }
     }
-    if (!target || e.key !== "Enter" || e.shiftKey || e.isComposing) return;
+    if (e.key !== "Enter" || e.shiftKey || e.metaKey || e.ctrlKey) return;
+    const anchor = getSelection()?.anchorNode;
+    if ((anchor instanceof Element ? anchor : anchor?.parentElement)?.closest("pre,blockquote,table")) return;
     const selection = getSelection();
     if (!selection?.rangeCount) return;
     editor = target;

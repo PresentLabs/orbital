@@ -54,6 +54,7 @@ export interface CanvasNode {
   metric?: "sales" | "orders" | "seo" | "carts";
   cloudAuthor?: string;
   calculation?: boolean;
+  diagramShape?: "process" | "decision" | "terminal";
   id: string;
   space: string;
   kind: "note" | "page" | "tasks" | "sales" | "image";
@@ -78,6 +79,8 @@ export interface TaskBoard {
   createdAt: string;
 }
 export interface Page {
+  markdown?: string;
+  wikiTargets?: { title: string; id: string }[];
   authorId?:string; links?:ResourceLink[];
   createdAt?: string;
   privateOwner?: string;
@@ -539,6 +542,7 @@ export function validateState(value: unknown): value is WorkspaceState {
           (n.metric === undefined || (n.kind === "sales" && ["sales", "orders", "seo", "carts"].includes(n.metric))) &&
           (n.attachedTo === undefined || (n.kind === "note" && id(n.attachedTo) && n.attachedTo !== n.id)) &&
           (n.cloudAuthor === undefined || text(n.cloudAuthor,80)) &&
+          (n.diagramShape === undefined || (n.kind === "page" && !n.pageId && !n.spatial && !n.calculation && ["process", "decision", "terminal"].includes(n.diagramShape))) &&
           (n.calculation === undefined || (typeof n.calculation === "boolean" && n.kind === "page" && !n.pageId && !n.spatial)) &&
           (n.noteColor === undefined || (n.kind === "note" && isNoteColor(n.noteColor))) &&
           id(n.space) &&
@@ -568,6 +572,9 @@ export function validateState(value: unknown): value is WorkspaceState {
           text(p.title, 140) &&
           text(p.body, 30000) &&
           (p.bodyHtml === undefined || text(p.bodyHtml)) &&
+          (p.markdown === undefined || text(p.markdown, 30000)) &&
+          (p.wikiTargets === undefined || (Array.isArray(p.wikiTargets) && p.wikiTargets.length <= 6000 &&
+            p.wikiTargets.every(target => target && text(target.title, 140) && id(target.id)))) &&
           text(p.emoji, 30) &&
           text(p.updated, 40) &&
           Number.isFinite(Date.parse(p.updated)),

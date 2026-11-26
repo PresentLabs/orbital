@@ -125,7 +125,7 @@
 .orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-period[data-date-period] {grid-template-columns:1.2fr auto 1fr 1fr auto;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .reservation-hours .section-note {background:transparent;padding:.75rem 0;color:var(--muted);border:0;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-board {gap:1.25rem;}
-.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-column {background:var(--surface);padding:.75rem;border-radius:1.25rem;min-width:0;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-column {padding:.75rem;border-radius:1.25rem;min-width:0;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .kanban-column h2 {display:flex;gap:.5rem;align-items:center;margin:0 0 1rem;padding:.5rem;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .column-name {padding:0;border:0;background:transparent;text-align:left;flex:1;min-width:0;white-space:normal;color:var(--text);font-size:.875rem;font-weight:600;cursor:text;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .column-name:disabled {opacity:1;cursor:default;}
@@ -139,6 +139,13 @@
 .orbita#orbita-workspace:not(.canvas-fullscreen) progress::-webkit-progress-value {background:var(--primary);border-radius:2rem;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) progress::-moz-progress-bar {background:var(--primary);}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .task-progress-summary progress {grid-column:1/-1;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .task-progress-summary progress {
+  --task-progress-track:color-mix(in srgb,var(--task-pastel) 86%,#000);
+  background:var(--task-progress-track);
+}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .task-progress-summary progress::-webkit-progress-bar {
+  background:var(--task-progress-track);
+}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals {display:flex;align-items:center;gap:.75rem;margin-top:1rem;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals button,.orbita#orbita-workspace:not(.canvas-fullscreen) .task-card-signals > span:not(.task-person-avatar) {display:flex;align-items:center;gap:.375rem;background:none;border:0;color:var(--muted);font-size:.75rem;cursor:pointer;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .task-person-avatar {display:grid;place-items:center;flex:none;width:1.875rem;height:1.875rem;overflow:hidden;border-radius:50%;background:color-mix(in srgb,var(--primary) 12%,var(--card));color:var(--primary);font-size:.6875rem;font-weight:600;}
@@ -195,7 +202,6 @@ html.theme-dark .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar :is(bu
 .orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(button,a).primary {background:var(--primary)!important;color:var(--primary-ink)!important;border-color:transparent;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) :is(button,a).primary:hover {background:color-mix(in srgb,var(--primary) 88%,var(--text))!important;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) :is(#workspace-main,#editor-dialog) .button.secondary {background:var(--surface)!important;color:var(--text)!important;}
-.orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .kanban-task {background:var(--card)!important;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) #kanban-board .task-footer {font-size:.75rem;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .work-tabs button[aria-selected=true] {background:var(--primary);color:var(--primary-ink);}
 .orbita#orbita-workspace:not(.canvas-fullscreen) .topbar {box-shadow:none;}
@@ -767,7 +773,7 @@ html.theme-dark .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar :is(bu
   color:#fff;
   box-shadow:none;
 }
-.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #access-form > label {color:var(--primary);font-weight:500;}
+.orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #access-form > label {font-weight:700;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #access-form .secret-input {display:block;position:relative;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #access-form .secret-input input {padding-inline-end:5rem;font-weight:400;}
 .orbita#orbita-workspace:not(.canvas-fullscreen) #editor-dialog #access-form .secret-input > button {
@@ -1003,7 +1009,7 @@ html.theme-dark .orbita#orbita-workspace:not(.canvas-fullscreen) .sidebar :is(bu
 @media(max-width:600px) {
   .orbita#orbita-workspace #order-detail .order-summary-grid {grid-template-columns:1fr;}
 }
-.orbita#orbita-workspace #workspace-main #receipts-table .button.outline {
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) :is(#receipts-table .button.outline,.reservation-hours .button.outline[data-add-exception]) {
   border-color:color-mix(in srgb,var(--outline-color) 38%,transparent)!important;
 }
 

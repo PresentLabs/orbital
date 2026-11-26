@@ -1,3 +1,4 @@
+import { matchesSearch, searchExcerpt, searchRelevance } from "@/lib/saas/search";
 import { archiveExcerpt } from "@/lib/saas/archive-excerpt";
 import { fileThumbnail } from "@/lib/saas/file-thumbnail";
 import { installCanvasOrganization } from "./workspace-canvas-organization";
@@ -418,23 +419,28 @@ export function installSpatial(ctx: Ctx) {
     );
     const input = $<HTMLInputElement>("#spatial-search");
     input.oninput = () => {
-      const q = input.value.toLocaleLowerCase("es").trim(),
-        hits = q
-          ? current()
-              .filter((n) =>
-                (n.title + " " + n.body).toLocaleLowerCase("es").includes(q),
-              )
-              .slice(0, 30)
-          : [];
+      const q = input.value.trim();
+      const linkedPages = new Map(ctx.state().pages.map(page => [page.id,page]));
+      const hits = current().map(node => {
+        const page = node.pageId ? linkedPages.get(node.pageId) : undefined;
+        return {id:node.id,title:page?.title || node.title,body:page?.body ?? node.body};
+      }).filter(node => matchesSearch(q,node.title,node.body))
+        .sort((a,b) => searchRelevance(q,b.title) - searchRelevance(q,a.title)).slice(0,8);
       $("#spatial-search-results").innerHTML =
         hits
           .map(
             (n) =>
-              `<button class="button secondary" data-spatial-found="${esc(n.id)}">${esc(n.title)}</button>`,
+              `<button class="resource-row" data-spatial-found="${esc(n.id)}"><strong>${esc(n.title)}</strong>${q && n.body ? `<small>${esc(searchExcerpt(q,n.body))}</small>` : ""}</button>`,
           )
           .join("") ||
-        (q ? "<p>No encontramos coincidencias en este espacio.</p>" : "");
+        "<p>No encontramos coincidencias en este espacio.</p>";
     };
+    input.onkeydown = event => {
+      if (event.key !== "Enter" || event.isComposing) return;
+      const first = document.querySelector<HTMLButtonElement>("#spatial-search-results button");
+      if (first) { event.preventDefault(); first.click(); }
+    };
+    input.dispatchEvent(new Event("input"));
   }
   function exportNotes() {
     const notes = current().filter(

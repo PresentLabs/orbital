@@ -44,7 +44,8 @@
 .orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.primary { background: var(--primary); color: white; border: 1px solid var(--primary); }
 .orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.secondary { border: 1px solid var(--line); background: var(--card); color: var(--text); }
 .orbita#orbita-workspace :is(#workspace-main,#editor-dialog) .button.secondary:hover { background: var(--surface); }
-.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]) { border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text); font-size: 14px; line-height: 1.5; }
+.orbita#orbita-workspace { --field-radius: 10px; }
+.orbita#orbita-workspace :is(#workspace-main,#editor-dialog) :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]) { border: 1px solid var(--line); border-radius: var(--field-radius); background: var(--card); color: var(--text); font-size: 14px; line-height: 1.5; }
 .orbita#orbita-workspace :is(.form-grid,.settings-panel,.module-form,#reservation-entry-form,#reservation-create-form,#reservation-state-form) label { font-size: 13px; color: var(--text); font-weight: 500; }
 .orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) { border: 0; border-bottom: 1px solid var(--line); background: transparent; border-radius: 0; padding: 0; gap: 20px; }
 .orbita#orbita-workspace :is(.strong-tabs,.chart-tabs) button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 12px 2px; min-height: 44px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 500; }

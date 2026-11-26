@@ -3,6 +3,8 @@ import { canView, type Section } from "@/lib/saas/permissions";
 import {
   matchesSearch,
   searchLabels,
+  searchRelevance,
+  searchExcerpt,
   type SearchEntry,
 } from "@/lib/saas/search";
 type Ctx = {
@@ -62,6 +64,7 @@ export function installSearch(ctx: Ctx) {
             id: t.id,
             kind: "task" as const,
             title: t.title,
+            content: t.description,
             subtitle:
               (t.privateOwner ? "Privada" : "Compartida") +
               " · " +
@@ -91,6 +94,7 @@ export function installSearch(ctx: Ctx) {
             id: p.id,
             kind: "page" as const,
             title: p.title,
+            content: p.body,
             subtitle: p.privateOwner ? "Nota privada" : "Nota del equipo",
           })),
       );
@@ -102,6 +106,7 @@ export function installSearch(ctx: Ctx) {
             id: e.id,
             kind: "event" as const,
             title: e.title,
+            content: e.description,
             subtitle: "Calendario · " + e.date + " · " + e.time,
           })),
       );
@@ -127,7 +132,10 @@ export function installSearch(ctx: Ctx) {
           view,
         })),
     );
-    return entries;
+    return rank(entries);
+  }
+  function rank(entries: SearchEntry[]) {
+    return entries.sort((a,b) => searchRelevance(term,b.title) - searchRelevance(term,a.title));
   }
   async function search(query: string) {
     const ticket = ++serial;
@@ -141,7 +149,7 @@ export function installSearch(ctx: Ctx) {
     try {
       const external = await ctx.remote(term);
       if (ticket !== serial) return;
-      results = [...results, ...external.results];
+      results = rank([...results, ...external.results]);
       warnings = external.warnings || [];
     } catch {
       if (ticket !== serial) return;
@@ -154,7 +162,8 @@ export function installSearch(ctx: Ctx) {
     paint();
   }
   function row(entry: SearchEntry, index: number) {
-    return `<button class="search-result-row" data-search-hit="${index}"><span class="search-type">${searchLabels[entry.kind]}</span><span><strong>${esc(entry.title)}</strong><small>${esc(entry.subtitle)}</small></span><span aria-hidden="true">↗</span></button>`;
+    const excerpt = searchExcerpt(term, entry.content);
+    return `<button class="search-result-row" data-search-hit="${index}"><span class="search-type">${searchLabels[entry.kind]}</span><span><strong>${esc(entry.title)}</strong><small>${esc(entry.subtitle)}</small>${excerpt ? `<small>${esc(excerpt)}</small>` : ""}</span><span aria-hidden="true">↗</span></button>`;
   }
   function paint() {
     const suggestions = document.querySelector<HTMLElement>("#search-results");
@@ -190,7 +199,7 @@ export function installSearch(ctx: Ctx) {
             .map((r, i) => row(r, (page - 1) * 20 + i))
             .join("") ||
           `<p class="empty-state">${loading ? "Buscando…" : "No encontramos resultados."}</p>`
-        }</div>${pages > 1 ? `<div class="pagination"><span>Nota ${page} de ${pages}</span><div><button class="button secondary" data-search-page="${page - 1}" ${page === 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-search-page="${page + 1}" ${page === pages ? "disabled" : ""}>Siguiente →</button></div></div>` : ""}`;
+        }</div>${pages > 1 ? `<div class="pagination"><span>Página ${page} de ${pages}</span><div><button class="button secondary" data-search-page="${page - 1}" ${page === 1 ? "disabled" : ""}>← Anterior</button><button class="button secondary" data-search-page="${page + 1}" ${page === pages ? "disabled" : ""}>Siguiente →</button></div></div>` : ""}`;
     }
   }
   function open() {
@@ -225,6 +234,21 @@ export function installSearch(ctx: Ctx) {
       timer = setTimeout(() => void search(value), 220);
     };
   }
+  document.querySelector<HTMLDialogElement>("#editor-dialog")?.addEventListener("keydown", event => {
+    if (event.isComposing) return;
+    const input = document.querySelector<HTMLInputElement>("#global-search");
+    if (!input || !(event.target instanceof HTMLElement) || !event.target.closest("#search-results,#global-search")) return;
+    const rows = [...document.querySelectorAll<HTMLButtonElement>("#search-results [data-search-hit]")];
+    if (event.key === "Enter" && event.target === input && rows.length) {
+      event.preventDefault();
+      rows[0].click();
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    const index = rows.indexOf(document.activeElement as HTMLButtonElement);
+    const next = event.key === "ArrowDown" ? rows[Math.min(index + 1, rows.length - 1)] : rows[index - 1] || input;
+    if (next) { event.preventDefault(); next.focus(); }
+  });
   document.querySelector("#editor-dialog")?.addEventListener("close", () => {
     if (!searchOpened) return;
     searchOpened = false;

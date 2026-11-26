@@ -242,7 +242,7 @@ export function installReservations(ctx: { demo?:boolean; modal: (html: string) 
       <div data-week-editor ${inherit && !value.schedule ? "hidden" : ""}><div data-week-periods>${schedule.map(row).join("")}</div><button class="button secondary" type="button" data-add-period>Agregar tramo semanal</button></div>
       <p class="section-note">Agrega varios tramos para separar mañana y tarde. Las fechas especiales reemplazan el horario semanal de ese día; marca cerrado para vacaciones o festivos.</p>
       <div data-date-periods>${(value.exceptions || []).flatMap((item: any) => item.periods.length ? item.periods.map((period: any) => exceptionRow(item.day, period)) : [exceptionRow(item.day)]).join("")}</div>
-      <button class="button secondary" type="button" data-add-exception>Agregar fecha especial</button></section>`;
+      <button class="button outline" type="button" data-add-exception>Agregar fecha especial</button></section>`;
     function mount(form: HTMLFormElement) {
       const editor = form.querySelector<HTMLElement>("[data-schedule-editor]")!;
       const toggle = () => {

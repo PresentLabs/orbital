@@ -75,6 +75,9 @@ import {
   type Rect,
   type PortSide,
 } from "@/lib/saas/canvas-layout";
+import { matchesSearch, searchRelevance } from "@/lib/saas/search";
+import { noteText, renderNoteMarkdown, sameScope, wikiDestination, wikiReferences, wikiTargets } from "@/lib/saas/note-markdown";
+import type { mountNoteEditor } from "./workspace-note-editor";
 import { sanitizeRichText, installRichToolbar } from "@/lib/saas/rich-text";
 import { installWorkspaceFeatures } from "./workspace-features";
 const $ = <T extends HTMLElement = HTMLElement>(s: string) =>
@@ -962,11 +965,12 @@ function applyAccess() {
     : esc(initials);
   const account = document.querySelector('[aria-label="Mi cuenta"]');
   if (account) account.innerHTML = avatar.innerHTML;
-  const create = document.querySelector<HTMLElement>('[data-action="create"]');
-  if (create)
-    create.hidden = !["tasks", "calendar", "canvas", "pages"].some((section) =>
-      canWrite(me, section as Section),
-    );
+  $$('[data-action="create"]').forEach(button => {
+    button.hidden = !["tasks", "calendar", "canvas", "pages"].some(section => canWrite(me, section as Section));
+  });
+  $$('[data-action="create-canvas"]').forEach(button => {
+    button.hidden = !canWrite(me,"canvas");
+  });
   features.renderBell();
 }
 function privateSections() {
@@ -1214,7 +1218,8 @@ function renderTasks() {
       }
     };
   }
-  const term = $<HTMLInputElement>("#task-search").value.toLowerCase(),
+  const taskSearch = $<HTMLInputElement>("#task-search"),
+    term = taskSearch.value,
     filter = $<HTMLSelectElement>("#task-filter").value;
   const writable = canWrite(actor(), "tasks");
   taskMode = window.matchMedia("(max-width: 680px)").matches ? mobileTaskMode || "list" : preferences?.get()?.taskMode || "board";
@@ -1227,20 +1232,26 @@ function renderTasks() {
 
   const selectedBoard=state.boards?.find(b=>b.id===activeBoard),limit=selectedBoard?.work?.limit;
   const allBoardTasks=state.tasks.filter(t=>(t.boardId||"general")===activeBoard&&(t.privateOwner||"")===(selectedBoard?.privateOwner||""));
+  const matching = (task: Task) => matchesSearch(term, task.title, task.description, task.project);
+  const suggestions = allBoardTasks.filter(matching).sort((a,b) => searchRelevance(term,b.title) - searchRelevance(term,a.title));
+  $("#task-suggestions").replaceChildren(...[...new Set(suggestions.map(task => task.title))].slice(0,8).map(title => new Option(title,title)));
   const doingCount=allBoardTasks.filter(t=>t.status==='doing').length;
   const completed=allBoardTasks.filter(task=>task.status === "done").length;
   $("#task-board-progress").innerHTML=`<div><strong>Avance del tablero</strong><span>${completed} de ${allBoardTasks.length} tareas completadas</span></div><progress max="${allBoardTasks.length || 1}" value="${completed}" aria-label="Avance del tablero"></progress>`;
   $("#kanban-board").classList.toggle("timeline-mode",taskMode === "timeline");
-  if(taskMode === "timeline"){renderTimeline(allBoardTasks.filter(t=>(!work||work.filterTask(t))&&t.title.toLowerCase().includes(term)&&(filter==='all'||t.priority===filter)));return;}
+  if(taskMode === "timeline"){renderTimeline(allBoardTasks.filter(t=>(!work||work.filterTask(t))&&matching(t)&&(filter==='all'||t.priority===filter)));return;}
   $("#kanban-board").classList.toggle("list-mode", taskMode === "list");
   $("#kanban-board").innerHTML = (["todo", "doing", "done"] as const)
     .map((status, i) => {
-      const tasks = orderedTasks(allBoardTasks,status).filter(t=>(!work||work.filterTask(t))&&t.title.toLowerCase().includes(term)&&(filter==='all'||t.priority===filter));
+      const tasks = orderedTasks(allBoardTasks,status).filter(t=>(!work||work.filterTask(t))&&matching(t)&&(filter==='all'||t.priority===filter));
       return `<section class="kanban-column" data-drop-status="${status}" aria-label="${esc(board?.columnNames?.[status] || ["Por hacer", "En progreso", "Completado"][i])}"><h2><span class="space-dot ${i === 1 ? "orange" : "green"}"></span><button class="column-name" data-column-name="${status}" ${writable ? 'title="Doble clic, Enter o F2 para cambiar el nombre"' : "disabled"}>${esc(board?.columnNames?.[status] || ["Por hacer", "En progreso", "Completado"][i])}</button><span>${status==="doing"&&limit?`${doingCount} de ${limit}${tasks.length!==doingCount?" · "+tasks.length+" visibles":""}`:tasks.length}</span></h2><span class="task-drop-indicator" aria-hidden="true"></span>${status==="doing"&&limit&&doingCount>limit?'<p class="work-limit-warning" role="status">Hay más tareas en curso de las acordadas. Revisa si puedes terminar alguna antes de empezar otra.</p>':""}<div class="task-drop-list">${tasks
         .map((t) => {
           const count = (state.comments || []).filter(
             (c) => c.taskId === t.id,
           ).length;
+          const assignee = t.assigneeId
+            ? features.directory().find(member => String(member.id) === t.assigneeId)
+            : undefined;
           const taskActions = `
             <details class="selection-menu task-card-menu">
               <summary aria-label="Acciones de ${esc(t.title)}">⋯</summary>
@@ -1250,7 +1261,7 @@ function renderTasks() {
                 ${writable ? `<button class="button secondary" data-delete-task="${t.id}">${uiIcon("trash", 15)} Eliminar</button>` : ""}
               </div>
             </details>`;
-          return `<article class="kanban-task" draggable="false" data-drag-task="${t.id}">${inline.taskContent(t, taskActions)}${t.blockedAt&&t.status!=="done"?`<p class="task-blocked" title="${esc(t.blockedReason)}">${uiIcon("lock",13)} Bloqueada desde ${new Date(t.blockedAt).toLocaleDateString("es-CL")}${t.blockedReason?" · "+esc(t.blockedReason):""}</p>`:""}<div class="task-progress-summary"><span>${taskProgress(t).hasChecklist ? `${taskProgress(t).done}/${taskProgress(t).total} pasos` : t.status === "done" ? "Completada" : "Por completar"}</span><strong>${taskProgress(t).percent}%</strong><progress max="100" value="${taskProgress(t).percent}" aria-label="Avance de ${esc(t.title)}"></progress></div><div class="task-card-signals">${memberAvatar(features.directory().find(member=>String(member.id)===t.assigneeId))}<button type="button" data-task-comments="${t.id}" aria-label="${count} comentarios de ${esc(t.title)}">${uiIcon("comment",15)}<span>${count}</span></button>${t.links?.length ? `<span title="Enlaces adjuntos">${uiIcon("link",15)}${t.links.length}</span>` : ""}</div><div class="task-footer"><span class="priority-label"><i class="priority-dot ${t.priority}"></i>${t.priority === "high" ? "Alta prioridad" : "Normal"}</span>${t.due?`<span>◷ ${esc(relativeDue(t.due))}</span>`:""}${t.assigneeId?`<span>${esc(features.directory().find(m=>String(m.id)===t.assigneeId)?.name||"Responsable")}</span>`:""}</div>${showComments ? `<section class="card-comments" data-card-comments="${t.id}">${features.commentPreview(t.id)}</section>` : ""}</article>`;
+          return `<article class="kanban-task" draggable="false" data-drag-task="${t.id}">${inline.taskContent(t, taskActions)}${t.blockedAt&&t.status!=="done"?`<p class="task-blocked" title="${esc(t.blockedReason)}">${uiIcon("lock",13)} Bloqueada desde ${new Date(t.blockedAt).toLocaleDateString("es-CL")}${t.blockedReason?" · "+esc(t.blockedReason):""}</p>`:""}<div class="task-progress-summary"><span>${taskProgress(t).hasChecklist ? `${taskProgress(t).done}/${taskProgress(t).total} pasos` : t.status === "done" ? "Completada" : "Por completar"}</span><strong>${taskProgress(t).percent}%</strong><progress max="100" value="${taskProgress(t).percent}" aria-label="Avance de ${esc(t.title)}"></progress></div><div class="task-card-signals">${assignee ? memberAvatar(assignee) : ''}<button type="button" data-task-comments="${t.id}" aria-label="${count} comentarios de ${esc(t.title)}">${uiIcon("comment",15)}<span>${count}</span></button>${t.links?.length ? `<span title="Enlaces adjuntos">${uiIcon("link",15)}${t.links.length}</span>` : ""}</div><div class="task-footer"><span class="priority-label"><i class="priority-dot ${t.priority}"></i>${t.priority === "high" ? "Alta prioridad" : "Normal"}</span>${t.due?`<span>◷ ${esc(relativeDue(t.due))}</span>`:""}${t.assigneeId?`<span>${esc(assignee?.name||"Responsable")}</span>`:""}</div>${showComments ? `<section class="card-comments" data-card-comments="${t.id}">${features.commentPreview(t.id)}</section>` : ""}</article>`;
         })
         .join(
           "",
@@ -1458,6 +1469,7 @@ function canvasSalesContent(metric: CanvasMetric = "sales") {
 function canvasCardClasses(n: CanvasNode) {
   return [
     "canvas-node",
+    n.diagramShape && "diagram-" + n.diagramShape,
     n.kind === "sales" && "canvas-sales-card",
     n.calculation && "canvas-calculation",
     n.kind === "page" && isCanvasTextCard(n) && n.borderStyle !== "dashed" && "canvas-letter",
@@ -1556,7 +1568,7 @@ function renderCanvas(groupTransition = false) {
       const noteColor = n.kind === "note" ? noteColors[visibleNoteColor(n.noteColor)] : "";
       const palette = writable && noteColor ? `<div class="canvas-note-palette" role="group" aria-label="Color de la nota">${Object.entries(noteColors).map(([key, color]) => `<button type="button" style="--swatch:${color}" data-note-color="${key}" aria-pressed="${color === noteColor}" aria-label="Color ${key === "verdeLima" ? "verde lima" : key}"></button>`).join("")}</div>` : "";
       const deletion=writable?`<button class="icon-btn node-delete-button" data-delete-node="${n.id}" aria-label="Eliminar ${esc(title)}">${uiIcon("trash",15)}</button>`:"";
-      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`${n.kind === "note" ? "--sticky-height" : "height"}:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.calculation && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Orbital · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
+      return `<article class="${canvasCardClasses(n)} ${n.attachedTo ? "canvas-note-attached" : ""} ${connectFrom === n.id ? "selected-node" : ""}" data-node="${n.id}" data-motion-profile="${canvasProfile(n)}" tabindex="0" role="group" aria-label="${esc(title)}. Usa las flechas para mover.${writable ? " Delete para eliminar." : ""}" style="${noteColor ? "--note-color:"+noteColor+";--note-ink:"+noteTextColor(n.noteColor)+";" : ""}left:${pos.x}px;top:${pos.y}px;${n.width?`width:${n.width}px;`:""}${n.height?`${n.kind === "note" ? "--sticky-height" : "height"}:${n.height}px;`:""}"><div class="canvas-node-face">${canvasCardFace(n, writable)}${canView(actor(),"tasks")?`<div class="node-task-links">${state.tasks.filter(t=>(t.privateOwner||"")===(state.spaces.find(s=>s.id===n.space)?.privateOwner||"")&&t.links?.some(l=>l.kind==="nodes"&&l.id===n.id)).map(t=>`<button class="subtle-button" data-resource-kind="tasks" data-resource-id="${t.id}">${esc(t.title)} ↗</button>`).join("")}</div>`:""}${edit && n.kind==="note" && !n.pageId && canWrite(actor(),"pages") ? `<button class="node-to-task" data-node-to-note="${esc(n.id)}">Enviar a Notas →</button>` : writable && canWrite(actor(),"tasks") && !n.calculation && !n.diagramShape && !n.spatial && !["sales","image","note"].includes(n.kind) ? `<button class="node-to-task" data-node-to-task="${n.id}">Enviar a tareas →</button>` : ""}</div>${writable && !container ? `<div class="canvas-node-actions">${deletion}${!container ? `<button class="icon-btn" ${textCard && edit ? `data-edit-card="${esc(n.id)}"` : `data-edit-node="${esc(n.id)}"`} aria-label="Opciones de ${esc(title)}">${uiIcon("pencil",14)}</button>` : ""}</div>` : ""}${n.borderStyle==="dashed" ? `<span class="idea-cloud-author" style="--author-hue:${[...(n.cloudAuthor || "")].reduce((hue, letter) => (hue * 31 + letter.charCodeAt(0)) % 360, 0)}">${esc(n.cloudAuthor?.replace(/^Órbita · Demo$/, "Orbital · Demo") || "Autor no registrado")}</span>` : ""}${palette}${edit?(org?.memberActions(n)||""):""}${writable&&!container?(spatial?.resizeHandle(n)||""):""}${((writable&&!container ? ["top", "right", "bottom", "left"] : []) as PortSide[]).map((side) => `<button type="button" class="node-port port-${side} ${state.edges.some((e) => (e.from === n.id && e.fromSide === side) || (e.to === n.id && e.toSide === side)) ? "linked-port" : ""}" data-port-node="${n.id}" data-port-side="${side}" aria-label="Conectar ${esc(title)} desde ${{ top: "arriba", bottom: "abajo", left: "la izquierda", right: "la derecha" }[side]}"></button>`).join("")}</article>`;
     })
     .join("") + canvasFolders().filter(folder => !folder.folder.groupId || org?.activeGroup() === folder.folder.groupId).map(folder => {
       const groupId = org?.activeGroup();
@@ -1786,6 +1798,7 @@ function renderConnections() {
       .filter((n) => n.space === activeSpace && (spatial?.visible(n)??true))
       .map(n => [n.id, nodeRect(n)]),
   );
+  const diagramNodes = new Set(state.nodes.filter(node => node.space === activeSpace && node.diagramShape).map(node => node.id));
   const markup = state.edges
     .filter((e) => visible.has(e.from) && visible.has(e.to) && sameCanvasGroup(e.from,e.to))
     .map((e) => {
@@ -1829,10 +1842,10 @@ function renderConnections() {
       const start = offset(line.start, from, line.source),
         end = offset(line.end, to, line.dest);
       const dimmed = spatial?.organization.isDimmed(e.from) || spatial?.organization.isDimmed(e.to);
-      return `<path ${dimmed ? 'opacity=".3"' : ""} d="${line.path}"/>${canWrite(actor(), "canvas") ? `<circle class="edge-handle" cx="${start.x}" cy="${start.y}" r="8" data-edge="${e.id}" data-edge-end="from"/><circle class="edge-handle" cx="${end.x}" cy="${end.y}" r="8" data-edge="${e.id}" data-edge-end="to"/>` : ""}`;
+      return `<path ${diagramNodes.has(e.from) && diagramNodes.has(e.to) ? 'marker-end="url(#diagram-arrow)"' : ""} ${dimmed ? 'opacity=".3"' : ""} d="${line.path}"/>${canWrite(actor(), "canvas") ? `<circle class="edge-handle" cx="${start.x}" cy="${start.y}" r="8" data-edge="${e.id}" data-edge-end="from"/><circle class="edge-handle" cx="${end.x}" cy="${end.y}" r="8" data-edge="${e.id}" data-edge-end="to"/>` : ""}`;
     })
     .join("");
-  $("#connections").innerHTML = markup.replace(/<circle[^>]*\/>/g, "");
+  $("#connections").innerHTML = '<defs><marker id="diagram-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0L8 4L0 8Z" style="fill:context-stroke;stroke:none"/></marker></defs>' + markup.replace(/<circle[^>]*\/>/g, "");
   $("#connection-handles").innerHTML = (
     markup.match(/<circle[^>]*\/>/g) || []
   ).join("");
@@ -1910,8 +1923,9 @@ function addBlock(
   kind: CanvasNode["kind"] | "frame" | "calculation",
   position?: { x: number; y: number },
   metric?: CanvasMetric,
+  diagramShape?: CanvasNode["diagramShape"],
 ) {
-  if (!canWrite(actor(), "canvas")) return;
+  if (!canWrite(actor(), "canvas") || !canvasOpen || activeView !== "canvas" || !state.spaces.some(space => space.id === activeSpace && isMine(space.privateOwner))) return;
   if (kind === "image") {
     pendingImagePosition = position;
     $<HTMLInputElement>("#image-input").click();
@@ -1933,7 +1947,7 @@ function addBlock(
     x: ($("#canvas-frame").clientWidth / 2 - camera.x) / camera.z - 127,
     y: ($("#canvas-frame").clientHeight / 2 - camera.y) / camera.z - 90,
   };
-  const size = kind === "note" ? { width: 170, height: 170 }
+  const size = diagramShape ? {width:220,height:120} : kind === "note" ? { width: 170, height: 170 }
     : kind === "page" && !dashed ? { width: 240, height: 310 }
     : { width: 255, height: 200 };
   const pos = freePosition(
@@ -1947,13 +1961,15 @@ function addBlock(
       calculation: calculation || undefined,
       borderStyle: dashed ? "dashed" : undefined,
       cloudAuthor: dashed ? ([actor().firstName, actor().lastName].filter(Boolean).join(" ") || actor().name).slice(0, 80) : undefined,
-      title: calculation ? "Cálculos" : dashed ? "Nueva idea" : metric ? canvasMetrics[metric] : labels[kind],
+      diagramShape,
+      ...(diagramShape ? size : {}),
+      title: diagramShape ? diagramLabels[diagramShape] : calculation ? "Cálculos" : dashed ? "Nueva idea" : metric ? canvasMetrics[metric] : labels[kind],
       metric,
       body: "",
       ...pos,
     }])) return;
   centerOnNode(id);
-  if (calculation) requestAnimationFrame(() => openCanvasDetail(id));
+  if (calculation || diagramShape) requestAnimationFrame(() => openCanvasDetail(id));
 }
 function fitCanvasPreviews() {
   for (const tile of document.querySelectorAll<HTMLElement>("#canvas-nodes .canvas-preview-tile")) {
@@ -2156,7 +2172,10 @@ function editCanvasCard(id: string, detailHost?: HTMLElement) {
     return;
   }
   const page=n.pageId ? state.pages.find(page=>page.id===n.pageId&&isMine(page.privateOwner)) : undefined;
-  if (n.pageId && (!page || !canWrite(actor(),"pages"))) return;
+  if (n.pageId) {
+    if (page && canView(actor(),"pages")) openDetail("page",page.id);
+    return;
+  }
   const host=detailHost || document.querySelector<HTMLElement>(`[data-card-editable="${CSS.escape(id)}"]`);
   if(!host || host.querySelector("form"))return;
   const item=page||n, isList=n.kind==="tasks";
@@ -2416,7 +2435,7 @@ function openCanvasDetail(id: string) {
     panel.style.setProperty("--image-detail-width", `${image.width * 1.7}px`);
   }
   const editable = canWrite(actor(), "canvas") && (!n.pageId || (page && canWrite(actor(), "pages")));
-  const detailEditor = editable && (isCanvasTextCard(n) || n.spatial?.type === "media");
+  const detailEditor = editable && !page && (isCanvasTextCard(n) || n.spatial?.type === "media");
   const content = n.spatial ? spatial.render(n, false)
     : n.kind === "image" ? `<figure>${n.image?.startsWith("data:image/gif") ? canvasMedia.gifMarkup(n.id, n.image, title, esc) : `<img src="${esc(n.image)}" alt="${esc(title)}"/>`}${n.body ? `<figcaption>${esc(n.body)}</figcaption>` : ""}</figure>`
     : n.calculation ? calculationMarkup(n.body) : n.kind === "tasks" ? `<ul class="canvas-detail-checklist">${(n.checklist || []).map(row=>`<li>${uiIcon(row.done?"check":"frame",18)} <span>${esc(row.text)}</span><small>${row.done?"Lista":"Pendiente"}</small></li>`).join("")}</ul>`
@@ -2427,7 +2446,7 @@ function openCanvasDetail(id: string) {
   const sourceColor = getComputedStyle(source).backgroundColor;
   panel.style.setProperty("--canvas-detail-background", n.kind === "image" ? "transparent" : sourceColor === "rgba(0, 0, 0, 0)" ? "var(--card)" : sourceColor);
   panel.style.setProperty("--canvas-detail-text", n.kind === "image" ? "#24202d" : getComputedStyle(source).color);
-  panel.innerHTML = `<div class="canvas-detail-bar"><button type="button" class="canvas-detail-back" data-action="close-canvas-detail" aria-label="Volver al lienzo"><span aria-hidden="true">←</span></button></div><div class="canvas-detail-scroll" tabindex="0" aria-label="Contenido del elemento"><article class="canvas-detail-card">${n.borderStyle === "dashed" && n.cloudAuthor ? `<p class="canvas-detail-author">${esc(n.cloudAuthor)}</p>` : ""}${detailEditor ? '<div class="canvas-detail-editor"></div>' : n.kind !== "image" && n.borderStyle !== "dashed" && n.spatial?.type !== "sketch" ? `<h2>${esc(title)}</h2>` : ""}${!detailEditor || n.spatial ? content || "" : ""}</article></div>`;
+  panel.innerHTML = `<div class="canvas-detail-bar"><button type="button" class="canvas-detail-back" data-action="close-canvas-detail" aria-label="Volver al lienzo"><span aria-hidden="true">←</span></button></div><div class="canvas-detail-scroll" tabindex="0" aria-label="Contenido del elemento"><article class="canvas-detail-card">${n.borderStyle === "dashed" && n.cloudAuthor ? `<p class="canvas-detail-author">${esc(n.cloudAuthor)}</p>` : ""}${detailEditor ? '<div class="canvas-detail-editor"></div>' : n.kind !== "image" && n.borderStyle !== "dashed" && n.spatial?.type !== "sketch" ? `<h2>${esc(title)}</h2>` : ""}${!detailEditor || n.spatial ? content || "" : ""}${page && canView(actor(),"pages") ? `<button class="button secondary" data-canvas-note="${esc(page.id)}">Abrir nota</button>` : ""}</article></div>`;
   const editor = panel.querySelector<HTMLElement>(".canvas-detail-editor");
   if (editor) editCanvasCard(id, editor);
   for (const child of frame.children) if (child instanceof HTMLElement && child !== panel) child.inert = true;
@@ -2555,7 +2574,10 @@ document.addEventListener("focusout", (e) => {
   undoStack.push(inlineSnapshot || JSON.stringify(state));
   if (undoStack.length > 25) undoStack.shift();
   source[field] = value;
-  if (field === "body") source.bodyHtml = html;
+  if (field === "body") {
+    source.bodyHtml = html;
+    if (page) { delete page.markdown; delete page.wikiTargets; }
+  }
   if (page) page.updated = new Date().toISOString();
   save();
   requestAnimationFrame(alignCards);
@@ -2783,8 +2805,80 @@ function eventEditor(id?: string, date?: string, time?: string, through?: string
     close(true);
   };
 }
+function deleteNote(id: string) {
+  const note = state.pages.find(page => page.id === id && isMine(page.privateOwner));
+  if (!note || !canWrite(actor(), "pages") || !window.confirm(`¿Enviar «${note.title}» a la papelera?`)) return;
+  mutate(() => {
+    const nodes = new Set(state.nodes.filter(node => node.pageId === id).map(node => node.id));
+    state.pages = state.pages.filter(page => page.id !== id);
+    state.nodes = state.nodes.filter(node => !nodes.has(node.id));
+    state.edges = state.edges.filter(edge => !nodes.has(edge.from) && !nodes.has(edge.to));
+  });
+  if (dialog.open) close(true);
+  if (activeView === "page") {
+    if (note.privateOwner) privateKind = "pages";
+    show(note.privateOwner ? "private" : "pages");
+  }
+  notify("Nota enviada a la papelera.");
+}
+function noteLinkPicker(source: Page) {
+  if (!canWrite(actor(),"pages") || !isMine(source.privateOwner)) return;
+  modal(`<h2>Vincular nota</h2><form id="note-link-form"><label>Buscar o escribir un título<input type="search" maxlength="140" autocomplete="off" name="query" placeholder="Título o contenido"/></label><div id="note-link-matches" class="linked-resources"></div><button type="submit" class="button secondary" disabled>Crear nota vinculada</button><p class="section-note" id="note-link-status" role="status"></p></form>`);
+  const form = $<HTMLFormElement>("#note-link-form");
+  const field = form.querySelector("input")!;
+  const matches = $("#note-link-matches");
+  const create = form.querySelector<HTMLButtonElement>('[type="submit"]')!;
+  const links = () => source.links || [];
+  const choices = () => state.pages.filter(page => page.id !== source.id && page.privateOwner === source.privateOwner);
+  function renderChoices() {
+    const query = field.value.trim();
+    const candidates = choices().filter(note => matchesSearch(query,note.title,note.body))
+      .sort((a,b) => searchRelevance(query,b.title) - searchRelevance(query,a.title)).slice(0,8);
+    matches.innerHTML = candidates.map(note => {
+      const linked = links().some(link => link.kind === "pages" && link.id === note.id);
+      return `<button type="button" class="resource-row" data-note-link-target="${esc(note.id)}" aria-pressed="${linked}"><strong>${esc(note.title)}</strong><small>${linked ? "Desvincular" : "Vincular"}</small></button>`;
+    }).join("") || '<p class="section-note">No hay notas que coincidan.</p>';
+    create.disabled = !query || links().length >= 50 || choices().some(note => searchRelevance(query,note.title) === 3);
+  }
+  field.oninput = renderChoices;
+  matches.onclick = event => {
+    const id = (event.target as Element).closest<HTMLElement>("[data-note-link-target]")?.dataset.noteLinkTarget;
+    const target = choices().find(note => note.id === id);
+    if (!target || !canWrite(actor(),"pages")) return;
+    const linked = links().some(link => link.kind === "pages" && link.id === target.id);
+    if (!linked && links().length >= 50) {
+      $("#note-link-status").textContent = "Esta nota admite hasta 50 vínculos.";
+      return;
+    }
+    mutate(() => {
+      source.links = linked ? links().filter(link => link.kind !== "pages" || link.id !== target.id) : [...links(), {kind:"pages",id:target.id}];
+      source.updated = new Date().toISOString();
+    });
+    renderChoices();
+    matches.querySelector<HTMLElement>(`[data-note-link-target="${CSS.escape(target.id)}"]`)?.focus();
+    $("#note-link-status").textContent = linked ? "Vínculo eliminado." : "Nota vinculada.";
+  };
+  form.onsubmit = event => {
+    event.preventDefault();
+    renderChoices();
+    if (create.disabled || !canWrite(actor(),"pages")) return;
+    const id = uid(), now = new Date().toISOString();
+    mutate(() => {
+      state.pages.push({id,title:field.value.trim(),body:"",emoji:"▤",updated:now,createdAt:now,authorId:String(actor().id),privateOwner:source.privateOwner});
+      source.links = [...links(),{kind:"pages",id}];
+      source.updated = now;
+    });
+    directories.reset(source.privateOwner ? "private-notes" : "notes");
+    dialog.addEventListener("close", () => {
+      if (activeView === "page" && detailId === id) mountedNoteEditor?.focus();
+    }, {once:true});
+    close(true);
+    openDetail("page",id);
+  };
+  renderChoices();
+}
 function renderPages() {
-  directories.render("notes", state.pages.filter(i=>!i.privateOwner), "pages", "pages-list", "notes-directory-toolbar", "notes-pagination", "pages-grid", (i,f)=>noteCard(state,i,canWrite(actor(),"canvas"),f));
+  directories.render("notes", state.pages.filter(i=>!i.privateOwner), "pages", "pages-list", "notes-directory-toolbar", "notes-pagination", "pages-grid", (i,f)=>noteCard(state,i,canWrite(actor(),"canvas"),f,canWrite(actor(),"pages")));
 }
 function newNote(privateArea = false,template?:string) {
   if(template===undefined){
@@ -2817,9 +2911,10 @@ function newNote(privateArea = false,template?:string) {
 function pageEditor(id?: string, privateArea = false) {
   if (!canView(actor(), "pages") || (!id && !canWrite(actor(), "pages")))
     return;
-  const page = state.pages.find((p) => p.id === id);
+  const page = state.pages.find((p) => p.id === id && isMine(p.privateOwner));
+  if (id && !page) return;
   modal(
-    `<h2>${page ? "Editar nota" : "Nueva nota"}</h2><p>Esta nota es independiente. Puedes conectarla a un espacio cuando lo necesites.</p><form id="page-form"><label>Título<input name="title" maxlength="140" required value="${esc(page?.title || "")}"/></label><label>Contenido<textarea name="body" maxlength="30000" style="min-height:230px">${esc(page?.body || "")}</textarea></label><div class="dialog-actions">${page ? '<button type="button" class="danger-button" id="delete-page">Eliminar</button>' : ""}<button class="button primary">Guardar nota</button></div></form>`,
+    `<h2>${page ? "Editar nota" : "Nueva nota"}</h2><p>Esta nota es independiente. Puedes conectarla a un espacio cuando lo necesites.</p><form id="page-form"><label>Título<input name="title" maxlength="140" required value="${esc(page?.title || "")}"/></label>${page ? "" : '<label>Contenido<textarea name="body" maxlength="30000" style="min-height:230px"></textarea></label>'}<div class="dialog-actions">${page ? '<button type="button" class="danger-button" id="delete-page">Eliminar</button>' : ""}<button class="button primary">Guardar nota</button></div></form>`,
   );
   if (!canWrite(actor(), "pages")) {
     $$("#page-form input,#page-form textarea").forEach(
@@ -2837,14 +2932,13 @@ function pageEditor(id?: string, privateArea = false) {
     if (!page) directories.reset(privateArea ? "private-notes" : "notes");
     mutate(() => {
       const v = {
+        ...page,
         id: savedPageId,
         createdAt: page ? page.createdAt : new Date().toISOString(),
         privateOwner:
           page?.privateOwner || (privateArea ? String(actor().id) : undefined),
         title: String(f.get("title")),
-        body: String(f.get("body")),
-        bodyHtml:
-          page?.body === String(f.get("body")) ? page?.bodyHtml : undefined,
+        body: page?.body ?? String(f.get("body") || ""),
         emoji: page?.emoji || "▤",
         updated: new Date().toISOString(),
       };
@@ -2857,24 +2951,7 @@ function pageEditor(id?: string, privateArea = false) {
     else if (activeView === "page") show("page");
     notify("Nota guardada.");
   };
-  if (page) {
-    $("#delete-page").onclick = () => {
-      if (!canWrite(actor(), "pages")) return;
-      mutate(() => {
-        state.pages = state.pages.filter((x) => x.id !== page.id);
-        const nodes = state.nodes
-          .filter((n) => n.pageId === page.id)
-          .map((n) => n.id);
-        state.nodes = state.nodes.filter((n) => !nodes.includes(n.id));
-        state.edges = state.edges.filter(
-          (e) => !nodes.includes(e.from) && !nodes.includes(e.to),
-        );
-      });
-      close();
-      if (page.privateOwner) { privateKind = "pages"; show("private"); } else show("pages");
-      notify("Nota enviada a la papelera.");
-    };
-  }
+  if (page) $("#delete-page").onclick = () => deleteNote(page.id);
 }
 function seriesChart(values: number[], labels: string[]) {
   const max = Math.max(1, ...values);
@@ -3303,6 +3380,10 @@ function render() {
   if (activeView === "event") renderEventDetail();
   if (activeView === "private") renderPrivate();
   if (activeView === "task" || activeView === "page") renderDetail();
+  else if (mountedNoteEditor) {
+    mountedNoteEditor.destroy();
+    mountedNoteEditor = undefined;
+  }
   if (activeView === "analytics") renderAnalytics();
   if (activeView === "integrations") renderIntegrations();
   if (activeView === "team") void features.renderTeam();
@@ -3316,10 +3397,23 @@ function render() {
   workspaceFiles?.render(activeView);
   preferences?.render();
 }
+const diagramLabels = { process:"Proceso", decision:"Decisión", terminal:"Inicio o fin" } as const;
+function diagramMenu() {
+  if (activeView !== "canvas" || !canvasOpen || !canWrite(actor(),"canvas")) return;
+  modal(`<h2>Agregar forma al diagrama</h2><p>Usa los puntos de los bordes para conectar las formas.</p><div class="create-grid">${Object.entries(diagramLabels).map(([id,label]) => `<button data-diagram-shape="${id}"><span class="diagram-swatch diagram-swatch-${id}" aria-hidden="true"></span>${label}</button>`).join("")}</div>`);
+}
+function canvasCreateMenu() {
+  if (!canWrite(actor(),"canvas")) return;
+  const blocks = [["page","Nota"],["note","Nota adhesiva"],["diagram","Diagrama"],["calculation","Cálculos"],["frame","Idea"],["sketch","Dibujo a mano"],["image","Imagen"]];
+  if (canWrite(actor(),"tasks")) blocks.push(["tasks","Lista de tareas"]);
+  modal(`<h2>Crear en este espacio</h2><div class="create-grid">${blocks.map(([id,label]) => `<button data-canvas-create="${id}">${label}</button>`).join("")}</div>`);
+}
 function createMenu() {
-  modal(
-    '<h2>¿Qué tienes en mente?</h2><p>Cada idea tiene su lugar. Elige por dónde empezar.</p><div class="create-grid"><button data-action="new-task">☑ Tarea<span>Un paso hacia tu objetivo</span></button><button data-action="new-note">✧ Nota en el lienzo<span>Captura una buena idea</span></button><button data-action="new-page">▤ Nota<span>Dale espacio al conocimiento</span></button><button data-action="new-event">▦ Evento<span>Reserva un momento</span></button><button data-action="new-sales">↗ Ventas de ejemplo<span>Una referencia en tu lienzo</span></button><button data-action="image">▧ Imagen<span>Una imagen dice más</span></button></div>',
-  );
+  const options = [
+    ["pages","new-page","Nota"],["tasks","new-task","Tarea"],["tasks","new-board","Tablero"],
+    ["canvas","new-space","Espacio"],["calendar","new-event","Evento"],
+  ] as const;
+  modal(`<h2>Crear en Proyecto</h2><div class="create-grid">${options.filter(([section]) => canWrite(actor(),section)).map(([,action,label]) => `<button data-action="${action}">${label}</button>`).join("")}</div>`);
 }
 function download(name: string, value: string, type = "application/json") {
   const link = document.createElement("a");
@@ -3451,7 +3545,7 @@ function renderPrivate() {
   const kind = ({spaces:"spaces",tasks:"boards",pages:"pages"} as const)[privateKind];
   const viewClass = {spaces:"space-directory",tasks:"task-project-grid",pages:"pages-grid"}[privateKind];
   directories.render(key, items, kind, "private-grid", "private-directory-toolbar", "private-pagination", viewClass,
-    (item,f)=>privateKind==="spaces" ? spaceCard(state,item as Space,f) : privateKind==="tasks" ? boardCard(state,item as TaskBoard,f) : noteCard(state,item as Page,canWrite(actor(),"canvas"),f));
+    (item,f)=>privateKind==="spaces" ? spaceCard(state,item as Space,f) : privateKind==="tasks" ? boardCard(state,item as TaskBoard,f) : noteCard(state,item as Page,canWrite(actor(),"canvas"),f,canWrite(actor(),"pages")));
 }
 function openDetail(kind: "task" | "page", id: string,personalOrigin=false) {
   const item = (kind === "task" ? state.tasks : state.pages).find(
@@ -3481,7 +3575,13 @@ document.addEventListener("click", event=>{
   });
   void transition.finished.finally(()=>{origin.style.viewTransitionName="";if(destination) destination.style.viewTransitionName="";}).catch(()=>{});
 });
+let mountedNoteEditor: ReturnType<typeof mountNoteEditor> | undefined;
+const noteEditorModes = [
+  ["live","Vista en vivo"],["source","Código fuente"],["reading","Lectura"],
+] as const;
 function renderDetail() {
+  mountedNoteEditor?.destroy();
+  mountedNoteEditor = undefined;
   const kind = activeView === "task" ? "task" : "page",
     item = (kind === "task" ? state.tasks : state.pages).find(
       (i) => i.id === detailId && isMine(i.privateOwner),
@@ -3497,14 +3597,57 @@ function renderDetail() {
   const attrs = (field: string) =>
     `data-entity-kind="${kind}" data-entity-id="${item.id}" data-entity-field="${field}" data-placeholder="${field === "body" ? "Escribe aquí…" : "Título"}" ${field === "body" ? 'data-rich-editor="true"' : ""} ${editable ? `contenteditable="${field === "title" ? "plaintext-only" : "true"}" role="textbox" aria-label="${field === "title" ? "Título" : "Contenido"}"` : ""}`;
   const linkedResources = work?.linkMarkup(item.links,item.privateOwner,{kind:kind==="task"?"tasks":"pages",id:item.id})||"";
-  const related = `<section class="work-section detail-related"><h2>Vínculos y adjuntos</h2><div class="linked-resources">${linkedResources || '<p class="resource-empty">Todavía no hay vínculos ni archivos adjuntos.</p>'}</div><div class="work-actions related-create-actions">${editable?`<button class="button secondary" data-work-relations="${kind==="task"?"tasks":"pages"}" data-id="${item.id}" aria-label="Vincular contenido">${uiIcon("link",15)}Vincular</button>${!item.privateOwner&&canView(actor(),"files")?`<button class="button secondary" data-work-attachments="${kind==="task"?"tasks":"pages"}" data-id="${item.id}" aria-label="Adjuntar archivo">${uiIcon("plus",15)}Adjuntar</button>`:""}`:""}</div></section>`;
-  const content = `<article class="panel entity-content" ${attrs("body")}>${kind==="task"&&(item as Task).descriptionHtml?sanitizeRichText((item as Task).descriptionHtml!):"bodyHtml" in item && item.bodyHtml ? sanitizeRichText(item.bodyHtml) : esc(body)}</article>`;
+  const related = `<section class="work-section detail-related"><h2>Vínculos y adjuntos</h2><div class="linked-resources">${linkedResources || '<p class="resource-empty">Todavía no hay vínculos ni archivos adjuntos.</p>'}</div><div class="work-actions related-create-actions">${editable?`${kind === "page" ? `<button class="button secondary" data-note-link="${esc(item.id)}">${uiIcon("link",15)}Vincular nota</button>` : ""}<button class="button secondary" data-work-relations="${kind==="task"?"tasks":"pages"}" data-id="${item.id}" aria-label="Vincular contenido">${uiIcon("link",15)}Vincular</button>${!item.privateOwner&&canView(actor(),"files")?`<button class="button secondary" data-work-attachments="${kind==="task"?"tasks":"pages"}" data-id="${item.id}" aria-label="Adjuntar archivo">${uiIcon("plus",15)}Adjuntar</button>`:""}`:""}</div></section>`;
+  const content = `<article class="panel entity-content" ${attrs("body")}>${kind==="task"&&(item as Task).descriptionHtml?sanitizeRichText((item as Task).descriptionHtml!):esc(body)}</article>`;
+  const page = kind === "page" ? item as Page : undefined;
+  const incoming = page ? state.pages.filter(note => note.id !== page.id && sameScope(note,page) && (
+    note.links?.some(link => link.kind === "pages" && link.id === page.id) ||
+    (note.markdown !== undefined && wikiReferences(note.markdown).some(ref => wikiDestination(note,ref.title,state.pages)?.id === page.id))
+  )) : [];
+  const backlinks = page ? `<section class="work-section note-backlinks"><h2>Notas que enlazan aquí</h2><div class="linked-resources">${work?.linkMarkup(incoming.map(note => ({kind:"pages",id:note.id})),page.privateOwner) || '<p class="resource-empty">Todavía no hay notas que enlacen aquí.</p>'}</div></section>` : "";
+  const noteContent = page ? `<section class="note-workbench" aria-label="Editor de notas">
+    <div class="note-editor-heading"><span class="editor-field-label">Contenido</span>${editable ? `<div class="segmented note-mode-switch" role="group" aria-label="Vista de la nota">${noteEditorModes.map(([mode,label]) => `<button type="button" data-note-mode="${mode}" aria-pressed="false">${label}</button>`).join("")}</div>` : ""}</div>
+    <div class="panel entity-content note-editor-surface"><div class="note-editing" hidden></div><article class="note-reading" aria-label="Contenido">${page.bodyHtml ? sanitizeRichText(page.bodyHtml) : esc(page.body)}</article></div></section>` : "";
   const comments = `<section class="work-section task-detail-comments"><h2>Comentarios</h2>${features.commentPreview(item.id)}<button class="button primary" data-task-comments="${item.id}">Ver y escribir comentarios</button></section>`;
   const task = kind === "task" ? item as Task : undefined;
   const metadata = task ? `<dl class="task-detail-meta"><div class="task-summary-state"><dt>Estado</dt><dd>${{todo:"Por hacer",doing:"En progreso",done:"Completada"}[task.status]}</dd></div><div><dt>Vencimiento</dt><dd>${task.due?`<time datetime="${esc(task.due)}">${esc(relativeDue(task.due))}</time>`:"Sin fecha"}</dd></div><div><dt>Prioridad</dt><dd>${task.priority==="high"?"Alta":"Normal"}</dd></div></dl>${task.assigneeId?`<p class="task-detail-assignee">Responsable: ${esc(features.directory().find(member=>String(member.id)===task.assigneeId)?.name||"Miembro del equipo")}</p>`:""}` : "";
 
-  host.innerHTML = `<button class="back-link" data-action="back-detail">← Volver a ${kind==="task"&&returnToPersonalTasks?"mis tareas":item.privateOwner ? "mi área privada" : kind === "task" ? "tareas" : "notas"}</button><div class="page-heading compact detail-page-heading"><div class="note-title-container"><div class="board-title-line"><h1 ${attrs("title")}>${esc(item.title)}</h1>${task?`<span class="work-mode-badge">${workModes[modeOf(state.boards?.find(b=>b.id===task.boardId)||{})]}</span>`:""}</div><p>${item.privateOwner ? "Solo tú puedes ver este contenido." : "Compartido con tu equipo."}</p></div>${editable ? `<button class="button primary detail-options" data-action="edit-detail">${task?"Editar tarea":"Opciones"}</button>` : ""}</div>${metadata}${task?`<div class="task-detail-layout"><div class="task-detail-main"><section class="task-detail-description"><h2>Descripción</h2>${content}</section>${comments}</div><aside class="task-detail-side" aria-label="Recursos de la tarea">${related}</aside></div>`:`<span class="editor-field-label note-content-label">Contenido</span>${content}${related}<p class="section-note">Actualizada: ${new Date((item as Page).updated).toLocaleString("es-CL")} · ${(item as Page).authorId===String(actor().id)?"Por ti":(item as Page).authorId?"Autor del equipo":"Nota existente"}</p>`}`;
+  host.innerHTML = `<button class="back-link" data-action="back-detail">← Volver a ${kind==="task"&&returnToPersonalTasks?"mis tareas":item.privateOwner ? "mi área privada" : kind === "task" ? "tareas" : "notas"}</button><div class="page-heading compact detail-page-heading"><div class="note-title-container"><div class="board-title-line"><h1 ${attrs("title")}>${esc(item.title)}</h1>${task?`<span class="work-mode-badge">${workModes[modeOf(state.boards?.find(b=>b.id===task.boardId)||{})]}</span>`:""}</div><p>${item.privateOwner ? "Solo tú puedes ver este contenido." : "Compartido con tu equipo."}</p></div>${editable ? `<button class="button primary detail-options" data-action="edit-detail">${task?"Editar tarea":"Opciones"}</button>` : ""}</div>${metadata}${task?`<div class="task-detail-layout"><div class="task-detail-main"><section class="task-detail-description"><h2>Descripción</h2>${content}</section>${comments}</div><aside class="task-detail-side" aria-label="Recursos de la tarea">${related}</aside></div>`:`${noteContent}${related}${backlinks}<p class="section-note">Actualizada: ${new Date((item as Page).updated).toLocaleString("es-CL")} · ${(item as Page).authorId===String(actor().id)?"Por ti":(item as Page).authorId?"Autor del equipo":"Nota existente"}</p>`}`;
 
+  const workbench = host.querySelector<HTMLElement>(".note-workbench");
+  if (!page || !workbench) return;
+  let recorded = false;
+  void import("./workspace-note-editor").then(({mountNoteEditor}) => {
+    if (!workbench.isConnected || activeView !== "page" || detailId !== page.id) return;
+    mountedNoteEditor = mountNoteEditor(workbench,{
+      note:page,
+      editable,
+      pages:() => state.pages,
+      save(source) {
+        const current = state.pages.find(note => note.id === page.id && isMine(note.privateOwner));
+        if (!current || !canWrite(actor(),"pages") || current.markdown === source) return;
+        if (!recorded) { history(); recorded = true; }
+        current.wikiTargets = wikiTargets(current,source,state.pages);
+        current.markdown = source;
+        const html = renderNoteMarkdown(source);
+        current.body = noteText(html).slice(0,30000);
+        current.bodyHtml = html.length <= 30000 ? html : undefined;
+        current.updated = new Date().toISOString();
+        save();
+      },
+      open:id => openDetail("page",id),
+      create(title) {
+        if (!canWrite(actor(),"pages") || !isMine(page.privateOwner) || state.pages.some(candidate => sameScope(candidate,page) && candidate.title.trim().toLocaleLowerCase("es") === title.trim().toLocaleLowerCase("es"))) return;
+        const stamp = new Date().toISOString();
+        const created: Page = {id:uid(),title,body:"",markdown:"",emoji:"▤",updated:stamp,createdAt:stamp,privateOwner:page.privateOwner,authorId:String(actor().id)};
+        history();
+        state.pages.push(created);
+        directories.reset(page.privateOwner ? "private-notes" : "notes");
+        save();
+        return created;
+      },
+    });
+  }).catch(() => { if (workbench.isConnected) notify("No pudimos cargar el editor de notas."); });
 }
 function searchDialog() {
   searchFeature.open();
@@ -3667,6 +3810,7 @@ document.addEventListener("pointercancel", () => {
 });
 const actions: Record<string, () => void> = {
   create: createMenu,
+  "create-canvas": canvasCreateMenu,
   "new-task": () => {
     close();
     if (activeView !== "tasks" || !boardOpen)
@@ -3947,6 +4091,27 @@ document.addEventListener("click", (e) => {
   const b = target.closest<HTMLElement>("button,a,[data-edit-event]");
   if (!b) return;
   if (b.hasAttribute("data-close")) return close();
+  if (b.dataset.deleteNote) { deleteNote(b.dataset.deleteNote); return; }
+  const noteTool = b.dataset.noteLink;
+  if (noteTool) {
+    const note = state.pages.find(page => page.id === noteTool && isMine(page.privateOwner));
+    if (note) noteLinkPicker(note);
+    return;
+  }
+  if (b.dataset.canvasCreate) {
+    close(true);
+    const block = b.dataset.canvasCreate;
+    if (block === "sketch") $("#canvas-sketch-tool").click();
+    else if (block === "diagram") diagramMenu();
+    else addBlock(block as CanvasNode["kind"] | "frame" | "calculation");
+    return;
+  }
+  if (b.dataset.diagramShape) {
+    const shape = b.dataset.diagramShape as NonNullable<CanvasNode["diagramShape"]>;
+    close(true);
+    addBlock("page",undefined,undefined,shape);
+    return;
+  }
   if (b.dataset.openBoard) {
     openBoard(b.dataset.openBoard);
     return;
