@@ -2,3 +2,6 @@ node_modules/
 .astro/
 *.tsbuildinfo
 services/payload/.next/
+dist/
+.DS_Store
+**/.DS_Store
