@@ -10,7 +10,14 @@ export const GET: APIRoute = async (ctx) => {
   const user = await currentUser(ctx);
   if (!user) return json({ error: "Inicia sesión" }, 401);
   try {
-    const [documents,branding]=await Promise.all([payload(ctx,"documents?limit=1000&depth=0&where[deletedAt][exists]=false"),payload(ctx,"branding")]);
+    const query = "documents?limit=1000&depth=0&where[deletedAt][exists]=false";
+    const [documents, branding] = await Promise.all([payload(ctx, query), payload(ctx, "branding")]);
+    // Never drop documents silently when a workspace holds more than one page of them.
+    for (let page = 2; documents.hasNextPage && page <= 50; page++) {
+      const next = await payload(ctx, query + "&page=" + page);
+      documents.docs.push(...next.docs);
+      documents.hasNextPage = next.hasNextPage;
+    }
     return json({...documents,palette:branding.palette});
   } catch {
     return json({ error: "Servicio no disponible" }, 503);
@@ -23,7 +30,10 @@ export const PUT: APIRoute = async (ctx) => {
   try {
     if (Number(ctx.request.headers.get("content-length")) > 2200000)
       return json({ error: "Documento demasiado grande" }, 413);
-    const { key, value } = await ctx.request.json();
+    // content-length is absent on chunked uploads, so the real size is checked after reading.
+    const raw = await ctx.request.text();
+    if (raw.length > 2200000) return json({ error: "Documento demasiado grande" }, 413);
+    const { key, value } = JSON.parse(raw);
     const section = sectionForKey(key);
     if (!section || !canWrite(user, section))
       return json({ error: "No puedes modificar esta sección." }, 403);
@@ -89,17 +99,17 @@ export const DELETE: APIRoute = async (ctx) => {
         const docs = (
           await payload(
             ctx,
-            "documents?limit=1000&where[deletedAt][exists]=false",
+            "documents?limit=1000&depth=0&where[deletedAt][exists]=false",
           )
         ).docs;
         const nodes = docs.filter(
           (d: any) =>
             d.key.startsWith("nodes:") &&
             (key.startsWith("spaces:")
-              ? d.value.space === key.slice(7)
-              : key.startsWith("pages:") && d.value.pageId === key.slice(6)),
+              ? d.value?.space === key.slice(7)
+              : key.startsWith("pages:") && d.value?.pageId === key.slice(6)),
         );
-        const nodeIds = new Set(nodes.map((d: any) => d.value.id));
+        const nodeIds = new Set(nodes.map((d: any) => d.value?.id));
         if (key.startsWith("nodes:")) nodeIds.add(key.slice(6));
         const children = [
           ...nodes,
@@ -107,12 +117,12 @@ export const DELETE: APIRoute = async (ctx) => {
             (d: any) =>
               key.startsWith("boards:") &&
               d.key.startsWith("tasks:") &&
-              (d.value.boardId || "general") === key.slice(7),
+              (d.value?.boardId || "general") === key.slice(7),
           ),
           ...docs.filter(
             (d: any) =>
               d.key.startsWith("edges:") &&
-              (nodeIds.has(d.value.from) || nodeIds.has(d.value.to)),
+              (nodeIds.has(d.value?.from) || nodeIds.has(d.value?.to)),
           ),
         ];
         for (const child of children)

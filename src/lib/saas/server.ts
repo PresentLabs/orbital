@@ -51,14 +51,18 @@ export async function payload(
   if (!response.ok) throw new Error("Payload " + response.status);
   return data;
 }
-export async function currentUser(ctx: APIContext) {
-  if (!ctx.cookies.get(COOKIE)?.value) return null;
-  try {
-    const user = (await payload(ctx, "users/me")).user;
-    return user && !user.disabled ? user : null;
-  } catch {
-    return null;
+// One users/me round trip per request, even when middleware, layout and route all ask for the user.
+const userByRequest = new WeakMap<Request, Promise<any>>();
+export function currentUser(ctx: APIContext): Promise<any> {
+  if (!ctx.cookies.get(COOKIE)?.value) return Promise.resolve(null);
+  let pending = userByRequest.get(ctx.request);
+  if (!pending) {
+    pending = payload(ctx, "users/me")
+      .then((data) => (data.user && !data.user.disabled ? data.user : null))
+      .catch(() => null);
+    userByRequest.set(ctx.request, pending);
   }
+  return pending;
 }
 export function setCookie(ctx: APIContext, token: string) {
   ctx.cookies.set(COOKIE, token, {

@@ -91,6 +91,9 @@ export const POST: APIRoute = async (ctx) => {
         { error: "Formato no compatible o archivo mayor a 20 MB." },
         400,
       );
+    const folderId = String(form.get("folderId") || "");
+    if (folderId && !/^\d+$/.test(folderId))
+      return json({ error: "Carpeta no válida." }, 400);
     const body = new FormData();
     body.set("file", file);
     body.set(
@@ -103,7 +106,7 @@ export const POST: APIRoute = async (ctx) => {
           typeof user.workspace === "object"
             ? user.workspace.id
             : user.workspace,
-        folder: form.get("folderId") || null,
+        folder: folderId || null,
       }),
     );
     const r = await fetch(

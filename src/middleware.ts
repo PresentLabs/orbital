@@ -1,9 +1,16 @@
 import { defineMiddleware } from "astro:middleware";
 import { currentUser } from "@/lib/saas/server";
 
+const hardened = (response: Response) => {
+  try {
+    if (!response.headers.has("X-Content-Type-Options")) response.headers.set("X-Content-Type-Options", "nosniff");
+    if (!response.headers.has("Referrer-Policy")) response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  } catch {} // immutable headers (e.g. proxied responses) are left untouched
+  return response;
+};
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const path = ctx.url.pathname;
-  if (path !== "/app" && !path.startsWith("/app/")) return next();
+  if (path !== "/app" && !path.startsWith("/app/")) return hardened(await next());
 
   ctx.locals.workspaceUser = await currentUser(ctx);
   const demo = ctx.url.searchParams.get("demo") === "1";
@@ -18,5 +25,5 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
     response = await next();
   }
   response.headers.set("Cache-Control", "private, no-store");
-  return response;
+  return hardened(response);
 });

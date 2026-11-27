@@ -5,8 +5,9 @@ import { currentUser, json, payload, sameOrigin } from "@/lib/saas/server";
 import { googleToken } from "@/lib/saas/integrations";
 export const POST: APIRoute = async (ctx) => {
   if (!sameOrigin(ctx)) return json({ error: "Origen inválido" }, 403);
-  if (!(await currentUser(ctx))) return json({ error: "Inicia sesión" }, 401);
-  if (!canWrite(await currentUser(ctx), "calendar"))
+  const user = await currentUser(ctx);
+  if (!user) return json({ error: "Inicia sesión" }, 401);
+  if (!canWrite(user, "calendar"))
     return json({ error: "No tienes acceso al calendario." }, 403);
   try {
     const { id } = await ctx.request.json();

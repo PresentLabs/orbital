@@ -13,8 +13,13 @@ import { validLogo } from "@/lib/saas/formats";
 const user = Astro.locals.workspaceUser;
 const demo = Astro.url.searchParams.get("demo") === "1";
 const platformAdmin = user && setting(Astro, "SAAS_ADMIN_USER_IDS").split(",").map((id) => id.trim()).filter(Boolean).includes(String(user.id));
-const branding = user ? await payload(Astro, "branding").catch(() => null) : null;
-const enabledModules: string[] = user ? (await payload(Astro, "orbita-module-access").catch(() => ({ modules: [] }))).modules : demo ? ["reservations"] : [];
+const [branding, moduleAccess] = user
+  ? await Promise.all([
+      payload(Astro, "branding").catch(() => null),
+      payload(Astro, "orbita-module-access").catch(() => ({ modules: [] })),
+    ])
+  : [null, null];
+const enabledModules: string[] = user ? (moduleAccess?.modules ?? []) : demo ? ["reservations"] : [];
 const workspace = user?.workspace as { id?: number; name?: string } | null | undefined;
 const business = branding?.name || workspace?.name || (user ? "Mi negocio" : "Punto Pixel");
 const logo = branding?.logoData && validLogo(branding.logoData) ? branding.logoData : "";

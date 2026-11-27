@@ -32,8 +32,9 @@ export const POST: APIRoute = async (ctx) => {
   }
 };
 export const GET: APIRoute = async (ctx) => {
-  if (!(await currentUser(ctx))) return json({ error: "Inicia sesión" }, 401);
-  if (!canView(await currentUser(ctx), "analytics"))
+  const user = await currentUser(ctx);
+  if (!user) return json({ error: "Inicia sesión" }, 401);
+  if (!canView(user, "analytics"))
     return json({ error: "No tienes acceso a esta sección." }, 403);
   try {
     const c = await connection(ctx, "google");
